@@ -1,3 +1,4 @@
+import '~/global.css';
 import { Stack } from 'expo-router';
 import { NAV_THEME } from '~/theme';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';

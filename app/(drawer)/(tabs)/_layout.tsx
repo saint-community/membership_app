@@ -1,32 +1,44 @@
-import { Link, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 
-import { HeaderButton } from '../../../components/HeaderButton';
-import { TabBarIcon } from '../../../components/TabBarIcon';
+import { FontAwesome5, FontAwesome6, Fontisto, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: 'black',
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'gray',
         headerShown: false,
+        tabBarShowLabel: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <HeaderButton />
-            </Link>
-          ),
+          tabBarIcon: ({ color }) => <Fontisto name="home" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="prayer"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome5 name="pray" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="study"
+        options={{
+          tabBarIcon: ({ color }) => <Ionicons name="book-outline" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="members"
+        options={{
+          tabBarIcon: ({ color }) => <FontAwesome6 name="users" color={color} size={24} />,
+        }}
+      />
+      <Tabs.Screen
+        name="list"
+        options={{
+          tabBarIcon: ({ color }) => <MaterialIcons name="list-alt" color={color} size={24} />,
         }}
       />
     </Tabs>
