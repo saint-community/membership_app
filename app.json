@@ -9,7 +9,12 @@
       "output": "static",
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-router", "expo-localization", "expo-web-browser"],
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      "expo-web-browser",
+      "expo-font"
+    ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
@@ -22,7 +27,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.saintcommunity.membership"
@@ -33,6 +40,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.saintcommunity.membership"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "81da2785-611a-4535-9380-ad4ec4f88c4e"
+      }
     }
   }
 }
