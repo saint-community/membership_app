@@ -1,29 +1,87 @@
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { View, ScrollView, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withRepeat,
+  withSequence,
+  withDelay,
+  runOnJS,
+} from 'react-native-reanimated';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 
 interface NotificationItemProps {
   icon: React.ReactNode;
   title: string;
   time: string;
   iconBackgroundColor: string;
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
 }
 
-function NotificationItem({ icon, title, time, iconBackgroundColor }: NotificationItemProps) {
-  return (
-    <TouchableOpacity className="mb-3 flex-row items-center rounded-lg bg-gray-800 px-4 py-4">
-      <View
-        className={`mr-3 h-8 w-8 items-center justify-center rounded-full`}
-        style={{ backgroundColor: iconBackgroundColor }}>
-        {icon}
-      </View>
-      <View className="flex-1">
-        <Text className="text-base font-medium text-white">{title}</Text>
-        <Text className="text-sm text-gray-400">{time}</Text>
+function NotificationItem({
+  icon,
+  title,
+  time,
+  iconBackgroundColor,
+  onSwipeLeft,
+  onSwipeRight,
+}: NotificationItemProps) {
+  const renderRightActions = () => (
+    <TouchableOpacity
+      onPress={onSwipeLeft}
+      className="flex-1 flex-row items-center justify-end rounded-lg bg-red-500 px-10"
+      style={{ width: 80 }}>
+      <View className="items-center justify-center">
+        <Ionicons name="trash" size={24} color="white" />
+        <Text className="text-sm text-white">Delete</Text>
       </View>
     </TouchableOpacity>
+  );
+
+  const renderLeftActions = () => (
+    <TouchableOpacity
+      onPress={onSwipeRight}
+      className="flex-1 flex-row items-center justify-start rounded-lg bg-[#C3974D] px-10"
+      style={{ width: 80 }}>
+      <View className="items-center justify-center">
+        <Ionicons name="time" size={24} color="white" />
+        <Text className="text-sm text-white">Snooze</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <View className="mb-3">
+      <ReanimatedSwipeable
+        renderRightActions={renderRightActions}
+        renderLeftActions={renderLeftActions}
+        friction={2}
+        enableTrackpadTwoFingerGesture
+        onSwipeableWillOpen={(direction) => {
+          if (direction === 'left' && onSwipeRight) {
+            runOnJS(onSwipeRight)();
+          } else if (direction === 'right' && onSwipeLeft) {
+            runOnJS(onSwipeLeft)();
+          }
+        }}>
+        <View className="flex-row items-center rounded-lg bg-gray-800 px-4 py-4">
+          <View
+            className={`mr-3 h-8 w-8 items-center justify-center rounded-full`}
+            style={{ backgroundColor: iconBackgroundColor }}>
+            {icon}
+          </View>
+          <View className="flex-1">
+            <Text className="text-base font-medium text-white">{title}</Text>
+            <Text className="text-sm text-gray-400">{time}</Text>
+          </View>
+        </View>
+      </ReanimatedSwipeable>
+    </View>
   );
 }
 
@@ -35,53 +93,47 @@ interface SwipeOverlayProps {
 
 function SwipeOverlay({ isVisible, onDismiss, direction }: SwipeOverlayProps) {
   const { width, height } = Dimensions.get('window');
-  const slideAnim = useRef(new Animated.Value(direction === 'left' ? width : -width)).current;
-  const fingerScale = useRef(new Animated.Value(1)).current;
+  const slideAnim = useSharedValue(direction === 'left' ? width : -width);
+  const fingerScale = useSharedValue(1);
 
   useEffect(() => {
     if (isVisible) {
-      // Start the finger animation
-      const fingerAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(fingerScale, {
-            toValue: 1.2,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-          Animated.timing(fingerScale, {
-            toValue: 1,
-            duration: 600,
-            useNativeDriver: true,
-          }),
-        ])
+      // Start the finger scale animation
+      fingerScale.value = withRepeat(
+        withSequence(withTiming(1.2, { duration: 600 }), withTiming(1, { duration: 600 })),
+        -1,
+        false
       );
 
       // Start the slide animation
-      const slideAnimation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(slideAnim, {
-            toValue: direction === 'left' ? -width * 0.3 : width * 0.3,
-            duration: 1500,
-            useNativeDriver: true,
-          }),
-          Animated.timing(slideAnim, {
-            toValue: direction === 'left' ? width : -width,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-          Animated.delay(500),
-        ])
-      );
-
-      fingerAnimation.start();
-      slideAnimation.start();
-
-      return () => {
-        fingerAnimation.stop();
-        slideAnimation.stop();
+      const startSlideAnimation = () => {
+        slideAnim.value = direction === 'left' ? width : -width;
+        slideAnim.value = withDelay(
+          500,
+          withRepeat(
+            withSequence(
+              withTiming(direction === 'left' ? -width * 0.3 : width * 0.3, { duration: 1500 }),
+              withTiming(direction === 'left' ? width : -width, { duration: 0 })
+            ),
+            -1,
+            false
+          )
+        );
       };
+
+      startSlideAnimation();
+    } else {
+      // Reset animations when not visible
+      fingerScale.value = 1;
+      slideAnim.value = direction === 'left' ? width : -width;
     }
   }, [isVisible, slideAnim, fingerScale, width, direction]);
+
+  const slideAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: slideAnim.value }, { scale: fingerScale.value }],
+    };
+  });
 
   if (!isVisible) return null;
 
@@ -93,12 +145,14 @@ function SwipeOverlay({ isVisible, onDismiss, direction }: SwipeOverlayProps) {
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}>
       {/* Finger icon with animation */}
       <Animated.View
-        style={{
-          position: 'absolute',
-          top: height * 0.35,
-          [direction === 'left' ? 'right' : 'left']: 50,
-          transform: [{ translateX: slideAnim }, { scale: fingerScale }],
-        }}>
+        style={[
+          slideAnimatedStyle,
+          {
+            position: 'absolute',
+            top: height * 0.35,
+            [direction === 'left' ? 'right' : 'left']: 50,
+          },
+        ]}>
         <View className="items-center">
           <Ionicons
             name={direction === 'left' ? 'hand-left' : 'hand-right'}
@@ -124,6 +178,64 @@ export default function Notifications() {
   const router = useRouter();
   const [showSwipeLeftOverlay, setShowSwipeLeftOverlay] = useState(true);
   const [showSwipeRightOverlay, setShowSwipeRightOverlay] = useState(false);
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      icon: <FontAwesome5 name="pray" size={16} color="white" />,
+      title: 'Prayer attendance marked',
+      time: '2 hours ago',
+      iconBackgroundColor: '#FFD93D',
+    },
+    {
+      id: 2,
+      icon: <FontAwesome5 name="pray" size={16} color="white" />,
+      title: 'Prayer attendance marked',
+      time: '2 hours ago',
+      iconBackgroundColor: '#FFD93D',
+    },
+    {
+      id: 3,
+      icon: <Ionicons name="book" size={16} color="white" />,
+      title: 'Blessed in Christ Kingdom Track 1 submitted',
+      time: '2 hours ago',
+      iconBackgroundColor: '#FF6B6B',
+    },
+    {
+      id: 4,
+      icon: <Ionicons name="book" size={16} color="white" />,
+      title: 'Blessed in Christ Kingdom Track 1 submitted',
+      time: '2 hours ago',
+      iconBackgroundColor: '#FF6B6B',
+    },
+    {
+      id: 5,
+      icon: <Ionicons name="people" size={16} color="white" />,
+      title: 'John Doe successfully added as a member',
+      time: '10:00PM, Monday 2 July, 2026',
+      iconBackgroundColor: '#FF6B9D',
+    },
+    {
+      id: 6,
+      icon: <Ionicons name="people" size={16} color="white" />,
+      title: 'John Doe successfully added as a member',
+      time: '10:00PM, Monday 2 July, 2026',
+      iconBackgroundColor: '#FF6B9D',
+    },
+    {
+      id: 7,
+      icon: <FontAwesome5 name="pray" size={16} color="white" />,
+      title: 'Upcoming prayer vigil: 10:00PM, 12/03/2025',
+      time: '10:00PM, Monday 2 July, 2026',
+      iconBackgroundColor: '#FFD93D',
+    },
+    {
+      id: 8,
+      icon: <FontAwesome5 name="pray" size={16} color="white" />,
+      title: 'Upcoming prayer vigil: 10:00PM, 12/03/2025',
+      time: '10:00PM, Monday 2 July, 2026',
+      iconBackgroundColor: '#FFD93D',
+    },
+  ]);
 
   const handleDismissLeftOverlay = () => {
     setShowSwipeLeftOverlay(false);
@@ -134,56 +246,18 @@ export default function Notifications() {
     setShowSwipeRightOverlay(false);
   };
 
-  const notifications = [
-    {
-      icon: <FontAwesome5 name="pray" size={16} color="white" />,
-      title: 'Prayer attendance marked',
-      time: '2 hours ago',
-      iconBackgroundColor: '#FFD93D',
-    },
-    {
-      icon: <FontAwesome5 name="pray" size={16} color="white" />,
-      title: 'Prayer attendance marked',
-      time: '2 hours ago',
-      iconBackgroundColor: '#FFD93D',
-    },
-    {
-      icon: <Ionicons name="book" size={16} color="white" />,
-      title: 'Blessed in Christ Kingdom Track 1 submitted',
-      time: '2 hours ago',
-      iconBackgroundColor: '#FF6B6B',
-    },
-    {
-      icon: <Ionicons name="book" size={16} color="white" />,
-      title: 'Blessed in Christ Kingdom Track 1 submitted',
-      time: '2 hours ago',
-      iconBackgroundColor: '#FF6B6B',
-    },
-    {
-      icon: <Ionicons name="people" size={16} color="white" />,
-      title: 'John Doe successfully added as a member',
-      time: '10:00PM, Monday 2 July, 2026',
-      iconBackgroundColor: '#FF6B9D',
-    },
-    {
-      icon: <Ionicons name="people" size={16} color="white" />,
-      title: 'John Doe successfully added as a member',
-      time: '10:00PM, Monday 2 July, 2026',
-      iconBackgroundColor: '#FF6B9D',
-    },
-    {
-      icon: <FontAwesome5 name="pray" size={16} color="white" />,
-      title: 'Upcoming prayer vigil: 10:00PM, 12/03/2025',
-      time: '10:00PM, Monday 2 July, 2026',
-      iconBackgroundColor: '#FFD93D',
-    },
-    {
-      icon: <FontAwesome5 name="pray" size={16} color="white" />,
-      title: 'Upcoming prayer vigil: 10:00PM, 12/03/2025',
-      time: '10:00PM, Monday 2 July, 2026',
-      iconBackgroundColor: '#FFD93D',
-    },
-  ];
+  const handleDeleteNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+  };
+
+  const handleSnoozeNotification = (id: number) => {
+    // For now, just remove it from the list - in a real app you'd move it to a snoozed state
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+  };
 
   return (
     <View className="pt-safe flex-1 bg-black">
@@ -197,20 +271,22 @@ export default function Notifications() {
             <Ionicons name="chevron-back" size={24} color="white" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-white">Notifications</Text>
-          <TouchableOpacity>
-            <Text className="text-base text-red-400">Clear All</Text>
+          <TouchableOpacity onPress={handleClearAll}>
+            <Text className="text-base text-red-400 underline">Clear All</Text>
           </TouchableOpacity>
         </View>
 
         {/* Notifications List */}
         <View className="px-4">
-          {notifications.map((notification, index) => (
+          {notifications.map((notification) => (
             <NotificationItem
-              key={index}
+              key={notification.id}
               icon={notification.icon}
               title={notification.title}
               time={notification.time}
               iconBackgroundColor={notification.iconBackgroundColor}
+              onSwipeLeft={() => handleDeleteNotification(notification.id)}
+              onSwipeRight={() => handleSnoozeNotification(notification.id)}
             />
           ))}
         </View>

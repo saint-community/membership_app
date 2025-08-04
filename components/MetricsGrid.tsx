@@ -15,7 +15,7 @@ export function MetricsGrid({ metrics }: MetricsGridProps) {
       </View>
       <View className="flex-row gap-3">
         <MetricCard {...metrics[2]} />
-        <MetricCard {...metrics[3]} />s
+        <MetricCard {...metrics[3]} />
       </View>
     </View>
   );
