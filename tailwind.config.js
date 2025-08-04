@@ -10,6 +10,10 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        inter: ['Inter_400Regular'],
+        poppins: ['Poppins_400Regular'],
+      },
       colors: {
         border: withOpacity('border'),
         input: withOpacity('input'),
