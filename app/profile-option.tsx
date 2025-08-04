@@ -64,13 +64,13 @@ export default function ProfileOption() {
           <ProfileOptionItem
             icon={<Ionicons name="notifications" size={20} color="#9CA3AF" />}
             title="Notifications"
-            onPress={() => console.log('Notifications pressed')}
+            onPress={() => router.push('/notifications')}
           />
 
           <ProfileOptionItem
             icon={<Ionicons name="settings" size={20} color="#9CA3AF" />}
             title="Settings"
-            onPress={() => console.log('Settings pressed')}
+            onPress={() => router.push('/settings')}
           />
         </View>
 
