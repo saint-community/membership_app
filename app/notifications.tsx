@@ -1,4 +1,4 @@
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { View, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
@@ -49,7 +49,7 @@ function NotificationItem({
       className="flex-1 flex-row items-center justify-start rounded-lg bg-[#C3974D] px-10"
       style={{ width: 80 }}>
       <View className="items-center justify-center">
-        <Ionicons name="time" size={24} color="white" />
+        <MaterialIcons name="snooze" size={24} color="white" />
         <Text className="text-sm text-white">Snooze</Text>
       </View>
     </TouchableOpacity>
@@ -174,6 +174,27 @@ function SwipeOverlay({ isVisible, onDismiss, direction }: SwipeOverlayProps) {
   );
 }
 
+function EmptyNotifications() {
+  return (
+    <View className="h-full flex-1 items-center justify-center px-8">
+      <View className="mb-6 items-center justify-center">
+        <View className="relative">
+          <MaterialCommunityIcons name="bell-ring-outline" size={100} color="#374151" />
+          {/* <View className="absolute -right-2 -top-2">
+            <Text className="text-4xl font-bold text-[#FF007F]">Z</Text>
+          </View>
+          <View className="absolute -top-4 right-2">
+            <Text className="text-2xl font-bold text-[#FF007F]">Z</Text>
+          </View> */}
+        </View>
+      </View>
+      <Text className="mb-2 text-center text-lg font-medium text-gray-400">
+        Nothing new under the sun... uh, in your notifications.
+      </Text>
+    </View>
+  );
+}
+
 export default function Notifications() {
   const router = useRouter();
   const [showSwipeLeftOverlay, setShowSwipeLeftOverlay] = useState(true);
@@ -263,7 +284,7 @@ export default function Notifications() {
     <View className="pt-safe flex-1 bg-black">
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="mb-5 flex-row items-center justify-between px-4 py-4">
@@ -276,32 +297,40 @@ export default function Notifications() {
           </TouchableOpacity>
         </View>
 
-        {/* Notifications List */}
-        <View className="px-4">
-          {notifications.map((notification) => (
-            <NotificationItem
-              key={notification.id}
-              icon={notification.icon}
-              title={notification.title}
-              time={notification.time}
-              iconBackgroundColor={notification.iconBackgroundColor}
-              onSwipeLeft={() => handleDeleteNotification(notification.id)}
-              onSwipeRight={() => handleSnoozeNotification(notification.id)}
-            />
-          ))}
-        </View>
+        {/* Notifications List or Empty State */}
+        {notifications.length === 0 ? (
+          <EmptyNotifications />
+        ) : (
+          <View className="px-4">
+            {notifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                icon={notification.icon}
+                title={notification.title}
+                time={notification.time}
+                iconBackgroundColor={notification.iconBackgroundColor}
+                onSwipeLeft={() => handleDeleteNotification(notification.id)}
+                onSwipeRight={() => handleSnoozeNotification(notification.id)}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
 
-      <SwipeOverlay
-        isVisible={showSwipeLeftOverlay}
-        onDismiss={handleDismissLeftOverlay}
-        direction="left"
-      />
-      <SwipeOverlay
-        isVisible={showSwipeRightOverlay}
-        onDismiss={handleDismissRightOverlay}
-        direction="right"
-      />
+      {notifications.length > 0 && (
+        <>
+          <SwipeOverlay
+            isVisible={showSwipeLeftOverlay}
+            onDismiss={handleDismissLeftOverlay}
+            direction="left"
+          />
+          <SwipeOverlay
+            isVisible={showSwipeRightOverlay}
+            onDismiss={handleDismissRightOverlay}
+            direction="right"
+          />
+        </>
+      )}
     </View>
   );
 }
