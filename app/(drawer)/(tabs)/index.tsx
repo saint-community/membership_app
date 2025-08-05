@@ -59,7 +59,7 @@ export default function Home() {
   ];
 
   return (
-    <View className="py-safe flex-1 bg-black">
+    <View className="py-safe flex-1 bg-background">
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}

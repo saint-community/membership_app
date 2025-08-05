@@ -13,6 +13,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { useColors } from '~/theme/colors';
 
 interface NotificationItemProps {
   icon: React.ReactNode;
@@ -69,15 +70,15 @@ function NotificationItem({
             runOnJS(onSwipeLeft)();
           }
         }}>
-        <View className="flex-row items-center rounded-lg bg-gray-800 px-4 py-4">
+        <View className="flex-row items-center rounded-lg bg-white px-4 py-4 dark:bg-gray-800">
           <View
             className={`mr-3 h-8 w-8 items-center justify-center rounded-full`}
             style={{ backgroundColor: iconBackgroundColor }}>
             {icon}
           </View>
           <View className="flex-1">
-            <Text className="text-base font-medium text-white">{title}</Text>
-            <Text className="text-sm text-gray-400">{time}</Text>
+            <Text className="text-base font-medium ">{title}</Text>
+            <Text className="text-sm text-slate-500 dark:text-gray-400">{time}</Text>
           </View>
         </View>
       </ReanimatedSwipeable>
@@ -199,6 +200,7 @@ export default function Notifications() {
   const router = useRouter();
   const [showSwipeLeftOverlay, setShowSwipeLeftOverlay] = useState(true);
   const [showSwipeRightOverlay, setShowSwipeRightOverlay] = useState(false);
+  const colors = useColors();
   const [notifications, setNotifications] = useState([
     {
       id: 1,
@@ -281,7 +283,7 @@ export default function Notifications() {
   };
 
   return (
-    <View className="pt-safe flex-1 bg-black">
+    <View className="pt-safe flex-1 bg-background">
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100, flexGrow: 1 }}
@@ -289,9 +291,9 @@ export default function Notifications() {
         {/* Header */}
         <View className="mb-5 flex-row items-center justify-between px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={24} color={colors.foreground} />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-white">Notifications</Text>
+          <Text className="text-lg font-semibold ">Notifications</Text>
           <TouchableOpacity onPress={handleClearAll}>
             <Text className="text-base text-red-400 underline">Clear All</Text>
           </TouchableOpacity>

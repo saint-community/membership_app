@@ -8,7 +8,7 @@ import BottomSheet, {
   BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import { COLORS } from '~/theme/colors';
+import { useColors } from '~/theme/colors';
 
 interface EditableFieldProps {
   label: string;
@@ -18,15 +18,16 @@ interface EditableFieldProps {
 }
 
 function EditableField({ label, value, onPress, noEdit = false }: EditableFieldProps) {
+  const colors = useColors();
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="mb-4 flex-row items-center justify-between rounded-lg bg-gray-800 px-4 py-4">
+      className="mb-4 flex-row items-center justify-between rounded-lg bg-white px-4 py-4 dark:bg-gray-800">
       <View className="">
-        <Text className="text-base text-white">{value}</Text>
+        <Text className="text-base ">{value}</Text>
         <Text className="mb-1 text-sm text-gray-400">{label}</Text>
       </View>
-      {!noEdit && <FontAwesome6 name="pencil" size={16} color={COLORS.dark.primary} />}
+      {!noEdit && <FontAwesome6 name="pencil" size={16} color={colors.primary} />}
     </TouchableOpacity>
   );
 }
@@ -50,6 +51,7 @@ function BottomSheetModal({
 }: BottomSheetModalProps) {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [inputValue, setInputValue] = useState(value);
+  const colors = useColors();
 
   React.useEffect(() => {
     if (isVisible) {
@@ -79,17 +81,17 @@ function BottomSheetModal({
       snapPoints={snapPoints}
       enablePanDownToClose
       onClose={onClose}
-      backgroundStyle={{ backgroundColor: '#1F2937' }}
-      handleIndicatorStyle={{ backgroundColor: '#6B7280' }}
+      backgroundStyle={{ backgroundColor: colors.background }}
+      handleIndicatorStyle={{ backgroundColor: colors.foreground }}
       backdropComponent={renderBackdrop}>
       <BottomSheetView className="flex-1 px-4">
         <View className="mb-4 flex-row items-center justify-between">
           <TouchableOpacity onPress={onClose}>
-            <Text className="text-base text-red-400">Cancel</Text>
+            <Text className="text-base text-destructive-foreground">Cancel</Text>
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-white">{title}</Text>
+          <Text className="text-lg font-semibold ">{title}</Text>
           <TouchableOpacity onPress={handleSave}>
-            <Text className="text-base text-red-400">Save</Text>
+            <Text className="text-base text-accent">Save</Text>
           </TouchableOpacity>
         </View>
 
@@ -100,7 +102,7 @@ function BottomSheetModal({
           placeholderTextColor="#9CA3AF"
           multiline={multiline}
           numberOfLines={multiline ? 4 : 1}
-          className="rounded-lg bg-gray-700 px-4 py-3 text-white"
+          className="rounded-lg bg-white px-4 py-3 dark:bg-gray-700 dark:text-white"
           autoFocus
         />
       </BottomSheetView>
@@ -110,6 +112,7 @@ function BottomSheetModal({
 
 export default function EditProfile() {
   const router = useRouter();
+  const colors = useColors();
   const [modalState, setModalState] = useState<{
     isVisible: boolean;
     title: string;
@@ -172,14 +175,17 @@ export default function EditProfile() {
   };
 
   return (
-    <View className="pt-safe flex-1 bg-black">
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 100 }}>
+    <View className="pt-safe flex-1 bg-background">
+      <ScrollView
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
+        showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View className="flex-row items-center justify-between py-4">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={24} color={colors.foreground} />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-white">Edit Profile</Text>
+          <Text className="e text-lg font-semibold">Edit Profile</Text>
           <View className="w-6" />
         </View>
 
@@ -196,7 +202,7 @@ export default function EditProfile() {
               <Ionicons name="camera" size={16} color="white" />
             </TouchableOpacity>
           </View>
-          <Text className="mt-2 text-base text-white">{`${profileData.firstName} ${profileData.lastName}`}</Text>
+          <Text className="mt-2 text-base">{`${profileData.firstName} ${profileData.lastName}`}</Text>
           <Text className="text-sm text-gray-400">{profileData.email}</Text>
         </View>
 

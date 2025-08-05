@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { NAV_THEME } from '~/theme';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { useInitialAndroidBarSync } from '~/lib/useColorScheme';
+import { useInitialAndroidBarSync, useColorScheme } from '~/lib/useColorScheme';
 import {
   useFonts as useInter,
   Inter_400Regular,
@@ -15,10 +15,15 @@ import {
   Poppins_600SemiBold,
 } from '@expo-google-fonts/poppins';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useMemo } from 'react';
+import '~/translation';
 
 export default function RootLayout() {
   useInitialAndroidBarSync();
-  const isDarkColorScheme = true;
+  const { colorScheme } = useColorScheme();
+  console.log('colorScheme', colorScheme);
+
+  const isDarkColorScheme = useMemo(() => colorScheme === 'dark', [colorScheme]);
   const [interLoaded] = useInter({
     Inter_400Regular,
     Inter_600SemiBold,
@@ -40,7 +45,7 @@ export default function RootLayout() {
         key={`root-status-bar-${isDarkColorScheme ? 'light' : 'dark'}`}
         style={isDarkColorScheme ? 'light' : 'dark'}
       />
-      <NavThemeProvider value={NAV_THEME['dark']}>
+      <NavThemeProvider value={NAV_THEME[colorScheme ?? 'dark']}>
         <Stack
           screenOptions={{
             headerShown: false,

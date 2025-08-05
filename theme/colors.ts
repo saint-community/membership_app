@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { useColorScheme } from '~/lib/useColorScheme';
 
 const IOS_SYSTEM_COLORS = {
   white: 'rgb(255, 255, 255)',
@@ -16,6 +17,7 @@ const IOS_SYSTEM_COLORS = {
     card: 'rgb(249, 246, 247)',
     destructive: 'rgb(255, 56, 43)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: 'rgb(255, 255, 255)',
   },
   dark: {
     grey6: 'rgb(29, 26, 27)',
@@ -30,6 +32,7 @@ const IOS_SYSTEM_COLORS = {
     card: 'rgb(4, 0, 2)',
     destructive: 'rgb(254, 67, 54)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: '#2a2a2a',
   },
 } as const;
 
@@ -49,6 +52,7 @@ const ANDROID_COLORS = {
     card: 'rgb(254, 250, 252)',
     destructive: 'rgb(186, 26, 26)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: 'rgb(255, 255, 255)',
   },
   dark: {
     grey6: 'rgb(33, 23, 28)',
@@ -63,6 +67,7 @@ const ANDROID_COLORS = {
     card: 'rgb(28, 21, 24)',
     destructive: 'rgb(147, 0, 10)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: '#2a2a2a',
   },
 } as const;
 
@@ -82,6 +87,7 @@ const WEB_COLORS = {
     card: 'rgb(254, 249, 252)',
     destructive: 'rgb(186, 26, 26)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: 'rgb(255, 255, 255)',
   },
   dark: {
     grey6: 'rgb(29, 26, 27)',
@@ -96,6 +102,7 @@ const WEB_COLORS = {
     card: 'rgb(27, 18, 22)',
     destructive: 'rgb(147, 0, 10)',
     primary: 'rgb(255, 0, 127)',
+    tabBarBackground: '#2a2a2a',
   },
 } as const;
 
@@ -106,4 +113,9 @@ const COLORS =
       ? ANDROID_COLORS
       : WEB_COLORS;
 
-export { COLORS };
+const useColors = () => {
+  const { colorScheme } = useColorScheme();
+  return COLORS[colorScheme ?? 'dark'];
+};
+
+export { COLORS, useColors };

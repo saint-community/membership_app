@@ -4,5 +4,38 @@
     "english": "Changer la langue en anglais"
   },
   "getStarted": "Ouvrez le code de cet écran :",
-  "changeCode": "Modifiez n'importe quel texte, enregistrez le fichier et votre application sera automatiquement mise à jour."
+  "changeCode": "Modifiez n'importe quel texte, enregistrez le fichier et votre application sera automatiquement mise à jour.",
+  "settings": {
+    "title": "Paramètres",
+    "notifications": {
+      "title": "Notifications",
+      "description": "Personnalisez les notifications que vous recevez"
+    },
+    "newAssignments": "Nouveaux devoirs",
+    "prayerReminders": "Rappels de réunion de prière",
+    "inAppActivities": "Activités dans l'application",
+    "language": {
+      "title": "Langue & Région",
+      "switchLanguage": "Changer de langue",
+      "description": "Sélectionnez les langues et les régions"
+    },
+    "deleteAccount": {
+      "title": "Supprimer le compte",
+      "description": "Supprimer définitivement mon compte"
+    },
+    "support": {
+      "title": "Support",
+      "description": "Obtenir de l'aide, envoyer des commentaires et voir des ressources utiles"
+    },
+    "appInfo": {
+      "title": "Informations de l'application",
+      "description": "Informations sur l'application"
+    },
+    "theme": {
+      "title": "Thème & Accessibilité",
+      "description": "Personnaliser l'apparence",
+      "darkMode": "Mode sombre",
+      "textSizeAdjustment": "Réglage de la taille du texte"
+    }
+  }
 }

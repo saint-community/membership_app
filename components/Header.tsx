@@ -2,6 +2,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from './nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import type { HeaderProps } from '~/types/dashboard';
+import { useColors } from '~/theme/colors';
 
 export function Header({
   userName = 'Temitope',
@@ -10,6 +11,7 @@ export function Header({
   onNotificationPress,
   onProfilePress,
 }: HeaderProps) {
+  const colors = useColors();
   return (
     <View className="flex-row items-center justify-between px-4 py-6">
       {/* Profile and Greeting */}
@@ -25,14 +27,14 @@ export function Header({
         </TouchableOpacity>
 
         <View className="flex-1">
-          <Text className="text-base text-white">Hello! 👋</Text>
-          <Text className="text-xl font-bold text-white">{userName}</Text>
+          <Text className="text-base">Hello! 👋</Text>
+          <Text className="text-xl font-bold">{userName}</Text>
         </View>
       </View>
 
       {/* Notification Icon */}
       <TouchableOpacity onPress={onNotificationPress} className="relative">
-        <Ionicons name="notifications" size={24} color="white" />
+        <Ionicons name="notifications" size={24} color={colors.foreground} />
         {notificationCount > 0 && (
           <View className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-red-500" />
         )}

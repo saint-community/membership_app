@@ -23,6 +23,7 @@
     --border: 243 232 237;
     --input: 227 202 214;
     --ring: 243 232 237;
+    --tab-bar-background: 255 255 255;
 
     --android-background: 254 250 252;
     --android-foreground: 13 12 13;
@@ -43,6 +44,7 @@
     --android-border: 186 179 183;
     --android-input: 203 191 197;
     --android-ring: 186 179 183;
+    --android-tab-bar-background: 255 255 255;
 
     --web-background: 254 249 252;
     --web-foreground: 16 14 15;
@@ -63,6 +65,7 @@
     --web-border: 239 236 237;
     --web-input: 247 244 245;
     --web-ring: 231 223 227;
+    --web-tab-bar-background: 255 255 255;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -86,6 +89,7 @@
       --border: 71 56 64;
       --input: 85 67 76;
       --ring: 71 56 64;
+      --tab-bar-background: 28 21 24;
 
       --android-background: 28 21 24;
       --android-foreground: 235 224 230;
@@ -106,6 +110,7 @@
       --android-border: 150 139 144;
       --android-input: 75 66 70;
       --android-ring: 150 139 144;
+      --android-tab-bar-background: 28 21 24;
 
       --web-background: 27 18 22;
       --web-foreground: 234 220 227;
@@ -126,6 +131,7 @@
       --web-border: 65 53 59;
       --web-input: 56 41 49;
       --web-ring: 85 63 74;
+      --web-tab-bar-background: 28 21 24;
     }
   }
 

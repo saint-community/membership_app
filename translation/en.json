@@ -4,5 +4,38 @@
     "english": "Switch language to English"
   },
   "getStarted": "Open up the code for this screen:",
-  "changeCode": "Change any of the text, save the file, and your app will automatically update."
+  "changeCode": "Change any of the text, save the file, and your app will automatically update.",
+  "settings": {
+    "title": "Settings",
+    "notifications": {
+      "title": "Notifications",
+      "description": "Personalise the notifications you receive"
+    },
+    "newAssignments": "New assignments",
+    "prayerReminders": "Prayer meeting reminders",
+    "inAppActivities": "In-app activities",
+    "language": {
+      "title": "Language & Region",
+      "switchLanguage": "Switch Language",
+      "description": "Select languages and regions"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "Permanently delete my account"
+    },
+    "support": {
+      "title": "Support",
+      "description": "Get help, send feedback and see helpful resources"
+    },
+    "appInfo": {
+      "title": "App Info",
+      "description": "App details and information"
+    },
+    "theme": {
+      "title": "Theme & Accessibility",
+      "description": "Personalise the appearance you receive",
+      "darkMode": "Dark mode",
+      "textSizeAdjustment": "Text size adjustment"
+    }
+  }
 }

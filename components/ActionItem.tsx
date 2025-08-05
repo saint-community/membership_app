@@ -23,11 +23,14 @@ export function ActionItem({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={cn('flex-row items-center justify-between rounded-lg bg-gray-800 p-4', className)}>
+      className={cn(
+        'flex-row items-center justify-between rounded-lg bg-white p-4 dark:bg-gray-800',
+        className
+      )}>
       <View className="flex-1 flex-row items-center">
         <View className="mr-4">{icon}</View>
         <View className="flex-1">
-          <Text className="mb-1 text-base font-medium text-white">{title}</Text>
+          <Text className="mb-1 text-base font-medium ">{title}</Text>
           <Text className="text-sm text-gray-400">{subtitle}</Text>
         </View>
       </View>

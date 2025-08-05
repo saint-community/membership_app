@@ -48,6 +48,9 @@ module.exports = {
           DEFAULT: withOpacity('card'),
           foreground: withOpacity('card-foreground'),
         },
+        tabBarBackground: {
+          DEFAULT: withOpacity('tab-bar-background'),
+        },
       },
       borderWidth: {
         hairline: hairlineWidth(),

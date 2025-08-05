@@ -2,7 +2,16 @@ import { View, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Text } from '~/components/nativewindui/Text';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
+import { useColors } from '~/theme/colors';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
+import { languages } from '~/translation';
+import { useTranslation } from 'react-i18next';
 
 interface SettingItemProps {
   icon?: React.ReactNode;
@@ -26,13 +35,10 @@ function SettingItem({
   onSwitchChange,
 }: SettingItemProps) {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      className="flex-row items-center px-4 py-4"
-      disabled={showSwitch}>
-      {icon && <View className="mr-3">{icon}</View>}
+    <TouchableOpacity onPress={onPress} className="flex-row px-4 py-4" disabled={showSwitch}>
+      {icon && <View className="mr-3 mt-1">{icon}</View>}
       <View className="flex-1">
-        <Text className="text-base text-white">{title}</Text>
+        <Text className="text-base ">{title}</Text>
         {subtitle && <Text className="text-sm text-gray-400">{subtitle}</Text>}
       </View>
       {showSwitch && (
@@ -75,10 +81,10 @@ function SettingSection({
     <View>
       <TouchableOpacity
         onPress={expandable ? () => setIsExpanded(!isExpanded) : undefined}
-        className="flex-row items-center px-4 py-3">
-        <View className="mr-3">{icon}</View>
+        className="flex-row  px-4 py-3">
+        <View className="mr-3 mt-1">{icon}</View>
         <View className="flex-1">
-          <Text className="text-base font-medium text-white">{title}</Text>
+          <Text className="text-base font-medium ">{title}</Text>
           {subtitle && <Text className="text-sm text-gray-400">{subtitle}</Text>}
         </View>
         {expandable && !useSwitch && (
@@ -106,44 +112,46 @@ export default function Settings() {
   const [newAssignments, setNewAssignments] = useState(true);
   const [prayerReminders, setPrayerReminders] = useState(true);
   const [inAppActivities, setInAppActivities] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
+  const [isSwitchLanguageModalVisible, setIsSwitchLanguageModalVisible] = useState(false);
+  const colors = useColors();
+  const { t } = useTranslation();
 
   return (
-    <View className="pt-safe flex-1 bg-black">
+    <View className="pt-safe flex-1 bg-background">
       <ScrollView className="flex-1" contentContainerStyle={{ flexGrow: 1 }}>
         {/* Header */}
         <View className="mb-4 flex-row items-center justify-between px-4 py-4">
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="white" />
+            <Ionicons name="arrow-back" size={24} color={colors.foreground} />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-white">Settings</Text>
+          <Text className="text-lg font-semibold ">Settings</Text>
           <View />
         </View>
 
         <View className="flex-1 gap-6 pb-20">
           {/* Notifications Section */}
           <SettingSection
-            title="Notifications"
-            subtitle="Personalise the notifications you receive"
+            title={t('settings.notifications.title')}
+            subtitle={t('settings.notifications.description')}
             icon={<Ionicons name="notifications-outline" size={24} color="#9CA3AF" />}
             useSwitch
             expandable={true}
             switchValue={notifications}
             onSwitchChange={setNotifications}>
             <SettingItem
-              title="New assignments"
+              title={t('settings.newAssignments')}
               showSwitch={true}
               switchValue={newAssignments}
               onSwitchChange={setNewAssignments}
             />
             <SettingItem
-              title="Prayer meeting reminders"
+              title={t('settings.prayerReminders')}
               showSwitch={true}
               switchValue={prayerReminders}
               onSwitchChange={setPrayerReminders}
             />
             <SettingItem
-              title="In-app activities"
+              title={t('settings.inAppActivities')}
               showSwitch={true}
               switchValue={inAppActivities}
               onSwitchChange={setInAppActivities}
@@ -152,18 +160,18 @@ export default function Settings() {
 
           {/* Theme & Accessibility Section */}
           <SettingSection
-            title="Theme & Accessibility"
-            subtitle="Personalise the appearance you receive"
+            title={t('settings.theme.title')}
+            subtitle={t('settings.theme.description')}
             icon={<Ionicons name="color-palette-outline" size={24} color="#9CA3AF" />}
             expandable={true}>
+            <View className="flex-row items-center px-4 py-4">
+              <View className="flex-1">
+                <Text className="text-base ">{t('settings.theme.darkMode')}</Text>
+              </View>
+              <ThemeToggle />
+            </View>
             <SettingItem
-              title="Dark mode"
-              showSwitch={true}
-              switchValue={darkMode}
-              onSwitchChange={setDarkMode}
-            />
-            <SettingItem
-              title="Text size adjustment"
+              title={t('settings.theme.textSizeAdjustment')}
               showChevron={true}
               onPress={() => console.log('Text size pressed')}
             />
@@ -172,24 +180,24 @@ export default function Settings() {
           {/* Language & Region */}
           <SettingItem
             icon={<Ionicons name="globe-outline" size={24} color="#9CA3AF" />}
-            title="Language & Region"
-            subtitle="Select languages and regions"
-            onPress={() => console.log('Language pressed')}
+            title={t('settings.language.title')}
+            subtitle={t('settings.language.description')}
+            onPress={() => setIsSwitchLanguageModalVisible(true)}
           />
 
           {/* Support */}
           <SettingItem
             icon={<AntDesign name="customerservice" size={24} color="#9CA3AF" />}
-            title="Support"
-            subtitle="Get help, send feedback and see helpful resources"
+            title={t('settings.support.title')}
+            subtitle={t('settings.support.description')}
             onPress={() => console.log('Support pressed')}
           />
 
           {/* App Info */}
           <SettingItem
             icon={<Ionicons name="information-circle-outline" size={24} color="#9CA3AF" />}
-            title="App Info"
-            subtitle="App details and information"
+            title={t('settings.appInfo.title')}
+            subtitle={t('settings.appInfo.description')}
             onPress={() => console.log('App Info pressed')}
           />
         </View>
@@ -198,15 +206,85 @@ export default function Settings() {
         <View className="mb-20 px-4">
           <TouchableOpacity
             onPress={() => console.log('Delete Account pressed')}
-            className="flex-row items-center py-4">
+            className="flex-row  py-4">
             <Ionicons name="log-out-outline" size={24} color="#EF4444" />
-            <View className="flex-1">
-              <Text className="ml-3 text-base text-red-500">Delete Account</Text>
-              <Text className="ml-2 text-sm text-gray-400">Permanently delete my account</Text>
+            <View className="ml-3 flex-1">
+              <Text className="text-base text-red-500">{t('settings.deleteAccount.title')}</Text>
+              <Text className="text-sm text-gray-400">
+                {t('settings.deleteAccount.description')}
+              </Text>
             </View>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <SwitchLanguageModal
+        isVisible={isSwitchLanguageModalVisible}
+        onClose={() => setIsSwitchLanguageModalVisible(false)}
+      />
     </View>
+  );
+}
+
+function SwitchLanguageModal({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }) {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const colors = useColors();
+  const { i18n, t } = useTranslation();
+
+  const toggleLanguage = (locale: 'en' | 'fr') => {
+    i18n.changeLanguage(locale);
+  };
+
+  const handleSave = (locale: 'en' | 'fr') => {
+    toggleLanguage(locale);
+    onClose();
+  };
+
+  const snapPoints = React.useMemo(() => ['40%'], []);
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => <BottomSheetBackdrop {...props} />,
+    []
+  );
+
+  React.useEffect(() => {
+    if (isVisible) {
+      bottomSheetRef.current?.expand();
+    } else {
+      bottomSheetRef.current?.close();
+    }
+  }, [isVisible]);
+
+  return (
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={isVisible ? 0 : -1}
+      snapPoints={snapPoints}
+      enablePanDownToClose
+      onClose={onClose}
+      enableDynamicSizing={false}
+      backgroundStyle={{ backgroundColor: colors.background }}
+      handleIndicatorStyle={{ backgroundColor: colors.foreground }}
+      backdropComponent={renderBackdrop}>
+      <BottomSheetView className="flex-1 px-4">
+        <View className="mb-4 flex-row items-center justify-between">
+          <TouchableOpacity onPress={onClose} className="flex-1">
+            <Text className="text-base text-destructive-foreground">Cancel</Text>
+          </TouchableOpacity>
+          <Text className="text-lg font-semibold ">{t('settings.language.switchLanguage')}</Text>
+          <View className="flex-1" />
+        </View>
+        <View className="flex-1 gap-3">
+          {languages.map((language) => (
+            <TouchableOpacity
+              key={language.code}
+              onPress={() => handleSave(language.code)}
+              className="flex-row items-center gap-2 rounded-lg bg-white px-4 py-4 dark:bg-gray-800">
+              <Text className="text-lg ">{language.flag}</Text>
+              <Text className="text-lg ">{language.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </BottomSheetView>
+    </BottomSheet>
   );
 }

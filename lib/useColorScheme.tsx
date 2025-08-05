@@ -23,11 +23,11 @@ function useColorScheme() {
   }
 
   return {
-    colorScheme: colorScheme ?? 'light',
+    colorScheme: colorScheme ?? 'dark',
     isDarkColorScheme: colorScheme === 'dark',
     setColorScheme,
     toggleColorScheme,
-    colors: COLORS[colorScheme ?? 'light'],
+    colors: COLORS[colorScheme ?? 'dark'],
   };
 }
 
@@ -41,7 +41,7 @@ function useInitialAndroidBarSync() {
     setNavigationBar(colorScheme).catch((error) => {
       console.error('useColorScheme.tsx", "useInitialColorScheme', error);
     });
-  }, []);
+  }, [colorScheme]);
 }
 
 export { useColorScheme, useInitialAndroidBarSync };
