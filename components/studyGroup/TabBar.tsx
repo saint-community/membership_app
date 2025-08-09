@@ -38,7 +38,7 @@ const TabBar = ({
         <Text
           className={cn(
             'text-center text-base font-medium',
-            tab === 'assignments' ? 'text-white' : 'text-gray-300'
+            tab === 'assignments' ? 'dark:text-white' : 'dark:text-gray-300'
           )}>
           Weekly Assignments
         </Text>
@@ -60,7 +60,7 @@ const TabBar = ({
         <Text
           className={cn(
             'text-center text-base font-medium',
-            tab === 'submissions' ? 'text-white' : 'text-gray-300'
+            tab === 'submissions' ? 'dark:text-white' : 'dark:text-gray-300'
           )}>
           Submissions
         </Text>
