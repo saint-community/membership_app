@@ -1,8 +1,9 @@
-import { View, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+
 import { Text } from '~/components/nativewindui/Text';
-import { useRouter } from 'expo-router';
 import { useColors } from '~/theme/colors';
+import { useRouter } from 'expo-router';
 
 interface ProfileOptionItemProps {
   icon: React.ReactNode;
@@ -61,7 +62,7 @@ export default function ProfileOption() {
           <ProfileOptionItem
             icon={<Ionicons name="lock-closed" size={20} color={colors.foreground} />}
             title="Change Password"
-            onPress={() => console.log('Change Password pressed')}
+            onPress={() => router.push('/change-password')}
           />
 
           <ProfileOptionItem
