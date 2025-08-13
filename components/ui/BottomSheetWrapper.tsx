@@ -1,5 +1,5 @@
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 
 interface BottomSheetWrapperProps {
@@ -12,6 +12,7 @@ interface BottomSheetWrapperProps {
   enablePanDownToClose?: boolean;
   keyboardBehavior?: 'interactive' | 'extend' | 'fillParent';
   keyboardBlurBehavior?: 'none' | 'restore';
+  enableDynamicSizing?: boolean;
 }
 
 const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
@@ -34,6 +35,7 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
       enablePanDownToClose = false,
       keyboardBehavior = 'interactive',
       keyboardBlurBehavior = 'restore',
+      enableDynamicSizing = false,
     },
     ref
   ) => {
@@ -57,19 +59,20 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
         handleIndicatorStyle={handleIndicatorStyle}
         enablePanDownToClose={enablePanDownToClose}
         keyboardBehavior={keyboardBehavior}
-        keyboardBlurBehavior={keyboardBlurBehavior}>
+        keyboardBlurBehavior={keyboardBlurBehavior}
+        enableDynamicSizing={enableDynamicSizing}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
-          <ScrollView
+          {/* <ScrollView
             className="flex-1"
             contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            bounces={false}>
-            <BottomSheetView className="flex-1 px-6 pb-8 pt-5">{children}</BottomSheetView>
-          </ScrollView>
+            bounces={false}> */}
+          <BottomSheetView className="flex-1 px-6 pb-8 pt-5">{children}</BottomSheetView>
+          {/* </ScrollView> */}
         </KeyboardAvoidingView>
       </BottomSheet>
     );
