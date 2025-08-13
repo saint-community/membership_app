@@ -50,10 +50,12 @@ export function ParticipantSelectorSheet({
             <TouchableOpacity
               onPress={() => onToggle(item.id)}
               className="mb-3 flex-row items-center justify-between rounded-xl px-4 py-3">
-              <Text className="text-base">{item.name}</Text>
+              <Text className="">{item.name}</Text>
               <View
                 className={`h-5 w-5 items-center justify-center rounded ${
-                  selected ? 'border border-border bg-primary' : 'border border-border'
+                  selected
+                    ? 'border border-border bg-primary'
+                    : 'border border-gray-600 dark:border-white'
                 }`}
               />
             </TouchableOpacity>

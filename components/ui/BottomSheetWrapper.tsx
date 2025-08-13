@@ -1,14 +1,17 @@
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { forwardRef, useCallback, useMemo } from 'react';
+import { useColors } from '~/theme/colors';
 
 interface BottomSheetWrapperProps {
   children: React.ReactNode;
   snapPoints?: string[];
   initialIndex?: number;
   onSheetChange?: (index: number) => void;
-  backgroundStyle?: any;
-  handleIndicatorStyle?: any;
   enablePanDownToClose?: boolean;
   keyboardBehavior?: 'interactive' | 'extend' | 'fillParent';
   keyboardBlurBehavior?: 'none' | 'restore';
@@ -22,16 +25,7 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
       snapPoints = ['70%', '90%'],
       initialIndex = 0,
       onSheetChange,
-      backgroundStyle = {
-        backgroundColor: '#1F1F1F',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-      },
-      handleIndicatorStyle = {
-        backgroundColor: '#666',
-        width: 40,
-        height: 4,
-      },
+
       enablePanDownToClose = false,
       keyboardBehavior = 'interactive',
       keyboardBlurBehavior = 'restore',
@@ -40,14 +34,43 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
     ref
   ) => {
     const memoizedSnapPoints = useMemo(() => snapPoints, [snapPoints]);
+    const colors = useColors();
+    const backgroundStyle = useMemo(
+      () => ({
+        backgroundColor: colors.background,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+      }),
+      [colors]
+    );
 
+    const handleIndicatorStyle = useMemo(
+      () => ({
+        backgroundColor: colors.foreground,
+        width: 40,
+        height: 4,
+      }),
+      [colors]
+    );
     const handleSheetChanges = useCallback(
       (index: number) => {
-        console.log('handleSheetChanges', index);
+        // console.log('handleSheetChanges', index);
         onSheetChange?.(index);
       },
       [onSheetChange]
     );
+
+    const renderBackdrop = useCallback((props: BottomSheetBackdropProps) => {
+      return (
+        <BottomSheetBackdrop
+          {...props}
+          appearsOnIndex={0}
+          disappearsOnIndex={-1}
+          enableTouchThrough={false}
+          pressBehavior="none"
+        />
+      );
+    }, []);
 
     return (
       <BottomSheet
@@ -60,6 +83,7 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
         enablePanDownToClose={enablePanDownToClose}
         keyboardBehavior={keyboardBehavior}
         keyboardBlurBehavior={keyboardBlurBehavior}
+        backdropComponent={renderBackdrop}
         enableDynamicSizing={enableDynamicSizing}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

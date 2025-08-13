@@ -75,9 +75,9 @@ export default function Prayer() {
 
           <TouchableOpacity
             onPress={() => setShowSelect(true)}
-            className="mb-4 min-h-14 rounded-xl border border-white bg-transparent px-4 py-3">
+            className="mb-4 min-h-14 rounded-xl border border-gray-600 bg-transparent px-4 py-3 dark:border-white">
             {selectedIds.length === 0 ? (
-              <Text className="text-base text-muted-foreground">Select participants</Text>
+              <Text className="text-base dark:text-muted-foreground">Select participants</Text>
             ) : (
               <View className="flex-row flex-wrap">
                 {selectedIds.map((id) => {
@@ -91,7 +91,7 @@ export default function Prayer() {
 
           {/* Code input */}
           <TextInput
-            className={`h-14 w-full rounded-xl border  border-white bg-transparent px-4 py-3 text-base text-white`}
+            className={`h-14 w-full rounded-xl border  border-gray-600 bg-transparent px-4 py-3 text-base dark:border-white dark:text-white`}
             placeholder="Input 6 digits code"
             value={code}
             onChangeText={setCode}

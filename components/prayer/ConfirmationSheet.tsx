@@ -18,14 +18,12 @@ export function ConfirmationSheet({ visible, names, onConfirm, onCancel }: Confi
     <BottomSheetWrapper snapPoints={['50%']} enablePanDownToClose={false}>
       <View className="flex-1 items-center">
         <Ionicons name="alert-circle-outline" size={120} color="#FFA000" />
-        <Text className="leading my-3 text-center text-[16px]">
+        <Text className="leading my-3 text-center text-[16px]  dark:text-white">
           You are about to mark prayer group attendance for{' '}
-          <Text className="mb-6 text-center font-semibold text-muted-foreground">
-            {formatListWithAnd(names)}
-          </Text>
+          <Text className="mb-6 text-center font-semibold">{formatListWithAnd(names)}</Text>
         </Text>
         <View className="my-2 w-full flex-row gap-3">
-          <Button title="Cancel" onPress={onCancel} className="flex-1 bg-muted" />
+          <Button title="Cancel" onPress={onCancel} className="flex-1 bg-gray-500 dark:bg-muted" />
           <Button title="Confirm" onPress={onConfirm} className="flex-1" />
         </View>
       </View>
