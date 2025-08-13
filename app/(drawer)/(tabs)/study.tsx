@@ -13,30 +13,35 @@ import {
 
 export default function Study() {
   const [tab, setTab] = useState<'assignments' | 'submissions'>('assignments');
-  const [selectedAssignment, setSelectedAssignment] = useState<AssignmentUpload | AssignmentSubmission | null>(null);
+  const [selectedAssignment, setSelectedAssignment] = useState<
+    AssignmentUpload | AssignmentSubmission | null
+  >(null);
   const [uploadVisible, setUploadVisible] = useState(false);
   const router = useRouter();
 
-  const handleOpenUpload = (assignment: AssignmentUpload | AssignmentSubmission) => {
-    setSelectedAssignment(assignment);
-    setUploadVisible(true);
+  const handleOpenAssignment = (selectAssignment: AssignmentUpload | AssignmentSubmission) => {
+    console.log('Selected assignment:', selectAssignment);
+    router.push({
+      pathname: '/(drawer)/studygroup/[assignment]',
+      params: { assignment: encodeURIComponent(JSON.stringify(selectAssignment)) },
+    });
   };
 
   return (
-    <SafeAreaView className="flex-1 items-center px-6 bg-black">
-      <Text className="mb-4 text-2xl font-bold text-white">Study Group</Text>
+    <SafeAreaView className="flex-1 items-center px-6">
+      <Text className="mb-4 text-2xl font-bold">Study Group</Text>
       <TabBar tab={tab} setTab={setTab} />
       {tab === 'assignments' ? (
         <AssignmentCardList
           data={mockAssignments}
           tab="assignments"
-          onPress={handleOpenUpload}
+          onPress={handleOpenAssignment}
         />
       ) : (
         <AssignmentCardList
           data={mockAssignmentsSubmit}
           tab="submissions"
-          onPress={handleOpenUpload}
+          onPress={handleOpenAssignment}
         />
       )}
     </SafeAreaView>

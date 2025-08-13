@@ -18,10 +18,10 @@ export default function AssignmentCard({ item, tab, onPress }: AssignmentCardPro
     isLate((item as AssignmentSubmission).dueDate, (item as AssignmentSubmission).submissionTime);
 
   return (
-    <TouchableOpacity onPress={() => onPress()} className="mb-3 rounded-xl bg-[#1f1f1f] p-4">
+    <TouchableOpacity onPress={() => onPress()} className="mb-3 rounded-xl bg-white dark:bg-gray-800 p-4">
       {lateSubmission && (
         <View className="mb-2 flex-row items-center">
-          <Text className="rounded-md bg-[#551c1c] px-2 py-1 font-poppins text-xs text-[#d32f2f]">
+          <Text className="rounded-md px-2 py-1 font-poppins text-xs text-[#d32f2f]">
             Late submission
           </Text>
         </View>
@@ -29,10 +29,10 @@ export default function AssignmentCard({ item, tab, onPress }: AssignmentCardPro
 
       <View className="flex-row items-center justify-between">
         <View className="w-8/12">
-          <Text numberOfLines={1} ellipsizeMode="tail" className="text-sm font-medium text-white">
+          <Text numberOfLines={1} ellipsizeMode="tail" className="text-sm font-medium">
             {item.title}
           </Text>
-          <Text className="mt-1 text-xs text-zinc-400">
+          <Text className="mt-1 text-xs ">
             Due:{' '}
             {isSubmission
               ? (item as AssignmentSubmission).dueDate
