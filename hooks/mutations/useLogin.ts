@@ -1,21 +1,28 @@
+import { storeObjectData, storeStringData } from '~/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
+import { STORAGE_KEYS } from '~/utils/constants';
+import Toast from 'react-native-toast-message';
+import { loginUser } from '~/services/api/auth';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 
-interface UseChangePasswordReturn {
+interface UseLoginReturn {
   isLoading: boolean;
   isAnyFieldFocused: boolean;
   snapPoints: string[];
+  handleEmailFocus: () => void;
   handlePasswordFocus: () => void;
   handleFieldBlur: () => void;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any) => void;
   bottomSheetRef: React.RefObject<any>;
+
 }
 
-export const useChangePassword = (): UseChangePasswordReturn => {
+export const useLogin = (): UseLoginReturn => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const [isAnyFieldFocused, setIsAnyFieldFocused] = useState(false);
+
 
   // Bottom sheet ref
   const bottomSheetRef = useRef<any>(null);
@@ -23,6 +30,13 @@ export const useChangePassword = (): UseChangePasswordReturn => {
   // Variables
   const snapPoints = useMemo(() => ['70%', '90%'], []);
 
+  const handleEmailFocus = useCallback(() => {
+    if (!isAnyFieldFocused) {
+      setIsAnyFieldFocused(true);
+      // Snap to 90% when email field is focused
+      bottomSheetRef.current?.snapToIndex(1);
+    }
+  }, [isAnyFieldFocused]);
 
   const handlePasswordFocus = useCallback(() => {
     if (!isAnyFieldFocused) {
@@ -39,33 +53,44 @@ export const useChangePassword = (): UseChangePasswordReturn => {
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
 
-  const onSubmit = useCallback(async (data: any) => {
-    setIsLoading(true);
 
-    try {
+   const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data: any) => {
+    
+    storeStringData(STORAGE_KEYS.IS_AUTHENTICATED, 'true');
+    storeStringData(STORAGE_KEYS.TOKEN, data.access_token);
+    storeObjectData(STORAGE_KEYS.USER, data.worker);
+    
+    Toast.show({
+        text1: "Login is successful",
+        type: 'success'
+      })
       // Return snap point to default (70%) when form is submitted
       bottomSheetRef.current?.snapToIndex(0);
       setIsAnyFieldFocused(false);
 
-      // Simulate change password API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Navigate to main app after successful change password 
+      // Navigate to main app after successful login
       router.replace('/(drawer)/(tabs)');
-    } catch (error) {
-      console.error('Change Password error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router]);
+    },
+    
+    onError: (error: any) => {
+      Toast.show({
+        text1:  'Invalid login credentials', 
+        type: 'error'
+      })   
+   
+    },
+  });
 
   return {
-    isLoading,
+    isLoading: loginMutation.isPending,
     isAnyFieldFocused,
     snapPoints,
+    handleEmailFocus,
     handlePasswordFocus,
     handleFieldBlur,
-    onSubmit,
+    onSubmit: loginMutation.mutate,
     bottomSheetRef,
   };
 }; 
