@@ -1,9 +1,10 @@
+import { AssignmentSubmission, AssignmentUpload } from '~/models/studygroupmodels';
 import { TouchableOpacity, View } from 'react-native';
+
 import { Entypo } from '@expo/vector-icons';
-import { cn } from '~/lib/cn';
 import { Text } from '~/components/nativewindui/Text';
+import { cn } from '~/lib/cn';
 import { isLate } from '~/utils/studyGroupUtils';
-import { AssignmentUpload, AssignmentSubmission } from '~/models/studygroupmodels';
 
 type AssignmentCardProps = {
   item: AssignmentUpload | AssignmentSubmission;

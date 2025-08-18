@@ -1,10 +1,10 @@
+import MembersList from '~/components/members/membersList';
 import { View } from 'react-native';
-import { Text } from '~/components/nativewindui/Text';
 
 export default function Members() {
   return (
-    <View className="p-safe flex-1 items-center justify-center">
-      <Text className="text-2xl font-bold text-white">Members</Text>
+    <View className="p-safe flex-1 ">
+      <MembersList />
     </View>
   );
 }
