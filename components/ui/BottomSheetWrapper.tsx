@@ -5,7 +5,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import React, { forwardRef, useCallback, useMemo } from 'react';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 interface BottomSheetWrapperProps {
   children: React.ReactNode;
@@ -16,6 +16,7 @@ interface BottomSheetWrapperProps {
   keyboardBehavior?: 'interactive' | 'extend' | 'fillParent';
   keyboardBlurBehavior?: 'none' | 'restore';
   enableDynamicSizing?: boolean;
+  onClose?: () => void;
 }
 
 const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
@@ -25,7 +26,7 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
       snapPoints = ['70%', '90%'],
       initialIndex = 0,
       onSheetChange,
-
+      onClose,
       enablePanDownToClose = false,
       keyboardBehavior = 'interactive',
       keyboardBlurBehavior = 'restore',
@@ -60,17 +61,24 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
       [onSheetChange]
     );
 
-    const renderBackdrop = useCallback((props: BottomSheetBackdropProps) => {
-      return (
-        <BottomSheetBackdrop
-          {...props}
-          appearsOnIndex={0}
-          disappearsOnIndex={-1}
-          enableTouchThrough={false}
-          pressBehavior="none"
-        />
-      );
-    }, []);
+    const renderBackdrop = useCallback(
+      (props: BottomSheetBackdropProps) => {
+        return (
+          <BottomSheetBackdrop
+            {...props}
+            appearsOnIndex={0}
+            disappearsOnIndex={-1}
+            enableTouchThrough={false}
+            pressBehavior="none"
+            opacity={0.5}
+            style={{
+              backgroundColor: colors.foreground,
+            }}
+          />
+        );
+      },
+      [colors]
+    );
 
     return (
       <BottomSheet
@@ -84,7 +92,8 @@ const BottomSheetWrapper = forwardRef<BottomSheet, BottomSheetWrapperProps>(
         keyboardBehavior={keyboardBehavior}
         keyboardBlurBehavior={keyboardBlurBehavior}
         backdropComponent={renderBackdrop}
-        enableDynamicSizing={enableDynamicSizing}>
+        enableDynamicSizing={enableDynamicSizing}
+        onClose={onClose}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"

@@ -4,10 +4,12 @@ import { View, ScrollView } from 'react-native';
 import { Header } from '~/components/Header';
 import { MetricsGrid } from '~/components/MetricsGrid';
 import { QuickActions } from '~/components/QuickActions';
+import { useMe } from '~/hooks/data/me';
 import type { MetricData, ActionData } from '~/types/dashboard';
 
 export default function Home() {
   const router = useRouter();
+  const { data: me } = useMe();
   // Sample data for metrics
   const metrics: MetricData[] = [
     {
@@ -65,7 +67,7 @@ export default function Home() {
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}>
         <Header
-          userName="Temitope"
+          userName={me?.first_name}
           notificationCount={1}
           onNotificationPress={() => router.push('/notifications')}
           onProfilePress={() => router.push('/profile-option')}

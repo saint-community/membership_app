@@ -2,6 +2,7 @@ export const STORAGE_KEYS = {
   TOKEN: 'token',
   IS_AUTHENTICATED: 'isAuthenticated',
   USER: 'user',
+  COLOR_SCHEME: 'colorScheme',
 };
 
 export const QUERY_PATHS = {
@@ -11,5 +12,3 @@ export const QUERY_PATHS = {
   OTP_REQUEST: 'api/worker/otp/request',
   OTP_VERIFY: 'api/worker/otp/verify',
 };
-
-

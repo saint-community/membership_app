@@ -1,9 +1,11 @@
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 import { Text } from '~/components/nativewindui/Text';
-import { useColors } from '~/theme/colors';
 import { useRouter } from 'expo-router';
+import { useColors } from '~/lib/useColorScheme';
+import { useMe } from '~/hooks/data/me';
+import { logoutUser } from '~/services/api/auth';
 
 interface ProfileOptionItemProps {
   icon: React.ReactNode;
@@ -28,6 +30,20 @@ function ProfileOptionItem({ icon, title, onPress, showChevron = true }: Profile
 export default function ProfileOption() {
   const router = useRouter();
   const colors = useColors();
+  const { data: me } = useMe();
+
+  const logOutAction = () => {
+    logoutUser();
+    router.replace('/(login)/login');
+  };
+
+  const logOut = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Logout', onPress: logOutAction, style: 'destructive', isPreferred: true },
+    ]);
+  };
+
   return (
     <View className="pt-safe flex-1 bg-background">
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ flexGrow: 1 }}>
@@ -49,8 +65,10 @@ export default function ProfileOption() {
             className="mr-4 h-20 w-20 rounded-full bg-gray-300"
           />
           <View className="flex-1">
-            <Text className="text-lg font-semibold">Temitope Sanusi</Text>
-            <Text className="text-sm text-gray-400">temitopesanusi@gmail.com</Text>
+            <Text className="text-lg font-semibold">
+              {me?.first_name} {me?.last_name}
+            </Text>
+            <Text className="text-sm text-gray-400">{me?.email}</Text>
           </View>
           <TouchableOpacity onPress={() => console.log('Profile edit pressed')}>
             <Ionicons name="chevron-forward" size={20} color={colors.foreground} />
@@ -80,9 +98,7 @@ export default function ProfileOption() {
 
         {/* Logout Button */}
         <View className="mb-8 mt-auto ">
-          <TouchableOpacity
-            onPress={() => console.log('Logout pressed')}
-            className="flex-row items-center justify-center py-4">
+          <TouchableOpacity onPress={logOut} className="flex-row items-center justify-center py-4">
             <MaterialIcons name="logout" size={20} color="#EF4444" />
             <Text className="ml-2 text-base font-medium text-red-500">Logout</Text>
           </TouchableOpacity>

@@ -2,16 +2,13 @@ import { View, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { Text } from '~/components/nativewindui/Text';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ThemeToggle } from '~/components/nativewindui/ThemeToggle';
-import { useColors } from '~/theme/colors';
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetBackdropProps,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
+import { useColors } from '~/lib/useColorScheme';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { languages } from '~/translation';
 import { useTranslation } from 'react-i18next';
+import BottomSheetWrapper from '~/components/ui/BottomSheetWrapper';
 
 interface SettingItemProps {
   icon?: React.ReactNode;
@@ -113,6 +110,7 @@ export default function Settings() {
   const [prayerReminders, setPrayerReminders] = useState(true);
   const [inAppActivities, setInAppActivities] = useState(true);
   const [isSwitchLanguageModalVisible, setIsSwitchLanguageModalVisible] = useState(false);
+  const [isVersionModalVisible, setIsVersionModalVisible] = useState(false);
   const colors = useColors();
   const { t } = useTranslation();
 
@@ -170,11 +168,11 @@ export default function Settings() {
               </View>
               <ThemeToggle />
             </View>
-            <SettingItem
+            {/* <SettingItem
               title={t('settings.theme.textSizeAdjustment')}
               showChevron={true}
               onPress={() => console.log('Text size pressed')}
-            />
+            /> */}
           </SettingSection>
 
           {/* Language & Region */}
@@ -198,7 +196,7 @@ export default function Settings() {
             icon={<Ionicons name="information-circle-outline" size={24} color="#9CA3AF" />}
             title={t('settings.appInfo.title')}
             subtitle={t('settings.appInfo.description')}
-            onPress={() => console.log('App Info pressed')}
+            onPress={() => setIsVersionModalVisible(true)}
           />
         </View>
 
@@ -221,13 +219,16 @@ export default function Settings() {
         isVisible={isSwitchLanguageModalVisible}
         onClose={() => setIsSwitchLanguageModalVisible(false)}
       />
+      <VersionView
+        visible={isVersionModalVisible}
+        onClose={() => setIsVersionModalVisible(false)}
+      />
     </View>
   );
 }
 
 function SwitchLanguageModal({ isVisible, onClose }: { isVisible: boolean; onClose: () => void }) {
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const colors = useColors();
   const { i18n, t } = useTranslation();
 
   const toggleLanguage = (locale: 'en' | 'fr') => {
@@ -241,11 +242,6 @@ function SwitchLanguageModal({ isVisible, onClose }: { isVisible: boolean; onClo
 
   const snapPoints = React.useMemo(() => ['40%'], []);
 
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => <BottomSheetBackdrop {...props} />,
-    []
-  );
-
   React.useEffect(() => {
     if (isVisible) {
       bottomSheetRef.current?.expand();
@@ -255,16 +251,13 @@ function SwitchLanguageModal({ isVisible, onClose }: { isVisible: boolean; onClo
   }, [isVisible]);
 
   return (
-    <BottomSheet
+    <BottomSheetWrapper
       ref={bottomSheetRef}
-      index={isVisible ? 0 : -1}
+      initialIndex={isVisible ? 0 : -1}
       snapPoints={snapPoints}
       enablePanDownToClose
       onClose={onClose}
-      enableDynamicSizing={false}
-      backgroundStyle={{ backgroundColor: colors.background }}
-      handleIndicatorStyle={{ backgroundColor: colors.foreground }}
-      backdropComponent={renderBackdrop}>
+      enableDynamicSizing={false}>
       <BottomSheetView className="flex-1 px-4">
         <View className="mb-4 flex-row items-center justify-between">
           <TouchableOpacity onPress={onClose} className="flex-1">
@@ -285,6 +278,22 @@ function SwitchLanguageModal({ isVisible, onClose }: { isVisible: boolean; onClo
           ))}
         </View>
       </BottomSheetView>
-    </BottomSheet>
+    </BottomSheetWrapper>
+  );
+}
+
+function VersionView({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  if (!visible) return null;
+
+  return (
+    <BottomSheetWrapper
+      initialIndex={visible ? 0 : -1}
+      snapPoints={['40%']}
+      enablePanDownToClose
+      onClose={onClose}>
+      <View className="min-h-[250px] flex-1 items-center justify-center">
+        <Text>Version 1.0.0</Text>
+      </View>
+    </BottomSheetWrapper>
   );
 }

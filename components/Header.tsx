@@ -2,7 +2,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { Text } from './nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import type { HeaderProps } from '~/types/dashboard';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 export function Header({
   userName = 'Temitope',

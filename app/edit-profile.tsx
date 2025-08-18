@@ -8,7 +8,7 @@ import BottomSheet, {
   BottomSheetBackdropProps,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 interface EditableFieldProps {
   label: string;

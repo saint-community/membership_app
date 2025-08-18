@@ -4,12 +4,22 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 
 import { COLORS } from '~/theme/colors';
+import { getStringData, storeStringData } from '~/utils';
+import { STORAGE_KEYS } from '~/utils/constants';
 
 function useColorScheme() {
   const { colorScheme, setColorScheme: setNativewindColorScheme } = useNativewindColorScheme();
+  const localColorScheme = getStringData(STORAGE_KEYS.COLOR_SCHEME);
+
+  React.useEffect(() => {
+    if (localColorScheme) {
+      setNativewindColorScheme(localColorScheme as 'dark' | 'light');
+    }
+  }, [localColorScheme, setNativewindColorScheme]);
 
   async function setColorScheme(colorScheme: 'light' | 'dark') {
     setNativewindColorScheme(colorScheme);
+    storeStringData(STORAGE_KEYS.COLOR_SCHEME, colorScheme);
     if (Platform.OS !== 'android') return;
     try {
       await setNavigationBar(colorScheme);
@@ -44,7 +54,12 @@ function useInitialAndroidBarSync() {
   }, [colorScheme]);
 }
 
-export { useColorScheme, useInitialAndroidBarSync };
+const useColors = () => {
+  const { colorScheme } = useColorScheme();
+  return COLORS[colorScheme ?? 'dark'];
+};
+
+export { useColorScheme, useInitialAndroidBarSync, useColors };
 
 function setNavigationBar(colorScheme: 'light' | 'dark') {
   return Promise.all([

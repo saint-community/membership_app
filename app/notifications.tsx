@@ -13,7 +13,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 interface NotificationItemProps {
   icon: React.ReactNode;

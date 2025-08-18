@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-import { useColorScheme } from '~/lib/useColorScheme';
 
 const IOS_SYSTEM_COLORS = {
   white: 'rgb(255, 255, 255)',
@@ -113,9 +112,4 @@ const COLORS =
       ? ANDROID_COLORS
       : WEB_COLORS;
 
-const useColors = () => {
-  const { colorScheme } = useColorScheme();
-  return COLORS[colorScheme ?? 'dark'];
-};
-
-export { COLORS, useColors };
+export { COLORS };

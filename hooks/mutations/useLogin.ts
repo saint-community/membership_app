@@ -1,7 +1,5 @@
-import { storeObjectData, storeStringData } from '~/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
-import { STORAGE_KEYS } from '~/utils/constants';
 import Toast from 'react-native-toast-message';
 import { loginUser } from '~/services/api/auth';
 import { useMutation } from '@tanstack/react-query';
@@ -16,13 +14,11 @@ interface UseLoginReturn {
   handleFieldBlur: () => void;
   onSubmit: (data: any) => void;
   bottomSheetRef: React.RefObject<any>;
-
 }
 
 export const useLogin = (): UseLoginReturn => {
   const router = useRouter();
   const [isAnyFieldFocused, setIsAnyFieldFocused] = useState(false);
-
 
   // Bottom sheet ref
   const bottomSheetRef = useRef<any>(null);
@@ -53,19 +49,13 @@ export const useLogin = (): UseLoginReturn => {
     bottomSheetRef.current?.snapToIndex(0);
   }, []);
 
-
-   const loginMutation = useMutation({
+  const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data: any) => {
-    
-    storeStringData(STORAGE_KEYS.IS_AUTHENTICATED, 'true');
-    storeStringData(STORAGE_KEYS.TOKEN, data.access_token);
-    storeObjectData(STORAGE_KEYS.USER, data.worker);
-    
-    Toast.show({
-        text1: "Login is successful",
-        type: 'success'
-      })
+      Toast.show({
+        text1: 'Login is successful',
+        type: 'success',
+      });
       // Return snap point to default (70%) when form is submitted
       bottomSheetRef.current?.snapToIndex(0);
       setIsAnyFieldFocused(false);
@@ -73,13 +63,12 @@ export const useLogin = (): UseLoginReturn => {
       // Navigate to main app after successful login
       router.replace('/(drawer)/(tabs)');
     },
-    
+
     onError: (error: any) => {
       Toast.show({
-        text1:  'Invalid login credentials', 
-        type: 'error'
-      })   
-   
+        text1: 'Invalid login credentials',
+        type: 'error',
+      });
     },
   });
 
@@ -93,4 +82,4 @@ export const useLogin = (): UseLoginReturn => {
     onSubmit: loginMutation.mutate,
     bottomSheetRef,
   };
-}; 
+};

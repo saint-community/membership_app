@@ -4,7 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 
 import { Feather, FontAwesome5, FontAwesome6, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useEffect } from 'react';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 const AnimatedTabIcon = ({
   focused,
