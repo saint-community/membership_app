@@ -1,7 +1,8 @@
 import { Entypo } from '@expo/vector-icons';
-import { Image, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '../nativewindui/Text';
 import Avatar from '../Avatar';
+import { useRouter } from 'expo-router';
 
 interface MemberCardProps {
   name: string;
@@ -11,8 +12,9 @@ interface MemberCardProps {
 }
 
 const MemberCard = ({ name, created_at, id, image }: MemberCardProps) => {
+  const router = useRouter();
   return (
-    <View className="mb-3 flex flex-row items-center justify-between rounded-lg bg-[#1F1F1F] px-3 py-4">
+    <View className="mb-3 flex flex-row items-center justify-between rounded-xl bg-[#1F1F1F] px-3 py-4">
       <View className="flex-row items-center gap-3">
         <Avatar
           image_url={image}
@@ -20,13 +22,23 @@ const MemberCard = ({ name, created_at, id, image }: MemberCardProps) => {
           icon={<Entypo name="user" size={24} color="white" />}
         />
         <View>
-          <Text className="text-lg font-semibold text-white">{name}</Text>
+          <View className="flex flex-row items-center gap-2">
+            <Text className="text-xl font-semibold text-white">{name}</Text>
+            <TouchableOpacity onPress={() => router.push('/edit-profile')}>
+              {' '}
+              <Text className="text-md text-primary underline">Edit</Text>
+            </TouchableOpacity>
+          </View>
+
           <Text className="text-sm text-gray-400">
-            Member since {new Date(created_at).toLocaleDateString()}
+            Member since {new Date(created_at).toLocaleDateString()},{' '}
+            {new Date(created_at).toLocaleTimeString()}
           </Text>
         </View>
       </View>
-      <Entypo name="chevron-right" size={24} color="white" />
+      <TouchableOpacity className="p-2" onPress={() => router.push('/(drawer)/(tabs)')}>
+        <Entypo name="chevron-right" size={24} color="white" />
+      </TouchableOpacity>
     </View>
   );
 };
