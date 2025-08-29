@@ -1,13 +1,13 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import React from 'react';
 import AddMemberForm from '~/components/members/addMemberForm';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useColors } from '~/theme/colors';
+import { useColors } from '~/lib/useColorScheme';
 
 const AddMember = () => {
   const router = useRouter();
   const colors = useColors();
+
   return (
     <View className="p-safe flex-1 bg-black ">
       {/* Header */}

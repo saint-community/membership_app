@@ -1,5 +1,5 @@
 import { Entypo } from '@expo/vector-icons';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Text } from '../nativewindui/Text';
 import Avatar from '../Avatar';
 import { useRouter } from 'expo-router';
@@ -25,7 +25,6 @@ const MemberCard = ({ name, created_at, id, image }: MemberCardProps) => {
           <View className="flex flex-row items-center gap-2">
             <Text className="text-xl font-semibold text-white">{name}</Text>
             <TouchableOpacity onPress={() => router.push('/edit-profile')}>
-              {' '}
               <Text className="text-md text-primary underline">Edit</Text>
             </TouchableOpacity>
           </View>

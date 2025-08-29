@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import MemberCard from './memberCard';
-import { useColors } from '~/theme/colors';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import { useColors } from '~/lib/useColorScheme';
 
 interface Member {
   id: string;

@@ -6,7 +6,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NAV_THEME } from '~/theme';
 import { ThemeProvider as NavThemeProvider } from '@react-navigation/native';
-import { router, Stack } from 'expo-router';
+import { router, SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Toast from 'react-native-toast-message';
 import { queryClient } from '~/lib/react-query/query-client';
@@ -42,18 +42,17 @@ const RootLayoutNav = () => {
   const { data: me, isLoading } = useMe();
 
   useEffect(() => {
-    if (me === null) {
-      setTimeout(() => {
-        router.replace('/(login)/login');
-      }, 1000);
-    } else {
+    SplashScreen.hideAsync();
+    if (me) {
+      console.log('me', me);
+
       setTimeout(() => {
         router.replace('/(drawer)/(tabs)');
-      }, 1000);
+      }, 300);
     }
   }, [me]);
 
-  if (isLoading) {
+  if (me === undefined || isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" className="text-white" />
@@ -63,8 +62,10 @@ const RootLayoutNav = () => {
 
   return (
     <Stack
+      initialRouteName={me ? '(drawer)' : '(login)'}
       screenOptions={{
         headerShown: false,
+        // animation: 'fade',
       }}>
       <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
       <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
