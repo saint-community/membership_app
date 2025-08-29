@@ -10,9 +10,12 @@ import {
   mockAssignments,
   mockAssignmentsSubmit,
 } from '~/models/studygroupmodels';
+import { useCurrentWeekStudyGroup } from '~/hooks/data/study';
 
 export default function Study() {
   const [tab, setTab] = useState<'assignments' | 'submissions'>('assignments');
+  const { data: studyGroup } = useCurrentWeekStudyGroup();
+  console.log(studyGroup);
   const [selectedAssignment, setSelectedAssignment] = useState<
     AssignmentUpload | AssignmentSubmission | null
   >(null);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FlatList, View } from 'react-native';
 import AssignmentCard from './AssignmentCard';
 import { AssignmentUpload, AssignmentSubmission } from '~/models/studygroupmodels';
