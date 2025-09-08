@@ -5,7 +5,7 @@ import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { STORAGE_KEYS } from '~/utils/constants';
 import { getObjectData } from '~/utils';
-import { useGetOtp } from '~/hooks/mutations/useGetOTP';
+import { useGetOtp } from '~/hooks/mutations/auth/useGetOTP';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -21,7 +21,6 @@ const changePasswordSchema = z
       .string()
       .min(1, 'Password confirmation is required')
       .min(6, 'Password must be at least 6 characters'),
-    
   })
   .refine((data) => data.password === data.password_confirmation, {
     message: "Passwords don't match",
@@ -38,7 +37,6 @@ interface ChangePasswordFormProps {
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoading }) => {
   const [showPassword, setShowPassword] = useState(false);
   useGetOtp();
-
 
   const [email, setEmail] = useState<string>('');
 
@@ -57,7 +55,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
   } = useForm<ChangePasswordFormData>({
     resolver: zodResolver(changePasswordSchema),
     mode: 'onChange',
-    
   });
 
   const togglePasswordVisibility = () => {
@@ -92,15 +89,12 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="done"
-                
               />
             )}
           />
         </View>
         {errors.otp && <Text className="mt-1 text-xs text-red-500">{errors.otp.message}</Text>}
       </View>
-
-     
 
       <View className="mb-6">
         <Text className="text-md mb-4 font-semibold text-white">Password</Text>
@@ -127,7 +121,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="done"
-               
               />
             )}
           />
@@ -166,7 +159,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="done"
-             
               />
             )}
           />

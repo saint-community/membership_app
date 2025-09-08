@@ -50,7 +50,7 @@ export const QUERY_PATHS = {
   CELL_SUBMISSIONS_STATS: '/api/cell/submissions/stats',
 
   // members
-  THIS_MEMBER: '/api/member',
+  THIS_MEMBER: '/api/member/all',
   MEMBER: '/api/member/:id',
   ADD_MEMBER: '/api/member/add',
 };
