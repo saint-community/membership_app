@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import Toast from 'react-native-toast-message';
 import { updateMember, UpdateMemberRequest } from '~/services/api/member';
+import { useGlobalInvalidator } from '~/lib/react-query/query-client';
 
 interface UseUpdateMemberReturn {
   isLoading: boolean;
@@ -10,7 +11,7 @@ interface UseUpdateMemberReturn {
 
 export const useUpdateMember = (): UseUpdateMemberReturn => {
   const router = useRouter();
-  const queryClient = useQueryClient();
+  const { invalidateByUrl, invalidateByKey } = useGlobalInvalidator();
 
   const updateMemberMutation = useMutation({
     mutationFn: ({ memberId, data }: { memberId: string; data: UpdateMemberRequest }) => 
@@ -22,8 +23,8 @@ export const useUpdateMember = (): UseUpdateMemberReturn => {
       });
 
       // Invalidate and refetch members list and specific member
-      queryClient.invalidateQueries({ queryKey: ['members'] });
-      queryClient.invalidateQueries({ queryKey: ['member', variables.memberId] });
+      invalidateByUrl('THIS_MEMBER');
+      invalidateByKey(['member', variables.memberId]);
 
       // Navigate back to previous screen
       router.back();

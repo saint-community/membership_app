@@ -1,5 +1,5 @@
 import { QUERY_PATHS, STORAGE_KEYS } from '~/utils/constants';
-import { clearStorage, getObjectData, storeObjectData, storeStringData } from '~/utils';
+import { clearStorage, getObjectData, getStringData, storeObjectData, storeStringData } from '~/utils';
 
 import { AdminApiCaller } from './init';
 
@@ -50,8 +50,16 @@ export async function logoutUser(): Promise<void> {
 }
 
 export async function getMe() {
+  const token = getStringData(STORAGE_KEYS.TOKEN);
   const user = getObjectData(STORAGE_KEYS.USER);
 
+  // If no token, return null (user is not authenticated)
+  if (!token) {
+    return null;
+  }
+
+  // If no user data but token exists, return null
+  // (this will trigger re-authentication or token refresh if needed)
   if (!user) {
     return null;
   }

@@ -107,7 +107,7 @@ export async function getMemberById(memberId: string): Promise<{
   success: boolean;
   message: string;
   error?: string;
-  data?: Member;
+  data?: AddedMember;
 }> {
   try {
     const { data } = await ApiCaller.get(QUERY_PATHS.MEMBER.replace(':id', memberId));
@@ -154,7 +154,7 @@ export async function updateMember(
   data?: Member;
 }> {
   try {
-    const { data } = await ApiCaller.put(QUERY_PATHS.MEMBER.replace(':id', memberId), body);
+    const { data } = await ApiCaller.patch(QUERY_PATHS.MEMBER.replace(':id', memberId), body);
     return data;
   } catch (error: any) {
     return {
