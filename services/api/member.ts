@@ -1,5 +1,5 @@
 import { QUERY_PATHS } from '~/utils/constants';
-import { ApiCaller } from './init';
+import { AdminApiCaller, ApiCaller } from './init';
 
 export interface Member {
   id: string;
@@ -18,12 +18,41 @@ export interface Member {
 }
 
 export interface CreateMemberRequest {
-  name: string;
+  full_name: string;
   email: string;
-  phone?: string;
-  role?: string;
-  fellowshipId?: string;
-  cellId?: string;
+  phone: string;
+  address: string;
+  gender: string;
+  date_of_birth: string;
+  church_id?: number;
+  date_joined_church?: string;
+  fellowship_id?: number;
+  cell_id?: number;
+}
+
+export interface CreateMemberResponse {
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: Member;
+}
+
+export interface AddedMember {
+  _id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  gender: string;
+  worker_id: number;
+  address: string;
+  date_of_birth: string;
+  church_id: number;
+  date_joined_church: string;
+  fellowship_id: number;
+  cell_id: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 export interface UpdateMemberRequest {
@@ -33,6 +62,25 @@ export interface UpdateMemberRequest {
   role?: string;
   fellowshipId?: string;
   cellId?: string;
+}
+
+// Get all members 
+export async function getAllMembers(): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: Member;
+}> {
+  try {
+    const { data } = await ApiCaller.get(QUERY_PATHS.THIS_MEMBER);
+    return data;
+  } catch (error: any) {    
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch members',
+      error: error.response?.data?.error || error.message,
+    };
+  }
 }
 
 // Get current member (logged in user)
@@ -59,7 +107,7 @@ export async function getMemberById(memberId: string): Promise<{
   success: boolean;
   message: string;
   error?: string;
-  data?: Member;
+  data?: AddedMember;
 }> {
   try {
     const { data } = await ApiCaller.get(QUERY_PATHS.MEMBER.replace(':id', memberId));
@@ -80,7 +128,10 @@ export async function addMember(body: CreateMemberRequest): Promise<{
   error?: string;
   data?: Member;
 }> {
+
   try {
+    console.log('Adding member with data:', body); // Debug log
+    
     const { data } = await ApiCaller.post(QUERY_PATHS.ADD_MEMBER, body);
     return data;
   } catch (error: any) {
@@ -103,7 +154,7 @@ export async function updateMember(
   data?: Member;
 }> {
   try {
-    const { data } = await ApiCaller.put(QUERY_PATHS.MEMBER.replace(':id', memberId), body);
+    const { data } = await ApiCaller.patch(QUERY_PATHS.MEMBER.replace(':id', memberId), body);
     return data;
   } catch (error: any) {
     return {

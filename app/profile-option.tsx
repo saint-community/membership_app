@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { useMe } from '~/hooks/data/me';
 import { logoutUser } from '~/services/api/auth';
+import { clearStorage, storage } from '~/utils';
 
 interface ProfileOptionItemProps {
   icon: React.ReactNode;
@@ -35,6 +36,8 @@ export default function ProfileOption() {
   const logOutAction = () => {
     logoutUser();
     router.replace('/(login)/login');
+    // Optionally, you can clear any user-related state here
+    clearStorage();
   };
 
   const logOut = () => {

@@ -4,6 +4,7 @@ import Toast from 'react-native-toast-message';
 import { loginUser } from '~/services/api/auth';
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import { useGlobalInvalidator } from '~/lib/react-query/query-client';
 
 interface UseLoginReturn {
   isLoading: boolean;
@@ -19,6 +20,7 @@ interface UseLoginReturn {
 export const useLogin = (): UseLoginReturn => {
   const router = useRouter();
   const [isAnyFieldFocused, setIsAnyFieldFocused] = useState(false);
+  const { invalidateByKey } = useGlobalInvalidator();
 
   // Bottom sheet ref
   const bottomSheetRef = useRef<any>(null);
@@ -59,6 +61,9 @@ export const useLogin = (): UseLoginReturn => {
       // Return snap point to default (70%) when form is submitted
       bottomSheetRef.current?.snapToIndex(0);
       setIsAnyFieldFocused(false);
+
+      // Invalidate 'me' query to trigger refetch with new token
+      invalidateByKey(['me']);
 
       // Navigate to main app after successful login
       router.replace('/(drawer)/(tabs)');

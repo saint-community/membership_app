@@ -1,12 +1,13 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import AddMemberForm from '~/components/members/addMemberForm';
+import EditMemberForm from '~/components/members/editMemberForm';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 
-const AddMember = () => {
+const EditMember = () => {
   const router = useRouter();
   const colors = useColors();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
   return (
     <View className="p-safe flex-1 dark:bg-black ">
@@ -15,12 +16,12 @@ const AddMember = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={colors.foreground} />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold dark:text-white text-black">Add Member Form</Text>
+        <Text className="text-lg font-semibold dark:text-white">Edit Member</Text>
         <View />
       </View>
-      <AddMemberForm />
+      <EditMemberForm memberId={id || ''} />
     </View>
   );
 };
 
-export default AddMember;
+export default EditMember;

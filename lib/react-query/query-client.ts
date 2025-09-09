@@ -33,3 +33,5 @@ export const queryClient = new QueryClient({
     },
   },
 });
+
+export { useGlobalInvalidator, globalInvalidator } from './invalidator';

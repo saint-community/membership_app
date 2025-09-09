@@ -6,16 +6,16 @@ import { useRouter } from 'expo-router';
 
 interface MemberCardProps {
   name: string;
-  created_at: string;
+  date_joined_church: string;
   id: string;
   image: string;
 }
 
-const MemberCard = ({ name, created_at, id, image }: MemberCardProps) => {
+const MemberCard = ({ name, date_joined_church, id, image }: MemberCardProps) => {
   const router = useRouter();
   return (
-    <View className="mb-3 flex flex-row items-center justify-between rounded-xl bg-[#1F1F1F] px-3 py-4">
-      <View className="flex-row items-center gap-3">
+    <View className="mb-3 flex flex-row items-center justify-between rounded-xl shadow-lg bg-white dark:bg-[#1F1F1F] px-3 py-4">
+      <View className="flex-row items-center dark:bg-[#1F1F1F]  ">
         <Avatar
           image_url={image}
           className="h-12 w-12 rounded-full"
@@ -23,21 +23,21 @@ const MemberCard = ({ name, created_at, id, image }: MemberCardProps) => {
         />
         <View>
           <View className="flex flex-row items-center gap-2">
-            <Text className="text-xl font-semibold text-white">{name}</Text>
-            <TouchableOpacity onPress={() => router.push('/edit-profile')}>
+            <Text className="text-lg font-semibold dark:text-white">{name}</Text>
+            <TouchableOpacity onPress={() => router.push(`/edit-member?id=${id}`)}>
               <Text className="text-md text-primary underline">Edit</Text>
             </TouchableOpacity>
           </View>
 
           <Text className="text-sm text-gray-400">
-            Member since {new Date(created_at).toLocaleDateString()},{' '}
-            {new Date(created_at).toLocaleTimeString()}
+            Member since {new Date(date_joined_church).toLocaleDateString()},{' '}
+            {new Date(date_joined_church).toLocaleTimeString()}
           </Text>
         </View>
       </View>
-      <TouchableOpacity className="p-2" onPress={() => router.push('/(drawer)/(tabs)')}>
+      {/* <TouchableOpacity className="p-2" onPress={() => router.push('/(drawer)/(tabs)')}>
         <Entypo name="chevron-right" size={24} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
