@@ -64,7 +64,7 @@ export interface UpdateMemberRequest {
   cellId?: string;
 }
 
-// Get all members 
+// Get all members
 export async function getAllMembers(): Promise<{
   success: boolean;
   message: string;
@@ -74,7 +74,7 @@ export async function getAllMembers(): Promise<{
   try {
     const { data } = await ApiCaller.get(QUERY_PATHS.THIS_MEMBER);
     return data;
-  } catch (error: any) {    
+  } catch (error: any) {
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to fetch members',
@@ -128,10 +128,9 @@ export async function addMember(body: CreateMemberRequest): Promise<{
   error?: string;
   data?: Member;
 }> {
-
   try {
     console.log('Adding member with data:', body); // Debug log
-    
+
     const { data } = await ApiCaller.post(QUERY_PATHS.ADD_MEMBER, body);
     return data;
   } catch (error: any) {

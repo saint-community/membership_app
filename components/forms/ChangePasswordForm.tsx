@@ -36,7 +36,7 @@ interface ChangePasswordFormProps {
 
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoading }) => {
   const [showPassword, setShowPassword] = useState(false);
-  useGetOtp();
+  // useGetOtp();
 
   const [email, setEmail] = useState<string>('');
 
@@ -64,12 +64,12 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
   return (
     <React.Fragment>
       <View className="mb-6">
-        <View className="mb-12 rounded-md border-l-2 border-[#333] border-l-yellow-600 bg-[#2a2a2a4d] p-4">
-          <Text className="text-sm text-white">
+        <View className="mb-12 rounded-md border-l-2 border-[#333] border-l-yellow-600 bg-yellow-100 dark:bg-[#2a2a2a4d] p-4">
+          <Text className="text-sm dark:text-white ">
             Please enter the OTP sent to your email: {email}
           </Text>
         </View>
-        <Text className="text-md mb-4 font-semibold text-white">Enter OTP</Text>
+        <Text className="text-md mb-4 font-semibold dark:text-white">Enter OTP</Text>
 
         <View className="relative">
           <Controller
@@ -77,7 +77,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
             name="otp"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] bg-[#2A2A2A] px-4 py-3.5 text-base text-white ${
+                className={`h-16 w-full rounded-xl border border-[#333] dark:dark:bg-[#2A2A2A] px-4 py-3.5 text-base dark:dark:text-white ${
                   errors.otp ? 'border-2 border-red-500' : ''
                 }`}
                 placeholder="Enter OTP code"
@@ -97,7 +97,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
       </View>
 
       <View className="mb-6">
-        <Text className="text-md mb-4 font-semibold text-white">Password</Text>
+        <Text className="text-md mb-4 font-semibold dark:text-white">Password</Text>
 
         <View className="relative">
           <Controller
@@ -105,7 +105,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base text-white ${
+                className={`h-16 w-full rounded-xl border border-[#333] dark:dark:bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base dark:dark:text-white ${
                   errors.password ? 'border-2 border-red-500' : ''
                 }`}
                 placeholder="Set new password"
@@ -135,7 +135,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
         )}
       </View>
       <View className="mb-6">
-        <Text className="text-md mb-4 font-semibold text-white">Confirm password</Text>
+        <Text className="text-md mb-4 font-semibold dark:text-white">Confirm password</Text>
 
         <View className="relative">
           <Controller
@@ -143,7 +143,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
             name="password_confirmation"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base text-white ${
+                className={`h-16 w-full rounded-xl border border-[#333] dark:bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base dark:text-white ${
                   errors.password_confirmation ? 'border-2 border-red-500' : ''
                 }`}
                 placeholder="Confirm new password"

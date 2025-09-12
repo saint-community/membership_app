@@ -12,7 +12,6 @@ interface UseChangePasswordReturn {
 }
 
 export const useChangePassword = (): UseChangePasswordReturn => {
-
   const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
@@ -22,29 +21,26 @@ export const useChangePassword = (): UseChangePasswordReturn => {
     };
     fetchEmail();
   }, []);
-  
 
-   const changePasswordMutation = useMutation({
+  const changePasswordMutation = useMutation({
     mutationFn: resetPassword,
     onSuccess: () => {
       Toast.show({
-        text1: "Password change is successful",
-        type: 'success'
+        text1: 'Password change is successful',
+        type: 'success',
       });
     },
     onError: (error: any) => {
       Toast.show({
-        text1: "Password change failed",
-        text2: error?.response?.data?.message || 'An error occurred', 
-        type: 'error'
+        text1: 'Password change failed',
+        text2: error?.response?.data?.message || 'An error occurred',
+        type: 'error',
       });
-    }
-
-  })
+    },
+  });
 
   return {
     isLoading: changePasswordMutation.isPending,
-    onSubmit: (data) => changePasswordMutation.mutate({email: email, ...data}), // Use mutate directly
-   
+    onSubmit: (data) => changePasswordMutation.mutate({ email: email, ...data }), // Use mutate directly
   };
-}; 
+};

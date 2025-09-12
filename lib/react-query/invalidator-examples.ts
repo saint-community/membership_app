@@ -54,18 +54,18 @@ export const someApiService = {
   },
 
   // Use in background sync operations
-    syncAllData: async () => {
-      try {
-        // Sync data with server...
-        // TODO: Implement actual server sync logic
-        const syncWithServer = async () => {
-          // Add your sync implementation here
-          return Promise.resolve();
-        };
-        
-        await syncWithServer();
-        
-        // Invalidate all cached data to refetch fresh data
+  syncAllData: async () => {
+    try {
+      // Sync data with server...
+      // TODO: Implement actual server sync logic
+      const syncWithServer = async () => {
+        // Add your sync implementation here
+        return Promise.resolve();
+      };
+
+      await syncWithServer();
+
+      // Invalidate all cached data to refetch fresh data
       globalInvalidator.invalidateAll();
     } catch (error) {
       console.error('Sync failed:', error);

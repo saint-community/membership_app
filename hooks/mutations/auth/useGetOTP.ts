@@ -12,9 +12,7 @@ interface IGetOTP {
 }
 
 export const useGetOtp = (): IGetOTP => {
-  
- 
-   const [email, setEmail] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
     const fetchEmail = async () => {
@@ -23,28 +21,27 @@ export const useGetOtp = (): IGetOTP => {
     };
     fetchEmail();
   }, []);
-  
-   const requestOtpMutation = useMutation({
+
+  const requestOtpMutation = useMutation({
     mutationFn: requestOtp,
     onSuccess: (data: any) => {
       Toast.show({
-        text1: "OTP request is successful",
-        text2: "Please check your email for the OTP",
-        type: 'success'
+        text1: 'OTP request is successful',
+        text2: 'Please check your email for the OTP',
+        type: 'success',
       });
     },
     onError: (error: any) => {
       Toast.show({
-        text1: "OTP request failed",
+        text1: 'OTP request failed',
         text2: error.response?.data?.message,
-        type: 'error'
+        type: 'error',
       });
-      
-    }
+    },
   });
 
   useEffect(() => {
-    if(email) requestOtpMutation.mutate({ email: email}); // Automatically request OTP when the hook is used
+    if (email) requestOtpMutation.mutate({ email: email }); // Automatically request OTP when the hook is used
     // Optionally, you can handle side effects here when the component mounts
     return () => {
       // Cleanup if needed
@@ -55,4 +52,4 @@ export const useGetOtp = (): IGetOTP => {
     isLoading: requestOtpMutation.isPending,
     onSubmit: requestOtpMutation.mutate,
   };
-}; 
+};

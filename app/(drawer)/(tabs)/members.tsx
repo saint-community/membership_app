@@ -9,7 +9,7 @@ export default function Members() {
   const router = useRouter();
   const colors = useColors();
   return (
-    <View className="p-safe flex-1 px-4 dark:bg-black ">
+    <View className="p-safe flex-1 px-4 bg-background ">
       {/* Header */}
       <View className="mb-4 flex-row items-center justify-between px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>

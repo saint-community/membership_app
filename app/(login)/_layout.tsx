@@ -5,7 +5,7 @@ import Login from './login';
 const LoginLayout = () => {
   return (
     <View style={styles.container}>
-     <Login />
+      <Login />
     </View>
   );
 };

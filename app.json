@@ -16,6 +16,13 @@
       "expo-web-browser",
       "expo-font",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you change your profile picture.",
+          "cameraPermission": "The app accesses your camera to let you take a new profile picture."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#000000",

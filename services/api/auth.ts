@@ -1,7 +1,13 @@
 import { QUERY_PATHS, STORAGE_KEYS } from '~/utils/constants';
-import { clearStorage, getObjectData, getStringData, storeObjectData, storeStringData } from '~/utils';
+import {
+  clearStorage,
+  getObjectData,
+  getStringData,
+  storeObjectData,
+  storeStringData,
+} from '~/utils';
 
-import { AdminApiCaller } from './init';
+import { AdminApiCaller, ApiCaller } from './init';
 
 export interface LoginResponse {
   error: string;
@@ -66,6 +72,88 @@ export async function getMe() {
 
   return user as User;
 }
+
+// Upload profile image
+export async function uploadProfileImage(imageUri: string): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  imageUrl?: string;
+}> {
+  try {
+    const formData = new FormData();
+    
+    // Create file object for upload
+    const fileExtension = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
+    const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+    
+    formData.append('profile_image', {
+      uri: imageUri,
+      type: mimeType,
+      name: `profile_image.${fileExtension}`,
+    } as any);
+
+    const { data } = await AdminApiCaller.post(QUERY_PATHS.UPLOAD_PROFILE_IMAGE, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    console.log('Upload profile image response:', data);
+    return data;
+  } catch (error: any) {
+    console.error('Upload profile image error:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to upload image',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
+export interface UpdateProfileRequest {
+  first_name?: string;
+  last_name?: string;
+  phone_number?: string;
+  house_address?: string;
+  work_address?: string;
+  facebook_username?: string;
+  twitter_username?: string;
+  instagram_username?: string;
+  profile_image_url?: string;
+}
+
+// Update profile 
+export async function updateProfile(body: UpdateProfileRequest | FormData, id: string): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: User;
+}> {
+  try {
+    console.log('Updating profile with data:', body, body instanceof FormData ? 'as FormData' : 'as JSON');
+    
+    const { data } = await AdminApiCaller.put(QUERY_PATHS.UPDATE_PROFILE.replace(':id', id), body, {
+      headers: body instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' },
+    });
+    
+    console.log('update profile data', data);
+    
+    // Update local storage with new user data if successful
+    if (data.worker) {
+      storeObjectData(STORAGE_KEYS.USER, data.worker);
+    }
+    
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to update profile',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
 
 interface User {
   id: number;

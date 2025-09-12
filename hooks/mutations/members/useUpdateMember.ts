@@ -14,7 +14,7 @@ export const useUpdateMember = (): UseUpdateMemberReturn => {
   const { invalidateByUrl, invalidateByKey } = useGlobalInvalidator();
 
   const updateMemberMutation = useMutation({
-    mutationFn: ({ memberId, data }: { memberId: string; data: UpdateMemberRequest }) => 
+    mutationFn: ({ memberId, data }: { memberId: string; data: UpdateMemberRequest }) =>
       updateMember(memberId, data),
     onSuccess: (data: any, variables) => {
       Toast.show({
@@ -40,7 +40,7 @@ export const useUpdateMember = (): UseUpdateMemberReturn => {
 
   return {
     isLoading: updateMemberMutation.isPending,
-    onSubmit: (memberId: string, data: UpdateMemberRequest) => 
+    onSubmit: (memberId: string, data: UpdateMemberRequest) =>
       updateMemberMutation.mutate({ memberId, data }),
   };
 };
