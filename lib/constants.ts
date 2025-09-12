@@ -2,7 +2,8 @@ export const swipeList = [
   {
     source: require('~/assets/pastor_one.jpg'),
     subject: 'Welcome to Saints Community Database',
-    description: 'Track, share and grow in the work of the ministry via organised data and reporting.',
+    description:
+      'Track, share and grow in the work of the ministry via organised data and reporting.',
   },
   {
     source: require('~/assets/pastor_two.jpg'),

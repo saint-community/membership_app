@@ -46,7 +46,7 @@ export const mockAssignmentsSubmit: AssignmentSubmission[] = [
     dueDate: '27th April, 2025 11:59AM',
     status: 'Approved',
     link: 'https://www.livingwordmedia.org/kings-and-priests-in-the-earth/',
-    percentage:67,
+    percentage: 67,
   },
   {
     id: '2',
@@ -56,7 +56,7 @@ export const mockAssignmentsSubmit: AssignmentSubmission[] = [
     status: 'Submitted',
     link: '',
   },
-    {
+  {
     id: '3',
     title: "(In Christ) Paul's revelation of Identification - Track 2",
     submissionTime: '17th April, 2025 11:59AM',
@@ -65,7 +65,7 @@ export const mockAssignmentsSubmit: AssignmentSubmission[] = [
     link: '',
     percentage: 85,
   },
-    {
+  {
     id: '4',
     title: "(In Christ) Paul's revelation of Identification - Track 3",
     submissionTime: '16th April, 2025 11:59AM',
@@ -74,7 +74,7 @@ export const mockAssignmentsSubmit: AssignmentSubmission[] = [
     link: '',
     percentage: 90,
   },
-    {
+  {
     id: '5',
     title: "(In Christ) Paul's revelation of Identification - Track 4",
     submissionTime: '28th April, 2025 11:59AM',
@@ -82,7 +82,7 @@ export const mockAssignmentsSubmit: AssignmentSubmission[] = [
     status: 'Submitted',
     link: '',
   },
-    {
+  {
     id: '6',
     title: "(In Christ) Paul's revelation of Identification - Track 5",
     submissionTime: '27th April, 2025 11:59AM',

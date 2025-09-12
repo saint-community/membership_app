@@ -49,7 +49,9 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   return (
     <React.Fragment>
-      <Text className="mb-4 text-lg font-bold dark:text-white text-black">Enter your Email Address</Text>
+      <Text className="mb-4 text-lg font-bold text-black dark:text-white">
+        Enter your Email Address
+      </Text>
 
       <View className="mb-4">
         <Controller
@@ -57,7 +59,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           name="email"
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
-              className={`h-14 w-full rounded-xl border border-[#333] dark:bg-[#2A2A2A] px-4 py-3 text-base dark:text-white  text-black ${
+              className={`h-14 w-full rounded-xl border border-[#333] px-4 py-3 text-base text-black dark:bg-[#2A2A2A]  dark:text-white ${
                 errors.email ? 'border-2 border-red-500' : ''
               }`}
               placeholder="e.g. temitopesanusi@example.com"
@@ -79,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
         {errors.email && <Text className="mt-1 text-xs text-red-500">{errors.email.message}</Text>}
       </View>
 
-      <Text className="mb-4 text-lg font-bold dark:text-white text-black">Enter your Password</Text>
+      <Text className="mb-4 text-lg font-bold text-black dark:text-white">Enter your Password</Text>
 
       <View className="mb-6">
         <View className="relative">
@@ -88,7 +90,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                className={`h-14 w-full rounded-xl border border-[#333] dark:bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base dark:text-white text-black ${
+                className={`h-14 w-full rounded-xl border border-[#333] px-4 py-3.5 pr-12 text-base text-black dark:bg-[#2A2A2A] dark:text-white ${
                   errors.password ? 'border-2 border-red-500' : ''
                 }`}
                 placeholder="******"
@@ -118,7 +120,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
           <Text className="mt-1 text-xs text-red-500">{errors.password.message}</Text>
         )}
       </View>
-      
+
       <TouchableOpacity
         className={`h-12 w-full items-center justify-center rounded-lg ${
           isValid && !isLoading ? 'bg-[#FF007F]' : 'bg-[#353535]'

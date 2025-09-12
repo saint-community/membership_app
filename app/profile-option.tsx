@@ -85,12 +85,12 @@ export default function ProfileOption() {
             title="Change Password"
             onPress={() => router.push('/change-password')}
           />
-
-          <ProfileOptionItem
+          {/* Out of Scope for version 1.0 */}
+          {/* <ProfileOptionItem
             icon={<Ionicons name="notifications" size={20} color={colors.foreground} />}
             title="Notifications"
             onPress={() => router.push('/notifications')}
-          />
+          /> */}
 
           <ProfileOptionItem
             icon={<Ionicons name="settings" size={20} color={colors.foreground} />}

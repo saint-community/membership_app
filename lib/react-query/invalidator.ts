@@ -15,7 +15,7 @@ export const useGlobalInvalidator = () => {
     qc.invalidateQueries({ queryKey: [queryKey] });
   };
 
-  const invalidateMultiple = (keys: Array<string | keyof typeof QUERY_PATHS>) => {
+  const invalidateMultiple = (keys: (string | keyof typeof QUERY_PATHS)[]) => {
     keys.forEach((key) => {
       if (typeof key === 'string' && key in QUERY_PATHS) {
         invalidateByUrl(key as keyof typeof QUERY_PATHS);
@@ -49,7 +49,7 @@ export const globalInvalidator = {
     queryClient.invalidateQueries({ queryKey: [key] });
   },
 
-  invalidateMultiple: (keys: Array<string | keyof typeof QUERY_PATHS>) => {
+  invalidateMultiple: (keys: (string | keyof typeof QUERY_PATHS)[]) => {
     keys.forEach((key) => {
       if (typeof key === 'string' && key in QUERY_PATHS) {
         globalInvalidator.invalidateByUrl(key as keyof typeof QUERY_PATHS);

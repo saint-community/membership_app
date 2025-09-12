@@ -12,6 +12,8 @@ export const QUERY_PATHS = {
   OTP_REQUEST: 'api/worker/otp/request',
   OTP_VERIFY: 'api/worker/otp/verify',
   CHANGE_PASSWORD: '/api/worker/password/change',
+  UPDATE_PROFILE: '/api/worker/profile/update/:id',
+  UPLOAD_PROFILE_IMAGE: '/api/worker/profile/upload-image',
 
   // prayer
   PRAYER_ATTENDANCE: '/api/worker/prayer/attendance',

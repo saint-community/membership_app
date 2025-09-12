@@ -18,10 +18,9 @@ import { getStringData } from '~/utils';
 export default function Index() {
   // const [auth, setAuth] = useState(false);
 
-
   // const loadUserData = async () => {
   //   const isAuthenticated = await getStringData(STORAGE_KEYS.IS_AUTHENTICATED);
-   
+
   //   if (isAuthenticated) {
   //     setAuth(isAuthenticated);
   //   }

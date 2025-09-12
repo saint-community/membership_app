@@ -14,8 +14,8 @@ interface MemberCardProps {
 const MemberCard = ({ name, date_joined_church, id, image }: MemberCardProps) => {
   const router = useRouter();
   return (
-    <View className="mb-3 flex flex-row items-center justify-between rounded-xl shadow-lg bg-white dark:bg-[#1F1F1F] px-3 py-4">
-      <View className="flex-row items-center dark:bg-[#1F1F1F]  ">
+    <View className="mb-3 flex flex-row items-center justify-between rounded-xl bg-white px-3 py-4 shadow-lg  dark:bg-gray-800 ">
+      <View className="flex-row items-center">
         <Avatar
           image_url={image}
           className="h-12 w-12 rounded-full"
@@ -30,8 +30,9 @@ const MemberCard = ({ name, date_joined_church, id, image }: MemberCardProps) =>
           </View>
 
           <Text className="text-sm text-gray-400">
-            Member since {new Date(date_joined_church).toLocaleDateString()},{' '}
-            {new Date(date_joined_church).toLocaleTimeString()}
+            Member since {new Date(date_joined_church).toLocaleDateString()}
+            {/* ,{' '} */}
+            {/* {new Date(date_joined_church).toLocaleTimeString()} */}
           </Text>
         </View>
       </View>

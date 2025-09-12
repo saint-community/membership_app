@@ -1,5 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, TouchableOpacity, TextInput, ScrollView, ActivityIndicator, Image } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
 import { Text } from '../nativewindui/Text';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -33,7 +40,7 @@ function EditableField({ label, value, onPress, noEdit = false }: EditableFieldP
   const colors = useColors();
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={noEdit ? undefined : onPress}
       className="mb-4 flex-row items-center justify-between rounded-lg bg-white px-4 py-4 dark:bg-[#1F1F1F]">
       <View className="">
         <Text className="text-base ">{value}</Text>
@@ -149,7 +156,6 @@ function BottomSheetModal({
   );
 }
 
-
 const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
   const colors = useColors();
   const [formInitialized, setFormInitialized] = useState(false);
@@ -168,7 +174,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
     fieldType: 'text',
     selectItems: [],
   });
-  
+
   const memberSchema = z.object({
     fullName: z.string().min(1, 'Full name is required'),
     gender: z.string().min(1, 'Gender is required'),
@@ -232,8 +238,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
     if (memberData?.data && !formInitialized) {
       const member = memberData.data;
       console.log('Populating form with member data:', member);
-      
-      
+
       const initialData = {
         fullName: member.full_name || '',
         gender: member.gender || '',
@@ -247,23 +252,32 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
         dateOfBirth: new Date(member.date_of_birth).toLocaleDateString() || '',
         church: member.church_id?.toString() || '',
       };
-      
+
       reset(initialData);
       setProfileData(initialData);
       setFormInitialized(true);
     }
   }, [memberData, reset, formInitialized]);
 
-  const openModal = useCallback((title: string, field: string, multiline: boolean = false, fieldType: 'text' | 'select' | 'date' = 'text', selectItems: string[] = []) => {
-    setModalState({
-      isVisible: true,
-      title,
-      field,
-      multiline,
-      fieldType,
-      selectItems,
-    });
-  }, []);
+  const openModal = useCallback(
+    (
+      title: string,
+      field: string,
+      multiline: boolean = false,
+      fieldType: 'text' | 'select' | 'date' = 'text',
+      selectItems: string[] = []
+    ) => {
+      setModalState({
+        isVisible: true,
+        title,
+        field,
+        multiline,
+        fieldType,
+        selectItems,
+      });
+    },
+    []
+  );
 
   const closeModal = useCallback(() => {
     setModalState({
@@ -283,12 +297,12 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
           ...prev,
           [modalState.field]: value,
         };
-        
+
         // Update form values as well
         reset(updated);
         return updated;
       });
-      
+
       // Auto-submit the form when a field is updated
       setTimeout(() => {
         handleSubmit(onSubmit)();
@@ -339,10 +353,8 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
     submitToAPI(memberId, apiData);
   };
 
-
-
   // Show loading until we have data AND form is populated
-  if (memberLoading &&  !formInitialized) {
+  if (memberLoading && !formInitialized) {
     return (
       <View className="flex-1 items-center justify-center px-4">
         <ActivityIndicator size="large" color="#FF007F" />
@@ -367,7 +379,6 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
         className="flex-1 px-4"
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}>
-        
         {/* Profile Image */}
         <View className="mb-8 items-center">
           <View className="relative">
@@ -411,42 +422,44 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
             onPress={() => openModal('Phone Number', 'phone')}
           />
 
-          <EditableField
+          {/* <EditableField
             label="Cell"
             value={profileData.cell}
             onPress={() => openModal('Cell', 'cell')}
             noEdit
-          />
+          /> */}
 
-          <EditableField
+          {/* <EditableField
             label="Fellowship"
             value={profileData.fellowship}
             onPress={() => openModal('Fellowship', 'fellowship')}
             noEdit
-          />
+          /> */}
 
           <EditableField
             label="Department"
             value={profileData.department}
-            onPress={() => openModal('Department', 'department', false, 'select', [
-              'Music Ministry',
-              'Guest Ministry',
-              'Technical Department',
-              'Livingword Media Department',
-              'Operations Department',
-              "Children's Church",
-              'Works Department',
-              'Security',
-              'Pastors Protocol',
-              'Media Team',
-            ])}
+            onPress={() =>
+              openModal('Department', 'department', false, 'select', [
+                'Music Ministry',
+                'Guest Ministry',
+                'Technical Department',
+                'Livingword Media Department',
+                'Operations Department',
+                "Children's Church",
+                'Works Department',
+                'Security',
+                'Pastors Protocol',
+                'Media Team',
+              ])
+            }
           />
 
           <EditableField
             label="Date joined Church"
             value={profileData.dateJoined}
             onPress={() => openModal('Date joined Church', 'dateJoined', false, 'date')}
-            noEdit
+           
           />
 
           <EditableField
@@ -461,12 +474,12 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
             onPress={() => openModal('Date of Birth', 'dateOfBirth', false, 'date')}
           />
 
-          <EditableField
+          {/* <EditableField
             label="Church"
             value={profileData.church}
             onPress={() => openModal('Church', 'church')}
             noEdit
-          />
+          /> */}
         </View>
 
         {/* Delete Member Button */}
@@ -503,11 +516,12 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
         // containerStyle={{ backgroundColor: colors.background }}
         backgroundStyle={{ backgroundColor: colors.background }}
         onClose={handleDeleteCancel}>
-        <BottomSheetView className="flex-1 px-4 h-full justify-center ">
+        <BottomSheetView className="h-full flex-1 justify-center px-4 ">
           <View className="mb-6 items-center">
-            
             <Text className="text-center text-gray-600 dark:text-gray-400">
-              Are you sure you want to delete <Text className="font-semibold dark:text-white">{profileData.fullName}</Text> ? This action cannot be undone.
+              Are you sure you want to delete{' '}
+              <Text className="font-semibold dark:text-white">{profileData.fullName}</Text> ? This
+              action cannot be undone.
             </Text>
           </View>
 
@@ -519,7 +533,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
             </TouchableOpacity> */}
 
             <TouchableOpacity
-              className="flex-1 h-12 items-center justify-center rounded-lg bg-red-500"
+              className="h-12 flex-1 items-center justify-center rounded-lg bg-red-500"
               onPress={handleDeleteConfirm}>
               <Text className="font-semibold text-white">Delete</Text>
             </TouchableOpacity>

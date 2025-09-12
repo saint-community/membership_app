@@ -5,9 +5,9 @@ interface UsePullToRefreshOptions {
   minimumRefreshDuration?: number;
 }
 
-export const usePullToRefresh = ({ 
-  onRefresh, 
-  minimumRefreshDuration = 1000 
+export const usePullToRefresh = ({
+  onRefresh,
+  minimumRefreshDuration = 1000,
 }: UsePullToRefreshOptions) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -24,7 +24,7 @@ export const usePullToRefresh = ({
     } finally {
       const elapsedTime = Date.now() - startTime;
       const remainingTime = Math.max(0, minimumRefreshDuration - elapsedTime);
-      
+
       // Ensure minimum refresh duration for better UX
       setTimeout(() => {
         setIsRefreshing(false);

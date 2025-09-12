@@ -10,7 +10,7 @@ const EditMember = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   return (
-    <View className="p-safe flex-1 dark:bg-black ">
+    <View className="p-safe flex-1 bg-background ">
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-4">
         <TouchableOpacity onPress={() => router.back()}>
