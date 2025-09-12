@@ -25,8 +25,8 @@ export const QUERY_PATHS = {
   STUDY_GROUP_YEAR: '/api/study-groups/weekly/:year',
 
   //submission
-  SUBMISSIONS: '/api/submissions',
-  SUBMISSION: '/api/submissions/:id',
+  SUBMISSIONS: '/api/study-group/submissions',
+  SUBMISSION: '/api/study-group/submissions/:id',
   SUBMISSION_CURRENT_WEEK: '/api/submissions/current-week',
   SUBMISSION_STATS: '/api/submissions/stats',
   SUBMISSION_RECENT_ASSIGNMENTS: '/api/submissions/assignments/recent',

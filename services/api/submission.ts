@@ -40,22 +40,9 @@ export interface UpdateSubmissionRequest {
 }
 
 // Get all submissions
-export async function getSubmissions(): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: Submission[];
-}> {
-  try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSIONS);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch submissions',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function getSubmissions() {
+  const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSIONS);
+  return data;
 }
 
 // Get submission by ID

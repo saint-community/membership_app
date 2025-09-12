@@ -166,26 +166,13 @@ export async function deleteStudyGroup(studyGroupId: string): Promise<{
 }
 
 // Get current week study group
-export async function getCurrentWeekStudyGroup(church_id?: number): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: StudyGroup;
-}> {
-  try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.STUDY_GROUP_CURRENT_WEEK, {
-      params: {
-        church_id,
-      },
-    });
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch current week study group',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function getCurrentWeekStudyGroup(church_id?: number) {
+  const { data } = await ApiCaller.get(QUERY_PATHS.STUDY_GROUP_CURRENT_WEEK, {
+    params: {
+      church_id,
+    },
+  });
+  return data;
 }
 
 // Get study groups by year

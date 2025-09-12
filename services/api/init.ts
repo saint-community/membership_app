@@ -23,8 +23,6 @@ AdminApiCaller.interceptors.request.use((config) => {
   return config;
 });
 
-
-
 export const ApiCaller = axios.create({
   baseURL: API_URL,
   headers: {
@@ -35,6 +33,8 @@ export const ApiCaller = axios.create({
 
 ApiCaller.interceptors.request.use((config) => {
   const token = getStringData(STORAGE_KEYS.TOKEN);
+
+  console.log('token', token);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token.trim()}`;
@@ -54,4 +54,3 @@ ApiCaller.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-

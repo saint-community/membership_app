@@ -10,15 +10,24 @@
       "output": "static",
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-router", "expo-localization", "expo-web-browser", "expo-font", ["expo-splash-screen",  {
-      "backgroundColor": "#000000",
-      "image": "./assets/logo.png",
-      "dark": {
-        "image": "./assets/logo.png",
-        "backgroundColor": "#000000"
-      },
-      "imageWidth": 200
-    }]],
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      "expo-web-browser",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/logo.png",
+          "dark": {
+            "image": "./assets/logo.png",
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": 200
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true,
       "tsconfigPaths": true
@@ -30,7 +39,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.saintcommunity.membership"
@@ -45,8 +56,8 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "81da2785-611a-4535-9380-ad4ec4f88c4e"
+        "projectId": "f47d8b2e-dafa-4908-b253-a0d140855c31"
       }
     }
-  }  
+  }
 }

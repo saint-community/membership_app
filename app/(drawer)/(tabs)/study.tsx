@@ -4,22 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import TabBar from '~/components/studyGroup/TabBar';
 import AssignmentCardList from '~/components/studyGroup/AssignmentCardList';
-import {
-  AssignmentSubmission,
-  AssignmentUpload,
-  mockAssignments,
-  mockAssignmentsSubmit,
-} from '~/models/studygroupmodels';
-import { useCurrentWeekStudyGroup } from '~/hooks/data/study';
+import { AssignmentSubmission, AssignmentUpload } from '~/models/studygroupmodels';
+import { useCurrentWeekStudyGroup, useSubmissions } from '~/hooks/data/study';
 
 export default function Study() {
   const [tab, setTab] = useState<'assignments' | 'submissions'>('assignments');
-  const { data: studyGroup } = useCurrentWeekStudyGroup();
-  console.log(studyGroup);
-  const [selectedAssignment, setSelectedAssignment] = useState<
-    AssignmentUpload | AssignmentSubmission | null
-  >(null);
-  const [uploadVisible, setUploadVisible] = useState(false);
+  const { data: assignments } = useCurrentWeekStudyGroup();
+  const { data: submissions } = useSubmissions();
   const router = useRouter();
 
   const handleOpenAssignment = (selectAssignment: AssignmentUpload | AssignmentSubmission) => {
@@ -36,13 +27,13 @@ export default function Study() {
       <TabBar tab={tab} setTab={setTab} />
       {tab === 'assignments' ? (
         <AssignmentCardList
-          data={mockAssignments}
+          data={assignments ? [assignments] : []}
           tab="assignments"
           onPress={handleOpenAssignment}
         />
       ) : (
         <AssignmentCardList
-          data={mockAssignmentsSubmit}
+          data={submissions || []}
           tab="submissions"
           onPress={handleOpenAssignment}
         />

@@ -39,7 +39,7 @@ export const getStudyGroupDateRange = (dueDate: string) => {
   const cleaned = cleanDateString(dueDate);
   console.log('Cleaned Due Date:', cleaned);
 
-  const end = dayjs(cleaned, 'DD MMMM YYYY');
+  const end = dayjs(cleaned);
   const start = end.subtract(7, 'day');
 
   const sameMonth = start.month() === end.month();

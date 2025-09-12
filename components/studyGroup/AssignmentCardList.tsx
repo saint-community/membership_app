@@ -9,6 +9,7 @@ type AssignmentCardProps = {
 };
 
 export default function AssignmentCardList({ data, tab, onPress }: AssignmentCardProps) {
+  console.log(data.length);
   return (
     <View className="w-full flex-1">
       <FlatList<AssignmentUpload | AssignmentSubmission>
