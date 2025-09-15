@@ -4,11 +4,12 @@ dayjs.extend(customParseFormat);
 
 export function cleanDateString(dateStr: string): string {
   return dateStr
-    .replace(/(\d{1,2})(st|nd|rd|th)/g, '$1')
-    .replace(/,\s*/g, ' ')
-    .trim();
+    ?.replace(/(\d{1,2})(st|nd|rd|th)/g, '$1')
+    ?.replace(/,\s*/g, ' ')
+    ?.trim();
 }
 export const isLate = (dueDate: string, submitDate: string) => {
+  if (!dueDate || !submitDate) return false;
   console.log('dueDate', dueDate, 'submitDate', submitDate);
   const cleanDue = cleanDateString(dueDate);
   const cleanSubmit = cleanDateString(submitDate);
@@ -48,5 +49,14 @@ export const getStudyGroupDateRange = (dueDate: string) => {
     return `${getOrdinal(start.date())} - ${getOrdinal(end.date())} ${end.format('MMMM, YYYY')}`;
   } else {
     return `${getOrdinal(start.date())} ${start.format('MMMM, YYYY')} - ${getOrdinal(end.date())} ${end.format('MMMM, YYYY')}`;
+  }
+};
+
+export const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
   }
 };

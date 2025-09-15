@@ -54,6 +54,8 @@ export default function AssignmentCard({ item, tab, onPress }: AssignmentCardPro
                   item.status === 'overdue' || item.status === 'approved',
                 'bg-[#294e3c] text-[#4CAF50]':
                   item.status === 'active' || item.status === 'submitted',
+                'bg-[#d32f2f] text-[#d32f2f]': item.status === 'rejected',
+                'bg-[#d1d5c9] text-[#e69c14]': item.status === 'late',
               }
             )}>
             {item.status}

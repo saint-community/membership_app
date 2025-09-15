@@ -56,11 +56,6 @@ export interface UpdateStudyGroupRequest {
   assignments?: StudyGroupAssignment[];
 }
 
-export interface CreateSubmissionRequest {
-  assignmentId: string;
-  content: string;
-}
-
 export interface UpdateSubmissionRequest {
   content: string;
 }

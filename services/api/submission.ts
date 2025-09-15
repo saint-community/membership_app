@@ -31,12 +31,12 @@ export interface RecentAssignment {
 }
 
 export interface CreateSubmissionRequest {
-  assignmentId: string;
-  content: string;
+  study_group_id: string;
+  assignment_link?: string;
 }
 
 export interface UpdateSubmissionRequest {
-  content: string;
+  assignment_link: string;
 }
 
 // Get all submissions
@@ -122,60 +122,19 @@ export async function getRecentAssignments(): Promise<{
 }
 
 // Create submission
-export async function createSubmission(body: CreateSubmissionRequest): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: Submission;
-}> {
-  try {
-    const { data } = await ApiCaller.post(QUERY_PATHS.SUBMISSIONS, body);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to create submission',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function createSubmission(body: CreateSubmissionRequest) {
+  const { data } = await ApiCaller.post(QUERY_PATHS.SUBMISSIONS, body);
+  return data;
 }
 
 // Update submission
-export async function updateSubmission(
-  submissionId: string,
-  body: UpdateSubmissionRequest
-): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: Submission;
-}> {
-  try {
-    const { data } = await ApiCaller.put(QUERY_PATHS.SUBMISSION.replace(':id', submissionId), body);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to update submission',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function updateSubmission(submissionId: string, body: UpdateSubmissionRequest) {
+  const { data } = await ApiCaller.patch(QUERY_PATHS.SUBMISSION.replace(':id', submissionId), body);
+  return data;
 }
 
 // Delete submission
-export async function deleteSubmission(submissionId: string): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-}> {
-  try {
-    const { data } = await ApiCaller.delete(QUERY_PATHS.SUBMISSION.replace(':id', submissionId));
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to delete submission',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function deleteSubmission(submissionId: string) {
+  const { data } = await ApiCaller.delete(QUERY_PATHS.SUBMISSION.replace(':id', submissionId));
+  return data;
 }

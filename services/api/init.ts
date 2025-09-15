@@ -16,8 +16,6 @@ export const AdminApiCaller = axios.create({
 AdminApiCaller.interceptors.request.use((config) => {
   const token = getStringData(STORAGE_KEYS.TOKEN);
 
-  
-
   if (token) {
     config.headers.Authorization = `Bearer ${token.trim()}`;
   }
@@ -35,8 +33,6 @@ export const ApiCaller = axios.create({
 
 ApiCaller.interceptors.request.use((config) => {
   const token = getStringData(STORAGE_KEYS.TOKEN);
-
-  console.log('token', token);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token.trim()}`;

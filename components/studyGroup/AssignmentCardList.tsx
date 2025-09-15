@@ -6,10 +6,17 @@ type AssignmentCardProps = {
   data: AssignmentUpload[] | AssignmentSubmission[];
   tab: 'assignments' | 'submissions';
   onPress: (item: AssignmentUpload | AssignmentSubmission) => void;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 };
 
-export default function AssignmentCardList({ data, tab, onPress }: AssignmentCardProps) {
-  console.log(data.length);
+export default function AssignmentCardList({
+  data,
+  tab,
+  onPress,
+  onRefresh,
+  refreshing,
+}: AssignmentCardProps) {
   return (
     <View className="w-full flex-1">
       <FlatList<AssignmentUpload | AssignmentSubmission>
@@ -18,6 +25,8 @@ export default function AssignmentCardList({ data, tab, onPress }: AssignmentCar
         renderItem={({ item }) => (
           <AssignmentCard item={item} tab={tab} onPress={() => onPress(item)} />
         )}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
       />
     </View>
   );
