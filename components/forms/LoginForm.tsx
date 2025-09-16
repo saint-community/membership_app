@@ -41,6 +41,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
+    defaultValues: {
+      email: 'demioyewusi@gmail.com',
+      password: 'password',
+    },
   });
 
   const togglePasswordVisibility = () => {

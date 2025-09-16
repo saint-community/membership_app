@@ -1,5 +1,5 @@
 import { QUERY_PATHS } from '~/utils/constants';
-import { AdminApiCaller, ApiCaller } from './init';
+import { ApiCaller } from './init';
 
 export interface Member {
   id: string;
@@ -69,7 +69,7 @@ export async function getAllMembers(): Promise<{
   success: boolean;
   message: string;
   error?: string;
-  data?: Member;
+  data?: Member[];
 }> {
   try {
     const { data } = await ApiCaller.get(QUERY_PATHS.THIS_MEMBER);

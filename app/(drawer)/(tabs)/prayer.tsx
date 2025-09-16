@@ -3,35 +3,33 @@ import { View, TouchableOpacity, TextInput } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { Button } from '~/components/Button';
 import { ParticipantChip } from '~/components/prayer/ParticipantChip';
-import {
-  ParticipantSelectorSheet,
-  type Participant,
-} from '~/components/prayer/ParticipantSelectorSheet';
+import { ParticipantSelectorSheet } from '~/components/prayer/ParticipantSelectorSheet';
 import { ConfirmationSheet } from '~/components/prayer/ConfirmationSheet';
 import { ResultSheet } from '~/components/prayer/ResultSheet';
+import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
+import { useMe } from '~/hooks/data/me';
+import { markPrayerAttendance } from '~/services/api/prayer';
+import { useMutation } from '@tanstack/react-query';
 
 export default function Prayer() {
-  const participants: Participant[] = useMemo(
-    () => [
-      { id: '1', name: 'Myself' },
-      { id: '2', name: 'Akachukwu Blessing' },
-      { id: '3', name: 'Bolu Salewd' },
-      { id: '4', name: 'Celine Ugpa' },
-      { id: '5', name: 'David John' },
-      { id: '6', name: 'Emmanuel GOAT' },
-      { id: '7', name: 'Emmanuel Goat' },
-    ],
-    []
-  );
-
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [code, setCode] = useState('');
+  const { data: me } = useMe();
   const [showSelect, setShowSelect] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [result, setResult] = useState<null | { type: 'success' | 'error'; message: string }>(null);
+  const { data } = useGetAllMembers();
+
+  const participants = useMemo(
+    () =>
+      (Array.isArray(data?.data)
+        ? [{ _id: me?.id, full_name: 'Myself' }, ...data.data]
+        : []) as any,
+    [data?.data, me?.id]
+  );
 
   const selectedNames = useMemo(
-    () => participants.filter((p) => selectedIds.includes(p.id)).map((p) => p.name),
+    () => participants.filter((p: any) => selectedIds.includes(p._id)).map((p: any) => p.full_name),
     [participants, selectedIds]
   );
 
@@ -52,19 +50,31 @@ export default function Prayer() {
     setShowConfirm(true);
   };
 
-  const confirmMark = () => {
-    setShowConfirm(false);
-    if (code === '123456') {
+  const mutation = useMutation({
+    mutationFn: (data: { meetingId: string; participantIds: string[]; code: string }) => {
+      return markPrayerAttendance(data);
+    },
+    onSuccess: () => {
       setResult({
         type: 'success',
         message: 'You have successfully marked your prayer group attendance.',
       });
-    } else {
+    },
+    onError: () => {
       setResult({
         type: 'error',
         message: 'Oops! We love your zeal but not that code. Input a valid code and try again.',
       });
-    }
+    },
+  });
+
+  const confirmMark = () => {
+    setShowConfirm(false);
+    mutation.mutate({
+      meetingId: '1',
+      participantIds: selectedIds,
+      code: code,
+    });
   };
 
   return (
@@ -81,9 +91,11 @@ export default function Prayer() {
             ) : (
               <View className="flex-row flex-wrap">
                 {selectedIds.map((id) => {
-                  const p = participants.find((x) => x.id === id);
+                  const p = participants.find((x: any) => x._id === id);
                   if (!p) return null;
-                  return <ParticipantChip key={id} name={p.name} onRemove={() => removeId(id)} />;
+                  return (
+                    <ParticipantChip key={id} name={p.full_name} onRemove={() => removeId(id)} />
+                  );
                 })}
               </View>
             )}
@@ -103,6 +115,7 @@ export default function Prayer() {
           title="Mark Attendance"
           onPress={handleMarkAttendance}
           disabled={selectedIds.length === 0 || code.length !== 6}
+          isLoading={mutation.isPending}
         />
       </View>
 

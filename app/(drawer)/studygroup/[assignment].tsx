@@ -23,11 +23,13 @@ import {
   updateSubmission,
   UpdateSubmissionRequest,
 } from '~/services/api/submission';
-import { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import React from 'react';
 import BottomSheetWrapper from '~/components/ui/BottomSheetWrapper';
+import { useMe } from '~/hooks/data/me';
+import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
+import { ParticipantSelectorSheet } from '~/components/prayer/ParticipantSelectorSheet';
 
 const openInAppBrowser = async (url: string) => {
   if (url) {
@@ -69,8 +71,31 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
   const [modalMessage, setModalMessage] = useState<any>('');
   const [link, setLink] = useState('');
   const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
+  const [isSelectParticipant, setIsSelectParticipant] = useState(false);
+  const [selectedParticipant, setSelectedPartcipant] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const { data: me } = useMe();
+  const { data } = useGetAllMembers();
 
-  console.log(JSON.stringify(assignment, null, 2));
+  const participants = useMemo(
+    () =>
+      (Array.isArray(data?.data)
+        ? [{ _id: `${me?.id}`, full_name: 'Myself' }, ...data.data]
+        : []) as any,
+    [data?.data, me?.id]
+  );
+
+  const isCurrentUser = useMemo(
+    () => (selectedParticipant || '') === `${me?.id}`,
+    [selectedParticipant, me?.id]
+  );
+
+  console.log({ selectedParticipant, me, isCurrentUser });
+  const selectedName = useMemo(
+    () =>
+      participants.filter((p: any) => p._id === selectedParticipant).map((p: any) => p.full_name),
+    [participants, selectedParticipant]
+  );
 
   const mutation = useMutation({
     mutationFn: (body: CreateSubmissionRequest) => createSubmission(body),
@@ -78,8 +103,8 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
       setIsLinkModalVisible(false);
       setModalMessage(
         <Text>
-          You have successfully submitted your assignment on{' '}
-          <Text className="font-bold">{assignment.title}</Text>
+          You have successfully submitted {isCurrentUser ? 'your' : `${selectedName}’s`} assignment
+          on <Text className="font-bold">{assignment.title}</Text>
         </Text>
       );
       // router.dismissTo('/(drawer)/(tabs)/study?tab=submissions');
@@ -100,6 +125,8 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
     mutation.mutate({
       study_group_id: assignment.id,
       assignment_link: link,
+      isOnline,
+      member_worker_id: selectedParticipant || undefined,
     });
   };
   return (
@@ -147,11 +174,20 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
         </Text>
       </View>
       <View className="mt-4 flex-1 flex-col items-center justify-center border">
-        <Button title="Upload Assignment" onPress={() => setIsLinkModalVisible(true)} />
+        <Button
+          title="Upload Assignment"
+          onPress={() => {
+            setIsOnline(true);
+            setIsSelectParticipant(true);
+          }}
+        />
 
         <TouchableOpacity
           className="my-6 items-center justify-center border"
-          onPress={handleSubmitAssignment}>
+          onPress={() => {
+            setIsOnline(false);
+            setIsSelectParticipant(true);
+          }}>
           {mutation.isPending && !link ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
@@ -180,6 +216,26 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
         onSubmit={handleSubmitAssignment}
         isLoading={mutation.isPending}
       />
+
+      <ParticipantSelectorSheet
+        singleSelection
+        visible={isSelectParticipant}
+        participants={participants}
+        onToggle={(id: string) => {
+          if (isOnline) {
+            setSelectedPartcipant(id);
+            setIsSelectParticipant(false);
+            setIsLinkModalVisible(true);
+          } else {
+            setSelectedPartcipant(id);
+            handleSubmitAssignment();
+            setIsSelectParticipant(false);
+          }
+        }}
+        onDone={() => {
+          setIsSelectParticipant(false);
+        }}
+      />
     </View>
   );
 };
@@ -199,7 +255,7 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
       setModalMessage(
         <Text>
           You have successfully edited your assignment link on{' '}
-          <Text className="font-bold">{assignment.title}</Text>
+          <Text className="font-bold">{assignment.study_group_title}</Text>
         </Text>
       );
     },
@@ -222,7 +278,7 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
       setModalMessage(
         <Text>
           You have successfully deleted your assignment on{' '}
-          <Text className="font-bold">{assignment.title}</Text>
+          <Text className="font-bold">{assignment.study_group_title}</Text>
         </Text>
       );
     },
@@ -258,9 +314,9 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
       </View>
 
       <View className="mb-4 flex-1">
-        <Text className="mb-4 text-xl font-semibold">{assignment.title}</Text>
+        <Text className="mb-4 text-xl font-semibold">{assignment.study_group_title}</Text>
         <Text className="mb-4 text-lg">
-          {`Study group questions (${getStudyGroupDateRange(assignment.due_date)}) on ${assignment.title}`}
+          {`Study group questions (${getStudyGroupDateRange(assignment.due_date)}) on ${assignment.study_group_title}`}
         </Text>
 
         <TouchableOpacity onPress={() => openInAppBrowser(assignment.assignment_link)}>
@@ -314,7 +370,7 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
         message={
           <Text>
             You are about to delete your assignment upload on{' '}
-            <Text className="font-bold">{assignment.title}</Text>
+            <Text className="font-bold">{assignment.study_group_title}</Text>
           </Text>
         }
         type="warning"

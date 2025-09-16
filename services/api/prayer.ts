@@ -82,16 +82,8 @@ export async function getPrayerMeetings(): Promise<PrayerMeetingsResponse> {
 export async function markPrayerAttendance(
   body: PrayerAttendanceRequest
 ): Promise<PrayerAttendanceResponse> {
-  try {
-    const { data } = await ApiCaller.post(QUERY_PATHS.PRAYER_ATTENDANCE, body);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to mark attendance',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+  const { data } = await ApiCaller.post(QUERY_PATHS.PRAYER_ATTENDANCE, body);
+  return data;
 }
 
 // Get prayer attendance history (optional endpoint)

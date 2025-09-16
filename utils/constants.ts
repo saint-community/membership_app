@@ -16,7 +16,7 @@ export const QUERY_PATHS = {
   UPLOAD_PROFILE_IMAGE: '/api/worker/profile/upload-image',
 
   // prayer
-  PRAYER_ATTENDANCE: '/api/worker/prayer/attendance',
+  PRAYER_ATTENDANCE: '/api/worker/prayer/report-attendance',
   PRAYER_PARTICIPANTS: '/api/worker/prayer/participants',
   PRAYER_MEETINGS: '/api/worker/prayer/meetings',
 

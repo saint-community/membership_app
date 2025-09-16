@@ -31,8 +31,10 @@ export interface RecentAssignment {
 }
 
 export interface CreateSubmissionRequest {
+  member_worker_id?: string;
   study_group_id: string;
   assignment_link?: string;
+  isOnline: boolean;
 }
 
 export interface UpdateSubmissionRequest {
@@ -123,7 +125,16 @@ export async function getRecentAssignments(): Promise<{
 
 // Create submission
 export async function createSubmission(body: CreateSubmissionRequest) {
-  const { data } = await ApiCaller.post(QUERY_PATHS.SUBMISSIONS, body);
+  const method = `${body.isOnline ? 'online' : 'offline'}_by_${body.member_worker_id ? 'leader' : 'member'}`;
+  const newBody = {
+    member_worker_id: body.member_worker_id,
+    study_group_id: body.study_group_id,
+    ...(body.assignment_link && { assignment_link: body.assignment_link }),
+    submission_method: method,
+  };
+
+  alert(JSON.stringify(newBody, null, 2));
+  const { data } = await ApiCaller.post(QUERY_PATHS.SUBMISSIONS, newBody);
   return data;
 }
 

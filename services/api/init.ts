@@ -1,6 +1,7 @@
 import { STORAGE_KEYS } from '~/utils/constants';
 import axios from 'axios';
-import { getStringData } from '~/utils';
+import { clearStorage, getStringData } from '~/utils';
+import { router } from 'expo-router';
 
 const ADMIN_API_URL = process.env.ADMIN_API_URL || 'https://staging.lwmportal.com';
 const API_URL = process.env.API_URL || 'https://memberapi.lwmportal.com/';
@@ -33,6 +34,7 @@ export const ApiCaller = axios.create({
 
 ApiCaller.interceptors.request.use((config) => {
   const token = getStringData(STORAGE_KEYS.TOKEN);
+  console.log('token', token);
 
   if (token) {
     config.headers.Authorization = `Bearer ${token.trim()}`;
@@ -48,7 +50,13 @@ ApiCaller.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expired or invalid, could clear storage and redirect to login
       console.log('API authentication failed - token may be expired');
+      logOutAction();
     }
     return Promise.reject(error);
   }
 );
+
+const logOutAction = () => {
+  clearStorage();
+  router.replace('/(login)/login');
+};

@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { useMe } from '~/hooks/data/me';
 import { logoutUser } from '~/services/api/auth';
-import { clearStorage, storage } from '~/utils';
+import { clearStorage } from '~/utils';
 
 interface ProfileOptionItemProps {
   icon: React.ReactNode;

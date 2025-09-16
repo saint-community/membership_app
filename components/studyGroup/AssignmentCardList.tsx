@@ -17,6 +17,7 @@ export default function AssignmentCardList({
   onRefresh,
   refreshing,
 }: AssignmentCardProps) {
+  console.log('data', data);
   return (
     <View className="w-full flex-1">
       <FlatList<AssignmentUpload | AssignmentSubmission>

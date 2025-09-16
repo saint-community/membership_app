@@ -34,7 +34,7 @@ export default function AssignmentCard({ item, tab, onPress }: AssignmentCardPro
       <View className="flex-row items-center justify-between">
         <View className="w-8/12">
           <Text numberOfLines={1} ellipsizeMode="tail" className="text-sm font-medium">
-            {item.title}
+            {item.title || item.study_group_title}
           </Text>
           <Text className="mt-1 text-xs ">Due: {dayjs(item.due_date).format('DD MMM, YYYY')}</Text>
           <Text className="mt-1 text-xs text-zinc-400">
