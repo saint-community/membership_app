@@ -23,7 +23,7 @@ import {
   updateSubmission,
   UpdateSubmissionRequest,
 } from '~/services/api/submission';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import BottomSheetWrapper from '~/components/ui/BottomSheetWrapper';
@@ -121,14 +121,15 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
     },
   });
 
-  const handleSubmitAssignment = () => {
+  const handleSubmitAssignment = useCallback(() => {
     mutation.mutate({
       study_group_id: assignment.id,
       assignment_link: link,
       isOnline,
       member_worker_id: selectedParticipant || undefined,
     });
-  };
+  }, [assignment.id, link, isOnline, selectedParticipant, mutation]);
+
   return (
     <View className="h-full p-6">
       <View className="mb-4 flex-row items-center">

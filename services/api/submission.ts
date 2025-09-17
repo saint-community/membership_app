@@ -42,8 +42,12 @@ export interface UpdateSubmissionRequest {
 }
 
 // Get all submissions
-export async function getSubmissions() {
-  const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSIONS);
+export async function getSubmissions(memberId?: string) {
+  const { data } = await ApiCaller.get(`${QUERY_PATHS.SUBMISSIONS}${memberId ? '/members' : ''}`, {
+    params: {
+      ...(memberId && { member_id: memberId }),
+    },
+  });
   return data;
 }
 
@@ -86,22 +90,9 @@ export async function getCurrentWeekSubmissions(): Promise<{
 }
 
 // Get submission stats
-export async function getSubmissionStats(): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: SubmissionStats;
-}> {
-  try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSION_STATS);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch submission stats',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function getSubmissionStats() {
+  const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSION_STATS);
+  return data;
 }
 
 // Get recent assignments
@@ -133,8 +124,20 @@ export async function createSubmission(body: CreateSubmissionRequest) {
     submission_method: method,
   };
 
-  alert(JSON.stringify(newBody, null, 2));
-  const { data } = await ApiCaller.post(QUERY_PATHS.SUBMISSIONS, newBody);
+  alert(
+    JSON.stringify(
+      {
+        url: body.member_worker_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
+        ...newBody,
+      },
+      null,
+      2
+    )
+  );
+  const { data } = await ApiCaller.post(
+    body.member_worker_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
+    newBody
+  );
   return data;
 }
 

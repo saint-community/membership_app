@@ -5,11 +5,15 @@ import { Header } from '~/components/Header';
 import { MetricsGrid } from '~/components/MetricsGrid';
 import { QuickActions } from '~/components/QuickActions';
 import { useMe } from '~/hooks/data/me';
+import { useSubmissionStats } from '~/hooks/queries/submissions/useSubmissionStats';
 import type { MetricData, ActionData } from '~/types/dashboard';
 
 export default function Home() {
   const router = useRouter();
   const { data: me } = useMe();
+  const { data: submissionStats, error } = useSubmissionStats();
+
+  console.log('submissionStats', JSON.stringify(submissionStats, null, 2), error);
   // Sample data for metrics
   const metrics: MetricData[] = [
     {

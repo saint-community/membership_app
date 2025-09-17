@@ -19,9 +19,8 @@ export interface PrayerMeeting {
 }
 
 export interface PrayerAttendanceRequest {
-  meetingId: string;
-  participantIds: string[];
-  code: string;
+  participant_ids: string[];
+  prayer_group_code: string;
 }
 
 export interface PrayerAttendanceResponse {

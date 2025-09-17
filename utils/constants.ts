@@ -16,9 +16,9 @@ export const QUERY_PATHS = {
   UPLOAD_PROFILE_IMAGE: '/api/worker/profile/upload-image',
 
   // prayer
-  PRAYER_ATTENDANCE: '/api/worker/prayer/report-attendance',
-  PRAYER_PARTICIPANTS: '/api/worker/prayer/participants',
-  PRAYER_MEETINGS: '/api/worker/prayer/meetings',
+  PRAYER_ATTENDANCE: '/api/prayer-group/report-attendance',
+  PRAYER_PARTICIPANTS: '/api/prayer-group/participants',
+  PRAYER_MEETINGS: '/api/prayer-group/meetings',
 
   // study group
   STUDY_GROUPS: '/api/study-groups',
@@ -28,10 +28,11 @@ export const QUERY_PATHS = {
 
   //submission
   SUBMISSIONS: '/api/study-group/submissions',
+  MEMBER_SUBMISSIONS: '/api/study-group/submissions/worker/registered-member',
   SUBMISSION: '/api/study-group/submissions/:id',
-  SUBMISSION_CURRENT_WEEK: '/api/submissions/current-week',
-  SUBMISSION_STATS: '/api/submissions/stats',
-  SUBMISSION_RECENT_ASSIGNMENTS: '/api/submissions/assignments/recent',
+  SUBMISSION_CURRENT_WEEK: '/api/study-group/submissions/current-week',
+  SUBMISSION_STATS: '/api/study-group/submissions/stats',
+  SUBMISSION_RECENT_ASSIGNMENTS: '/api/study-group/submissions/assignments/recent',
 
   // pastor
   PASTOR_MEMBERS: '/api/pastor/members',

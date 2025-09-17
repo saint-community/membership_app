@@ -51,19 +51,24 @@ export default function Prayer() {
   };
 
   const mutation = useMutation({
-    mutationFn: (data: { meetingId: string; participantIds: string[]; code: string }) => {
+    mutationFn: (data: { participant_ids: string[]; prayer_group_code: string }) => {
       return markPrayerAttendance(data);
     },
     onSuccess: () => {
+      setCode('');
+      setSelectedIds([]);
       setResult({
         type: 'success',
         message: 'You have successfully marked your prayer group attendance.',
       });
     },
-    onError: () => {
+    onError: (err: any) => {
+      console.log('err', err);
       setResult({
         type: 'error',
-        message: 'Oops! We love your zeal but not that code. Input a valid code and try again.',
+        message:
+          err?.response?.data?.message ||
+          'Oops! We love your zeal but not that code. Input a valid code and try again.',
       });
     },
   });
@@ -71,9 +76,8 @@ export default function Prayer() {
   const confirmMark = () => {
     setShowConfirm(false);
     mutation.mutate({
-      meetingId: '1',
-      participantIds: selectedIds,
-      code: code,
+      participant_ids: selectedIds,
+      prayer_group_code: code,
     });
   };
 
