@@ -6,8 +6,11 @@ import TabBar from '~/components/studyGroup/TabBar';
 import AssignmentCardList from '~/components/studyGroup/AssignmentCardList';
 import { AssignmentSubmission, AssignmentUpload } from '~/models/studygroupmodels';
 import { useCurrentWeekStudyGroup, useSubmissions } from '~/hooks/data/study';
+import { TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Study() {
+  const colorScheme = useColorScheme();
   const { tab = 'assignments' } = useLocalSearchParams<{ tab: 'assignments' | 'submissions' }>();
   const {
     data: assignments,
@@ -47,7 +50,15 @@ export default function Study() {
 
   return (
     <SafeAreaView className="flex-1 items-center px-6">
-      <Text className="mb-4 text-2xl font-bold">Study Group</Text>
+      <View className="mb-4 w-full flex-row items-center justify-between">
+        <View className="w-[25px]" />
+        <Text className="text-2xl font-bold">Study Group</Text>
+        <View className="w-[25px]">
+          <TouchableOpacity>
+            <Ionicons name="filter" size={24} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+          </TouchableOpacity>
+        </View>
+      </View>
       <TabBar tab={tab} setTab={setTab} />
       <AssignmentCardList
         data={tab === 'assignments' ? studyGroup : submissions}
