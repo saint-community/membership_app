@@ -7,14 +7,12 @@ import { ParticipantSelectorSheet } from '~/components/prayer/ParticipantSelecto
 import { ConfirmationSheet } from '~/components/prayer/ConfirmationSheet';
 import { ResultSheet } from '~/components/prayer/ResultSheet';
 import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
-import { useMe } from '~/hooks/data/me';
 import { markPrayerAttendance } from '~/services/api/prayer';
 import { useMutation } from '@tanstack/react-query';
 
 export default function Prayer() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [code, setCode] = useState('');
-  const { data: me } = useMe();
   const [showSelect, setShowSelect] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [result, setResult] = useState<null | { type: 'success' | 'error'; message: string }>(null);
@@ -23,9 +21,9 @@ export default function Prayer() {
   const participants = useMemo(
     () =>
       (Array.isArray(data?.data)
-        ? [{ _id: me?.id, full_name: 'Myself' }, ...data.data]
+        ? [{ _id: 'self', full_name: 'Myself' }, ...data.data]
         : []) as any,
-    [data?.data, me?.id]
+    [data?.data]
   );
 
   const selectedNames = useMemo(
@@ -51,7 +49,7 @@ export default function Prayer() {
   };
 
   const mutation = useMutation({
-    mutationFn: (data: { participant_ids: string[]; prayer_group_code: string }) => {
+    mutationFn: (data: { attendees: string[]; prayer_code: string }) => {
       return markPrayerAttendance(data);
     },
     onSuccess: () => {
@@ -76,8 +74,8 @@ export default function Prayer() {
   const confirmMark = () => {
     setShowConfirm(false);
     mutation.mutate({
-      participant_ids: selectedIds,
-      prayer_group_code: code,
+      attendees: selectedIds,
+      prayer_code: code,
     });
   };
 

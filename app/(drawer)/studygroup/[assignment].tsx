@@ -111,7 +111,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
     },
     onError: (error: any) => {
       const message = error?.response?.data?.message;
-      console.log(message);
+      console.log(JSON.stringify(error?.response?.data, null, 2), message);
       Toast.show({
         text1: 'Failed to submit assignment',
         text2: message,
