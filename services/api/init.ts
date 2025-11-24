@@ -3,14 +3,14 @@ import axios from 'axios';
 import { clearStorage, getStringData } from '~/utils';
 import { router } from 'expo-router';
 
-const ADMIN_API_URL = process.env.ADMIN_API_URL || 'https://staging.lwmportal.com';
-const API_URL = process.env.API_URL || 'https://memberapi.lwmportal.com/';
+const ADMIN_API_URL = process.env.ADMIN_API_URL || 'https://admin-service.saintscommunityportal.com';
+const API_URL = process.env.API_URL || 'https://member-service.saintscommunityportal.com/';
 
 export const AdminApiCaller = axios.create({
   baseURL: ADMIN_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': '2e4c9b93f5d18e72a1b0c6d4f8e7a9b1c3d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9',
+    'x-api-key': 'MzbjFEf2SBPViRKyfXHBDCoWoBhM8doJuXH8DNuf',
   },
 });
 
@@ -28,7 +28,7 @@ export const ApiCaller = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': '2e4c9b93f5d18e72a1b0c6d4f8e7a9b1c3d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9',
+    'x-api-key': 'MzbjFEf2SBPViRKyfXHBDCoWoBhM8doJuXH8DNuf',
   },
 });
 
