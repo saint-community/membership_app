@@ -9,6 +9,7 @@ interface DatePickerProps {
   onChange: (value: string) => void;
   placeholder: string;
   disabled?: boolean;
+  maximumDate?: Date;
 }
 
 export const DatePicker: React.FC<DatePickerProps> = ({
@@ -16,6 +17,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   onChange,
   placeholder,
   disabled = false,
+  maximumDate = new Date(),
 }) => {
   const [showPicker, setShowPicker] = useState(false);
   const [date, setDate] = useState(value ? new Date(value) : new Date());
@@ -47,19 +49,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           'h-14 w-full flex-row items-center justify-between rounded-xl border border-[#8A8A8A] bg-transparent px-4 py-3',
           disabled && 'opacity-50'
         )}>
-        <Text className={cn('text-base', value ? 'text-white dark:text-white' : 'text-[#666]')}>
+        <Text
+          className={cn('text-base', value ? 'text-foreground dark:text-white' : 'text-[#666]')}>
           {value ? formatDisplayDate(value) : placeholder}
         </Text>
         <Text className="text-lg text-white">📅</Text>
       </TouchableOpacity>
 
-      {showPicker && (
+      {showPicker && Platform.OS === 'android' && (
         <DateTimePicker
           value={date}
           mode="date"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          display="spinner"
           onChange={handleDateChange}
-          maximumDate={new Date()}
+          {...(maximumDate && { maximumDate })}
         />
       )}
 
@@ -79,14 +82,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                   <Text className="text-base font-semibold text-blue-500">Done</Text>
                 </TouchableOpacity>
               </View>
-              <DateTimePicker
-                value={date}
-                mode="date"
-                display="spinner"
-                onChange={handleDateChange}
-                maximumDate={new Date()}
-                textColor="black"
-              />
+              <View className="flex-row items-center justify-center p-4">
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="spinner"
+                  onChange={handleDateChange}
+                  {...(maximumDate && { maximumDate })}
+                  textColor="black"
+                />
+              </View>
             </View>
           </View>
         </Modal>

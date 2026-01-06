@@ -34,7 +34,8 @@ export const DropdownSelect: React.FC<DropdownSelectProps> = ({
           'h-14 w-full flex-row items-center justify-between rounded-xl border border-[#8A8A8A] bg-transparent px-4 py-3',
           disabled && 'opacity-50'
         )}>
-        <Text className={cn('text-base', value ? 'text-white dark:text-white' : 'text-[#666]')}>
+        <Text
+          className={cn('text-base', value ? 'text-foreground dark:text-white' : 'text-[#666]')}>
           {value || placeholder}
         </Text>
         <Text className="text-lg text-white">▼</Text>

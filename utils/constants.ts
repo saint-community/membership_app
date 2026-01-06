@@ -56,4 +56,24 @@ export const QUERY_PATHS = {
   THIS_MEMBER: '/api/member/all',
   MEMBER: '/api/member/:id',
   ADD_MEMBER: '/api/member/add',
+
+  // evangelism
+  EVANGELISM: '/api/evangelism',
+  EVANGELISM_WORKER_HISTORY: '/api/evangelism/worker/history',
+  EVANGELISM_ADMIN_ALL: '/api/evangelism/admin/all',
+  EVANGELISM_ADMIN_STATS: '/api/evangelism/admin/stats',
+  EVANGELISM_BY_ID: '/api/evangelism/:id',
+
+  // follow-up
+  FOLLOW_UP: '/api/follow-up',
+  FOLLOW_UP_WORKER_HISTORY: '/api/follow-up/worker/history',
+  FOLLOW_UP_ADMIN_ALL: '/api/follow-up/admin/all',
+  FOLLOW_UP_ADMIN_STATS: '/api/follow-up/admin/stats',
+  FOLLOW_UP_BY_ID: '/api/follow-up/:id',
+
+  // attendance
+  ATTENDANCE_MARK: '/api/attendance/mark',
+  ATTENDANCE_HISTORY: '/api/attendance/history',
+  ATTENDANCE_ADMIN_MEETING: '/api/attendance/admin/meeting',
+  ATTENDANCE_ADMIN_MEETINGS: '/api/attendance/admin/meetings',
 };

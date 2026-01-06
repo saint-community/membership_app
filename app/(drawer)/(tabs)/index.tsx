@@ -5,6 +5,7 @@ import { Header } from '~/components/Header';
 import { MetricsGrid } from '~/components/MetricsGrid';
 import { QuickActions } from '~/components/QuickActions';
 import { useMe } from '~/hooks/data/me';
+import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
 import { useSubmissionStats } from '~/hooks/queries/submissions/useSubmissionStats';
 import type { MetricData, ActionData } from '~/types/dashboard';
 
@@ -12,12 +13,13 @@ export default function Home() {
   const router = useRouter();
   const { data: me } = useMe();
   const { data: submissionStats, error } = useSubmissionStats();
+  const { data: membersData } = useGetAllMembers();
 
   // Sample data for metrics
   const metrics: MetricData[] = [
     {
       icon: <Ionicons name="people" size={24} color="#FF6B9D" />,
-      value: '0',
+      value: membersData?.data?.length || 0,
       label: 'Total Members',
       onPress: () => console.log('Total Members pressed'),
     },

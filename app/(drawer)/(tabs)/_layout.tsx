@@ -144,7 +144,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="list"
+        name="reports"
         options={{
           tabBarIcon: ({ focused }) => (
             <AnimatedTabIcon focused={focused}>

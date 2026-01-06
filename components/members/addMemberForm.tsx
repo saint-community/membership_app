@@ -1,4 +1,3 @@
-import React from 'react';
 import { View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { Text } from '../nativewindui/Text';
 import { Controller, useForm } from 'react-hook-form';
@@ -111,7 +110,7 @@ const AddMemberForm = () => {
           return (
             <TextInput
               className={cn(
-                'h-14 w-full rounded-xl border border-[#8A8A8A] bg-transparent px-4 py-3 text-base text-white dark:text-white',
+                'h-14 w-full rounded-xl border border-[#8A8A8A] bg-transparent px-4 py-3 text-base text-foreground dark:text-white',
                 disabled && '!text-[#8A8A8A] opacity-50'
               )}
               placeholder={placeholder}

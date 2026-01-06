@@ -101,13 +101,13 @@ const MembersList = () => {
   });
 
   // Show initial loading state or error message with debug info
-  console.log('Members list state:', { 
-    isLoading, 
-    isRefreshing, 
-    isError, 
-    dataExists: !!data, 
+  console.log('Members list state:', {
+    isLoading,
+    isRefreshing,
+    isError,
+    dataExists: !!data,
     memberCount: membersList.length,
-    error: error?.message 
+    error: error?.message,
   });
 
   return (
@@ -167,9 +167,7 @@ const MembersList = () => {
           {isError ? (
             <>
               <Ionicons name="warning-outline" size={48} color="#ef4444" />
-              <Text className="mt-4 text-lg font-medium text-red-500">
-                Failed to Load Members
-              </Text>
+              <Text className="mt-4 text-lg font-medium text-red-500">Failed to Load Members</Text>
               <Text className="mt-2 text-center text-sm dark:text-white/60">
                 {error?.message || 'Something went wrong while loading the members list.'}
               </Text>
@@ -185,24 +183,22 @@ const MembersList = () => {
           ) : (
             <>
               <Ionicons name="people-outline" size={48} color="#6b7280" />
-              <Text className="mt-4 text-lg font-medium dark:text-white/80">
-                No Members Found
-              </Text>
+              <Text className="mt-4 text-lg font-medium dark:text-white/80">No Members Found</Text>
               <Text className="mt-2 text-center text-sm dark:text-white/60">
-                {data?.message || t('members.no_members') || 'Your members list is empty. Add some members to get started.'}
+                {data?.message ||
+                  t('members.no_members') ||
+                  'Your members list is empty. Add some members to get started.'}
               </Text>
               <TouchableOpacity
                 onPress={() => router.push('/add-member')}
                 className="mt-6 rounded-lg bg-blue-500/20 px-6 py-3">
-                <Text className="text-center font-medium text-blue-500">
-                  Add First Member
-                </Text>
+                <Text className="text-center font-medium text-blue-500">Add First Member</Text>
               </TouchableOpacity>
             </>
           )}
         </View>
       )}
-      <View className="absolute bottom-16 right-8">
+      <View className="absolute bottom-20 right-8">
         <TouchableOpacity
           onPress={() => router.push('/add-member')}
           className="h-14 w-14 items-center justify-center rounded-xl border border-white/20 bg-[#2A2A2A]/90 bg-opacity-20 shadow-lg backdrop-blur-2xl">
