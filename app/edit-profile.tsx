@@ -91,6 +91,8 @@ function BottomSheetModal({
     []
   );
 
+  const isPhoneField = keyboardType === 'phone-pad' && title.toLowerCase().includes('phone');
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -112,17 +114,25 @@ function BottomSheetModal({
           </TouchableOpacity>
         </View>
 
-        <TextInput
-          value={inputValue}
-          onChangeText={setInputValue}
-          placeholder={`Enter ${title.toLowerCase()}`}
-          placeholderTextColor="#9CA3AF"
-          multiline={multiline}
-          numberOfLines={multiline ? 4 : 1}
-          keyboardType={keyboardType}
-          className="rounded-lg bg-white px-4 py-3 dark:bg-gray-700 dark:text-white"
-          autoFocus
-        />
+        {isPhoneField ? (
+          <PhoneNumberInput
+            value={inputValue}
+            onChange={setInputValue}
+            placeholder={`Enter ${title.toLowerCase()}`}
+          />
+        ) : (
+          <TextInput
+            value={inputValue}
+            onChangeText={setInputValue}
+            placeholder={`Enter ${title.toLowerCase()}`}
+            placeholderTextColor="#9CA3AF"
+            multiline={multiline}
+            numberOfLines={multiline ? 4 : 1}
+            keyboardType={keyboardType}
+            className="rounded-lg bg-white px-4 py-3 dark:bg-gray-700 dark:text-white"
+            autoFocus
+          />
+        )}
       </BottomSheetView>
     </BottomSheet>
   );

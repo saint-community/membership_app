@@ -31,13 +31,12 @@ const iconColors = [
 export default function SessionsList() {
   const router = useRouter();
   const colors = useColors();
-  const { timeframe, startDate, endDate } = useLocalSearchParams<{
+  const { timeframe } = useLocalSearchParams<{
     timeframe?: string;
     startDate?: string;
     endDate?: string;
   }>();
-  const { data: historyData, isLoading, error } = useEvangelismWorkerHistory();
-  console.log(JSON.stringify(historyData, null, 2));
+  const { data: historyData, isLoading } = useEvangelismWorkerHistory();
 
   // Calculate summary stats from real data
   const summaryStats = useMemo(() => {
@@ -169,7 +168,7 @@ export default function SessionsList() {
                           onPress={(e) => {
                             e.stopPropagation();
                             router.push({
-                              pathname: '/evangelism/detail-view',
+                              pathname: '/evangelism/edit',
                               params: { reportId: session.reportId },
                             });
                           }}>

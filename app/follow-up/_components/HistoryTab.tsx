@@ -1,8 +1,9 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useFollowUpWorkerHistory } from '~/hooks/data/followUp';
 import { useMemo } from 'react';
+import { useRouter } from 'expo-router';
 
 interface ReportCard {
   id: string;
@@ -17,6 +18,7 @@ interface ReportCard {
 }
 
 export default function HistoryTab() {
+  const router = useRouter();
   const { data: historyData, isLoading } = useFollowUpWorkerHistory();
 
   const reports = useMemo(() => {
@@ -75,7 +77,15 @@ export default function HistoryTab() {
         {/* Report Cards */}
         <View className="gap-4">
           {reports.map((report) => (
-            <View key={report.id} className="rounded-lg bg-white p-4 dark:bg-gray-800">
+            <TouchableOpacity
+              key={report.id}
+              onPress={() =>
+                router.push({
+                  pathname: '/follow-up/detail-view',
+                  params: { recordId: report.id },
+                })
+              }
+              className="rounded-lg bg-white p-4 dark:bg-gray-800">
               <View className="mb-2 flex-row items-start justify-between">
                 <View className="flex-1">
                   <Text className="mb-1 text-base font-semibold text-black dark:text-white">
@@ -117,8 +127,11 @@ export default function HistoryTab() {
                 <Text className="text-xs text-gray-500">
                   {report.date}, {report.totalDuration}
                 </Text>
+                <TouchableOpacity>
+                  <Text className="text-xs text-[#FF007F]">View Details</Text>
+                </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </View>

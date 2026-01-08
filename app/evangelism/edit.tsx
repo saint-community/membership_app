@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { DatePicker } from '~/components/common/DatePicker';
 import { TimePicker } from '~/components/common/TimePicker';
@@ -13,7 +13,7 @@ import { Button } from '~/components/Button';
 import { cn } from '~/lib/cn';
 import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
 import { DropdownSelect } from '~/components/common/DropdownSelect';
-import { useCreateEvangelismReport } from '~/hooks/data/evangelism';
+import { useUpdateEvangelismReport, useEvangelismReport } from '~/hooks/data/evangelism';
 import Toast from 'react-native-toast-message';
 import type { TeamMemberDto, SoulDto } from '~/services/api/evangelism';
 
@@ -30,11 +30,13 @@ interface Record {
   additionalComments: string;
 }
 
-export default function SubmitReport() {
+export default function EditEvangelismReport() {
   const router = useRouter();
   const colors = useColors();
+  const { reportId } = useLocalSearchParams<{ reportId?: string }>();
+  const { data: reportData, isLoading: isLoadingReport } = useEvangelismReport(reportId || '');
   const { data: membersData } = useGetAllMembers();
-  const createEvangelismMutation = useCreateEvangelismReport();
+  const updateEvangelismMutation = useUpdateEvangelismReport();
 
   // Session data
   const [sessionDate, setSessionDate] = useState('');
@@ -46,19 +48,70 @@ export default function SubmitReport() {
 
   // Records
   const [records, setRecords] = useState<Record[]>([]);
-
   const [currentRecord, setCurrentRecord] = useState<Partial<Record>>({
     fullName: '',
     gender: '',
     age: '',
     address: '',
     phoneNumber: '',
-    status: ['Saved'], // Pre-select "Saved"
+    status: ['Saved'],
     conditionBefore: '',
     conditionAfter: '',
     additionalComments: '',
   });
   const [showAddRecord, setShowAddRecord] = useState(false);
+  const [editingRecordIndex, setEditingRecordIndex] = useState<number | null>(null);
+
+  // Load report data when available
+  useEffect(() => {
+    if (reportData?.data && !isLoadingReport) {
+      const report = reportData.data;
+      
+      // Format date for DatePicker (YYYY-MM-DD)
+      const date = new Date(report.session_date);
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      
+      setSessionDate(formattedDate);
+      setStartTime(report.start_time);
+      setLocationArea(report.location_area);
+      setDetails(report.details || '');
+      
+      // Set participants
+      const participantIds = report.team_members.map((m) => m.id);
+      setSelectedParticipantIds(participantIds);
+      
+      // Transform souls to records format
+      const transformedRecords: Record[] = report.souls.map((soul, index) => {
+        // Map impact_types back to status array
+        const statusArray = soul.impact_types.map((t) => {
+          const capitalized = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+          return capitalized === 'Saved' || capitalized === 'Filled' || capitalized === 'Healed'
+            ? capitalized
+            : 'Saved';
+        });
+        
+        // Ensure "Saved" is always included
+        if (!statusArray.includes('Saved')) {
+          statusArray.unshift('Saved');
+        }
+        
+        return {
+          id: `${reportId}-${index}`,
+          fullName: soul.name,
+          gender: soul.gender,
+          age: soul.age.toString(),
+          address: soul.address,
+          phoneNumber: soul.phone,
+          status: statusArray,
+          conditionBefore: soul.note || '',
+          conditionAfter: soul.status === 'healed' ? soul.note || '' : '',
+          additionalComments: soul.note || '',
+        };
+      });
+      
+      setRecords(transformedRecords);
+    }
+  }, [reportData, isLoadingReport, reportId]);
 
   const participants = useMemo(
     () =>
@@ -87,7 +140,6 @@ export default function SubmitReport() {
   const statusOptions = ['Saved', 'Filled', 'Healed'];
 
   const toggleStatus = (status: string) => {
-    // "Saved" cannot be deselected
     if (status === 'Saved') {
       return;
     }
@@ -112,35 +164,44 @@ export default function SubmitReport() {
       !currentRecord.gender ||
       !currentRecord.age ||
       !currentRecord.address ||
-      !currentRecord.phoneNumber ||
-      !currentRecord.status ||
-      currentRecord.status.length === 0
+      !currentRecord.phoneNumber
     ) {
-      // Show error or validation message
+      Toast.show({
+        text1: 'Please fill in all required fields',
+        type: 'error',
+      });
       return;
     }
 
     const newRecord: Record = {
-      id: Date.now().toString(),
+      id: editingRecordIndex !== null ? records[editingRecordIndex].id : `${Date.now()}`,
       fullName: currentRecord.fullName || '',
       gender: currentRecord.gender || '',
       age: currentRecord.age || '',
       address: currentRecord.address || '',
       phoneNumber: currentRecord.phoneNumber || '',
       status: currentRecord.status || ['Saved'],
-      conditionBefore: currentRecord.conditionBefore,
-      conditionAfter: currentRecord.conditionAfter,
+      conditionBefore: currentRecord.conditionBefore || '',
+      conditionAfter: currentRecord.conditionAfter || '',
       additionalComments: currentRecord.additionalComments || '',
     };
 
-    setRecords([...records, newRecord]);
+    if (editingRecordIndex !== null) {
+      const updatedRecords = [...records];
+      updatedRecords[editingRecordIndex] = newRecord;
+      setRecords(updatedRecords);
+      setEditingRecordIndex(null);
+    } else {
+      setRecords([...records, newRecord]);
+    }
+
     setCurrentRecord({
       fullName: '',
       gender: '',
       age: '',
       address: '',
       phoneNumber: '',
-      status: ['Saved'], // Reset to pre-selected "Saved"
+      status: ['Saved'],
       conditionBefore: '',
       conditionAfter: '',
       additionalComments: '',
@@ -148,14 +209,21 @@ export default function SubmitReport() {
     setShowAddRecord(false);
   };
 
-  const handleRemoveRecord = (id: string) => {
-    setRecords(records.filter((r) => r.id !== id));
+  const handleEditRecord = (index: number) => {
+    const record = records[index];
+    setCurrentRecord(record);
+    setEditingRecordIndex(index);
+    setShowAddRecord(true);
+  };
+
+  const handleRemoveRecord = (index: number) => {
+    setRecords(records.filter((_, i) => i !== index));
   };
 
   const handleSubmit = () => {
     if (!sessionDate || !startTime || !locationArea || selectedParticipantIds.length === 0) {
       Toast.show({
-        text1: 'Please fill in all required fields',
+        text1: 'Please fill in all required session fields',
         type: 'error',
       });
       return;
@@ -169,32 +237,35 @@ export default function SubmitReport() {
       return;
     }
 
+    if (!reportId) {
+      Toast.show({
+        text1: 'Report ID is missing',
+        type: 'error',
+      });
+      return;
+    }
+
     // Transform participants to TeamMemberDto format
     const teamMembers: TeamMemberDto[] = selectedParticipantIds.map((id) => {
       const participant = participants.find((p: any) => p._id === id);
       if (id === 'self') {
         return {
           id: 'self',
-          type: 'worker' as const,
+          type: 'worker',
           name: 'Myself',
         };
       }
       return {
         id: participant?._id || id,
-        type: 'member' as const,
+        type: 'member',
         name: participant?.full_name || '',
       };
     });
 
     // Transform records to SoulDto format
     const souls: SoulDto[] = records.map((record) => {
-      // Map status to impact_types and determine primary status
-      const impactTypes = record.status || ['saved'];
-      const primaryStatus = impactTypes.includes('Healed')
-        ? 'healed'
-        : impactTypes.includes('Filled')
-          ? 'filled'
-          : 'saved';
+      const primaryStatus = record.status[0] || 'Saved';
+      const impactTypes = record.status.map((s) => s.toLowerCase());
 
       return {
         name: record.fullName,
@@ -202,8 +273,8 @@ export default function SubmitReport() {
         age: parseInt(record.age) || 0,
         phone: record.phoneNumber,
         address: record.address,
-        status: primaryStatus as 'saved' | 'filled' | 'healed' | 'other',
-        impact_types: impactTypes.map((s) => s.toLowerCase()),
+        status: primaryStatus.toLowerCase() as 'saved' | 'filled' | 'healed' | 'other',
+        impact_types: impactTypes,
         note: record.additionalComments || '',
       };
     });
@@ -213,7 +284,7 @@ export default function SubmitReport() {
     const filledCount = records.filter((r) => r.status?.includes('Filled')).length;
     const healedCount = records.filter((r) => r.status?.includes('Healed')).length;
 
-    const submitData = {
+    const updateData = {
       date: new Date().toISOString(),
       session_date: sessionDate,
       start_time: startTime,
@@ -225,10 +296,43 @@ export default function SubmitReport() {
       souls: souls,
       details: details || 'Evangelism session',
     };
-    console.log('submitData', submitData);
 
-    createEvangelismMutation.mutate(submitData);
+    updateEvangelismMutation.mutate(
+      { id: reportId, data: updateData },
+      {
+        onSuccess: () => {
+          Toast.show({
+            text1: 'Evangelism report updated successfully',
+            type: 'success',
+          });
+          router.back();
+        },
+        onError: (error: any) => {
+          Toast.show({
+            text1: error?.message || 'Failed to update evangelism report',
+            type: 'error',
+          });
+        },
+      }
+    );
   };
+
+  if (isLoadingReport) {
+    return (
+      <SafeAreaView className="flex-1 bg-background">
+        <View className="flex-row items-center justify-between px-4 py-4">
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color={colors.foreground} />
+          </TouchableOpacity>
+          <Text className="text-lg font-semibold text-black dark:text-white">Edit Report</Text>
+          <View className="w-6" />
+        </View>
+        <View className="flex-1 items-center justify-center">
+          <Text className="text-gray-400">Loading report...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -237,7 +341,7 @@ export default function SubmitReport() {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color={colors.foreground} />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-black dark:text-white">Evangelism Tracker</Text>
+        <Text className="text-lg font-semibold text-black dark:text-white">Edit Report</Text>
         <View className="w-6" />
       </View>
 
@@ -326,7 +430,23 @@ export default function SubmitReport() {
                 Records ({records.length})
               </Text>
               <TouchableOpacity
-                onPress={() => setShowAddRecord(!showAddRecord)}
+                onPress={() => {
+                  setShowAddRecord(!showAddRecord);
+                  if (showAddRecord) {
+                    setEditingRecordIndex(null);
+                    setCurrentRecord({
+                      fullName: '',
+                      gender: '',
+                      age: '',
+                      address: '',
+                      phoneNumber: '',
+                      status: ['Saved'],
+                      conditionBefore: '',
+                      conditionAfter: '',
+                      additionalComments: '',
+                    });
+                  }
+                }}
                 className="rounded-lg bg-[#FF007F] px-4 py-2">
                 <Text className="text-sm font-semibold text-white">
                   {showAddRecord ? 'Cancel' : '+ Add Record'}
@@ -334,11 +454,11 @@ export default function SubmitReport() {
               </TouchableOpacity>
             </View>
 
-            {/* Add Record Form */}
+            {/* Add/Edit Record Form */}
             {showAddRecord && (
               <View className="mb-4 rounded-lg border border-gray-400 bg-white p-4 dark:border-gray-600 dark:bg-gray-800">
                 <Text className="mb-4 text-base font-semibold text-black dark:text-white">
-                  Add New Record
+                  {editingRecordIndex !== null ? 'Edit Record' : 'Add New Record'}
                 </Text>
 
                 {/* Full Name */}
@@ -360,7 +480,7 @@ export default function SubmitReport() {
                     items={genderOptions}
                     value={currentRecord.gender || ''}
                     onChange={(value) => setCurrentRecord({ ...currentRecord, gender: value })}
-                    placeholder="Gender"
+                    placeholder="Select Gender"
                   />
                 </View>
 
@@ -409,7 +529,6 @@ export default function SubmitReport() {
                     {statusOptions.map((status) => {
                       const isSelected = (currentRecord.status || []).includes(status);
                       const isSaved = status === 'Saved';
-                      // "Saved" is always selected and cannot be deselected
                       const isDisabled = isSaved;
                       return (
                         <TouchableOpacity
@@ -494,14 +613,17 @@ export default function SubmitReport() {
                   />
                 </View>
 
-                <Button title="Add Record" onPress={handleAddRecord} />
+                <Button
+                  title={editingRecordIndex !== null ? 'Update Record' : 'Add Record'}
+                  onPress={handleAddRecord}
+                />
               </View>
             )}
 
             {/* Records List */}
             {records.length > 0 && (
               <View className="gap-3">
-                {records.map((record) => (
+                {records.map((record, index) => (
                   <View
                     key={record.id}
                     className="rounded-lg border border-gray-400 bg-white p-4 dark:border-gray-600 dark:bg-gray-800">
@@ -511,66 +633,41 @@ export default function SubmitReport() {
                           {record.fullName}
                         </Text>
                         <Text className="text-sm text-gray-400">
-                          {record.gender}, Age: {record.age}
+                          {record.gender}, {record.age} years
                         </Text>
-                        <Text className="text-sm text-gray-400">{record.phoneNumber}</Text>
                         <Text className="text-sm text-gray-400">{record.address}</Text>
+                        <Text className="text-sm text-gray-400">{record.phoneNumber}</Text>
                         <View className="mt-2 flex-row flex-wrap gap-2">
-                          {record.status.map((status, index) => {
-                            const getStatusColor = (s: string) => {
-                              switch (s) {
-                                case 'Saved':
-                                  return 'bg-pink-500';
-                                case 'Filled':
-                                  return 'bg-[#FF007F]';
-                                case 'Healed':
-                                  return 'bg-[#FF007F]';
-                                default:
-                                  return 'bg-gray-500';
-                              }
-                            };
-                            return (
-                              <View
-                                key={index}
-                                className={cn('rounded-full px-3 py-1', getStatusColor(status))}>
-                                <Text className="text-xs font-medium text-white">{status}</Text>
-                              </View>
-                            );
-                          })}
+                          {record.status.map((status, statusIndex) => (
+                            <View
+                              key={statusIndex}
+                              className={cn(
+                                'rounded-full px-2 py-1',
+                                status === 'Saved'
+                                  ? 'bg-pink-500'
+                                  : status === 'Filled'
+                                    ? 'bg-[#FF007F]'
+                                    : 'bg-[#FF007F]'
+                              )}>
+                              <Text className="text-xs font-medium text-white">{status}</Text>
+                            </View>
+                          ))}
                         </View>
+                        {record.additionalComments && (
+                          <Text className="mt-2 text-sm text-gray-400">
+                            {record.additionalComments}
+                          </Text>
+                        )}
                       </View>
-                      <TouchableOpacity onPress={() => handleRemoveRecord(record.id)}>
-                        <Ionicons name="close-circle" size={24} color="#EF4444" />
-                      </TouchableOpacity>
+                      <View className="flex-row gap-2">
+                        <TouchableOpacity onPress={() => handleEditRecord(index)}>
+                          <Ionicons name="create-outline" size={24} color="#4ECDC4" />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleRemoveRecord(index)}>
+                          <Ionicons name="close-circle" size={24} color="#EF4444" />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    {record.status.includes('Healed') &&
-                      (record.conditionBefore || record.conditionAfter) && (
-                        <View className="mt-2 border-t border-gray-200 pt-2 dark:border-gray-700">
-                          {record.conditionBefore && (
-                            <View className="mb-2">
-                              <Text className="mb-1 text-xs font-semibold text-gray-400">
-                                Condition Before
-                              </Text>
-                              <Text className="text-xs text-gray-400">
-                                {record.conditionBefore}
-                              </Text>
-                            </View>
-                          )}
-                          {record.conditionAfter && (
-                            <View>
-                              <Text className="mb-1 text-xs font-semibold text-gray-400">
-                                Condition After
-                              </Text>
-                              <Text className="text-xs text-gray-400">{record.conditionAfter}</Text>
-                            </View>
-                          )}
-                        </View>
-                      )}
-                    {record.additionalComments && (
-                      <View className="mt-2 border-t border-gray-200 pt-2 dark:border-gray-700">
-                        <Text className="text-xs text-gray-400">{record.additionalComments}</Text>
-                      </View>
-                    )}
                   </View>
                 ))}
               </View>
@@ -585,7 +682,7 @@ export default function SubmitReport() {
 
           {/* Submit Button */}
           <Button
-            title="Save Report"
+            title="Update Report"
             onPress={handleSubmit}
             disabled={
               !sessionDate ||
@@ -593,20 +690,20 @@ export default function SubmitReport() {
               !locationArea ||
               selectedParticipantIds.length === 0 ||
               records.length === 0 ||
-              createEvangelismMutation.isPending
+              updateEvangelismMutation.isPending
             }
           />
         </View>
-      </ScrollView>
 
-      {/* Participant Selector Sheet */}
-      <ParticipantSelectorSheet
-        visible={showParticipantSelector}
-        participants={participants}
-        selectedIds={selectedParticipantIds}
-        onToggle={toggleParticipant}
-        onDone={() => setShowParticipantSelector(false)}
-      />
+        {/* Participant Selector Sheet */}
+        <ParticipantSelectorSheet
+          visible={showParticipantSelector}
+          participants={participants}
+          selectedIds={selectedParticipantIds}
+          onToggle={toggleParticipant}
+          onDone={() => setShowParticipantSelector(false)}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }

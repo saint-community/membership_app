@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import DashboardTab from './_components/DashboardTab';
 import AddRecordTab from './_components/AddRecordTab';
@@ -14,7 +14,16 @@ type TabType = 'Dashboard' | 'Add Record' | 'History';
 export default function FollowUpMain() {
   const router = useRouter();
   const colors = useColors();
-  const [activeTab, setActiveTab] = useState<TabType>('Dashboard');
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
+  const [activeTab, setActiveTab] = useState<TabType>(
+    (tab as TabType) || 'Dashboard'
+  );
+
+  useEffect(() => {
+    if (tab && ['Dashboard', 'Add Record', 'History'].includes(tab)) {
+      setActiveTab(tab as TabType);
+    }
+  }, [tab]);
   const [showFilter, setShowFilter] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const tabs: TabType[] = ['Dashboard', 'Add Record', 'History'];
@@ -57,7 +66,7 @@ export default function FollowUpMain() {
 
       {/* Tab Content */}
       <View className="flex-1">
-        {activeTab === 'Dashboard' && <DashboardTab />}
+        {activeTab === 'Dashboard' && <DashboardTab onNavigateToHistory={() => setActiveTab('History')} />}
         {activeTab === 'Add Record' && <AddRecordTab />}
         {activeTab === 'History' && <HistoryTab />}
       </View>

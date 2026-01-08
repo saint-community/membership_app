@@ -8,6 +8,7 @@ import { useMe } from '~/hooks/data/me';
 import { cn } from '~/lib/cn';
 import { DropdownSelect } from '../common/DropdownSelect';
 import { DatePicker } from '../common/DatePicker';
+import { PhoneNumberInput } from '../common/PhoneNumberInput';
 
 const AddMemberForm = () => {
   const { data: me } = useMe();
@@ -74,7 +75,7 @@ const AddMemberForm = () => {
     label: string,
     placeholder: string,
     options: any = {},
-    fieldType: 'text' | 'select' | 'date' = 'text',
+    fieldType: 'text' | 'select' | 'date' | 'phone' = 'text',
     disabled: boolean = false,
     selectItems?: string[]
   ) => (
@@ -99,6 +100,17 @@ const AddMemberForm = () => {
           if (fieldType === 'date') {
             return (
               <DatePicker
+                value={String(value || '')}
+                onChange={onChange}
+                placeholder={placeholder}
+                disabled={disabled}
+              />
+            );
+          }
+
+          if (fieldType === 'phone') {
+            return (
+              <PhoneNumberInput
                 value={String(value || '')}
                 onChange={onChange}
                 placeholder={placeholder}
@@ -155,7 +167,7 @@ const AddMemberForm = () => {
       name: 'phone',
       label: 'Phone Number',
       placeholder: 'Phone Number',
-      options: { keyboardType: 'phone-pad' },
+      fieldType: 'phone',
     },
     { name: 'cell', label: 'Cell', placeholder: 'Cell', disabled: true },
     { name: 'fellowship', label: 'Fellowship', placeholder: 'Fellowship', disabled: true },

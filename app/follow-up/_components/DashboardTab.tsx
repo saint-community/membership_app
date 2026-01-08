@@ -3,10 +3,16 @@ import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useFollowUpStats, useFollowUpWorkerHistory } from '~/hooks/data/followUp';
 import { useMemo } from 'react';
+import { useRouter } from 'expo-router';
 
-export default function DashboardTab() {
+interface DashboardTabProps {
+  onNavigateToHistory?: () => void;
+}
+
+export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps) {
+  const router = useRouter();
   const { data: statsData, isLoading: isLoadingStats } = useFollowUpStats();
-  const { data: historyData, isLoading: isLoadingHistory } = useFollowUpWorkerHistory();
+  const { data: historyData } = useFollowUpWorkerHistory();
 
   const metrics = useMemo(() => {
     const stats = statsData?.data;
@@ -55,10 +61,11 @@ export default function DashboardTab() {
     const history = historyData?.data || [];
     if (history.length === 0) return [];
 
-    // Get the most recent records
+    // Get the most recent records with record ID
     const recentRecords = history
       .flatMap((record) =>
         record.records.map((r) => ({
+          recordId: record._id,
           name: r.members_taught.map((m) => m.name).join(', '),
           subject: r.topic,
           duration: `${r.duration_minutes} minutes`,
@@ -141,13 +148,25 @@ export default function DashboardTab() {
             <Text className="text-lg font-semibold text-black dark:text-white">
               Recent Activities
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                // Navigate to History tab
+                onNavigateToHistory?.();
+              }}>
               <Text className="text-sm text-[#FF007F]">See All</Text>
             </TouchableOpacity>
           </View>
           <View className="gap-3">
             {recentActivities.map((activity, index) => (
-              <View key={index} className="rounded-lg bg-white p-4 dark:bg-gray-800">
+              <TouchableOpacity
+                key={index}
+                onPress={() =>
+                  router.push({
+                    pathname: '/follow-up/detail-view',
+                    params: { recordId: activity.recordId },
+                  })
+                }
+                className="rounded-lg bg-white p-4 dark:bg-gray-800">
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1">
                     <Text className="mb-1 text-base font-semibold text-black dark:text-white">
@@ -160,7 +179,7 @@ export default function DashboardTab() {
                     <Text className="text-xs font-semibold text-white">{activity.badge}</Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>

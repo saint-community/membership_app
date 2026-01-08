@@ -31,13 +31,24 @@ export default function SessionDetails() {
     if (!reportData?.data?.souls) return [];
 
     return reportData.data.souls.map((soul, index) => {
+      // Map impact_types to the correct type
+      const statuses: ('Saved' | 'Filled' | 'Healed')[] = soul.impact_types
+        .map((t) => {
+          const capitalized = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+          if (capitalized === 'Saved' || capitalized === 'Filled' || capitalized === 'Healed') {
+            return capitalized as 'Saved' | 'Filled' | 'Healed';
+          }
+          return 'Saved' as const;
+        })
+        .filter((s, i, arr) => arr.indexOf(s) === i); // Remove duplicates
+
       return {
         id: `${reportId}-${index}`,
         name: soul.name,
         age: soul.age,
         phone: soul.phone,
         address: soul.address,
-        statuses: soul.impact_types,
+        statuses: statuses.length > 0 ? statuses : (['Saved'] as const),
       };
     });
   }, [reportData, reportId]);
@@ -70,7 +81,15 @@ export default function SessionDetails() {
           <Ionicons name="arrow-back" size={24} color={colors.foreground} />
         </TouchableOpacity>
         <Text className="text-lg font-semibold text-black dark:text-white">View Report</Text>
-        <View className="w-6" />
+        <TouchableOpacity
+          onPress={() =>
+            router.push({
+              pathname: '/evangelism/edit',
+              params: { reportId: reportId || '' },
+            })
+          }>
+          <Ionicons name="create-outline" size={24} color={colors.foreground} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -78,6 +97,106 @@ export default function SessionDetails() {
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}>
         <View className="px-4 pt-4">
+          {/* Session Information */}
+          {reportData?.data && (
+            <View className="mb-6 rounded-lg bg-white p-4 dark:bg-gray-800">
+              <Text className="mb-4 text-lg font-semibold text-black dark:text-white">
+                Session Information
+              </Text>
+
+              {/* Session Date */}
+              <View className="mb-3">
+                <Text className="mb-1 text-sm text-gray-400">Date</Text>
+                <Text className="text-base text-black dark:text-white">
+                  {new Date(reportData.data.session_date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </Text>
+              </View>
+
+              {/* Start Time */}
+              <View className="mb-3">
+                <Text className="mb-1 text-sm text-gray-400">Start Time</Text>
+                <Text className="text-base text-black dark:text-white">
+                  {(() => {
+                    const time24 = reportData.data.start_time;
+                    const [hours, minutes] = time24.split(':').map(Number);
+                    const period = hours >= 12 ? 'PM' : 'AM';
+                    const hours12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
+                  })()}
+                </Text>
+              </View>
+
+              {/* Location */}
+              <View className="mb-3">
+                <Text className="mb-1 text-sm text-gray-400">Location</Text>
+                <Text className="text-base text-black dark:text-white">
+                  {reportData.data.location_area}
+                </Text>
+              </View>
+
+              {/* Team Members/Participants */}
+              {reportData.data.team_members && reportData.data.team_members.length > 0 && (
+                <View className="mb-3">
+                  <Text className="mb-2 text-sm text-gray-400">Participants</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {reportData.data.team_members.map((member, index) => (
+                      <View key={index} className="rounded-full bg-[#FF007F]/10 px-3 py-1">
+                        <Text className="text-sm text-[#FF007F]">{member.name}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Session Details/Notes */}
+              {reportData.data.details && (
+                <View className="mb-3">
+                  <Text className="mb-2 text-sm text-gray-400">Session Details</Text>
+                  <View className="rounded-lg bg-gray-100 p-3 dark:bg-gray-700">
+                    <Text className="text-sm text-black dark:text-gray-300">
+                      {reportData.data.details}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {/* Summary Stats */}
+              <View className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+                <View className="flex-row flex-wrap gap-4">
+                  <View>
+                    <Text className="text-xs text-gray-400">Saved</Text>
+                    <Text className="text-base font-semibold text-black dark:text-white">
+                      {reportData.data.saved_count || 0}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="text-xs text-gray-400">Filled</Text>
+                    <Text className="text-base font-semibold text-black dark:text-white">
+                      {reportData.data.filled_count || 0}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="text-xs text-gray-400">Healed</Text>
+                    <Text className="text-base font-semibold text-black dark:text-white">
+                      {reportData.data.healed_count || 0}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="text-xs text-gray-400">Total Souls</Text>
+                    <Text className="text-base font-semibold text-black dark:text-white">
+                      {reportData.data.souls?.length || 0}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
           {/* Search Bar */}
           <View className="mb-4">
             <View className="flex-row items-center rounded-lg border border-gray-400 bg-transparent px-4 py-3 dark:border-gray-600">

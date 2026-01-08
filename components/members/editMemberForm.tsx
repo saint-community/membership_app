@@ -8,15 +8,15 @@ import {
   Image,
 } from 'react-native';
 import { Text } from '../nativewindui/Text';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdateMember } from '~/hooks/mutations/members/useUpdateMember';
 import { useDeleteMember } from '~/hooks/mutations/members/useDeleteMember';
 import { useGetMember } from '~/hooks/queries/members/useGetMember';
-import { cn } from '~/lib/cn';
 import { DropdownSelect } from '../common/DropdownSelect';
 import { DatePicker } from '../common/DatePicker';
+import { PhoneNumberInput } from '../common/PhoneNumberInput';
 import { FontAwesome6, Ionicons } from '@expo/vector-icons';
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -58,7 +58,7 @@ interface BottomSheetModalProps {
   onClose: () => void;
   onSave: (value: string) => void;
   multiline?: boolean;
-  fieldType?: 'text' | 'select' | 'date';
+  fieldType?: 'text' | 'select' | 'date' | 'phone';
   selectItems?: string[];
 }
 
@@ -127,6 +127,14 @@ function BottomSheetModal({
     />
   );
 
+  const renderPhoneInput = () => (
+    <PhoneNumberInput
+      value={inputValue}
+      onChange={setInputValue}
+      placeholder={`Enter ${title.toLowerCase()}`}
+    />
+  );
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -150,7 +158,8 @@ function BottomSheetModal({
 
         {fieldType === 'date' && renderDatePicker()}
         {fieldType === 'select' && renderSelect()}
-        {fieldType === 'text' && renderTextInput()}
+        {fieldType === 'phone' && renderPhoneInput()}
+        {(fieldType === 'text' || !fieldType) && renderTextInput()}
       </BottomSheetView>
     </BottomSheet>
   );
@@ -164,7 +173,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
     title: string;
     field: string;
     multiline?: boolean;
-    fieldType?: 'text' | 'select' | 'date';
+    fieldType?: 'text' | 'select' | 'date' | 'phone';
     selectItems?: string[];
   }>({
     isVisible: false,
@@ -192,6 +201,8 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
   type MemberFormData = z.infer<typeof memberSchema>;
 
   const { data: memberData, isLoading: memberLoading, error } = useGetMember(memberId);
+
+  console.log(JSON.stringify(memberData, null, 2));
 
   const { isLoading, onSubmit: submitToAPI } = useUpdateMember();
   const { isLoading: isDeleting, onSubmit: deleteMember } = useDeleteMember();
@@ -264,7 +275,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
       title: string,
       field: string,
       multiline: boolean = false,
-      fieldType: 'text' | 'select' | 'date' = 'text',
+      fieldType: 'text' | 'select' | 'date' | 'phone' = 'text',
       selectItems: string[] = []
     ) => {
       setModalState({
@@ -459,7 +470,6 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
             label="Date joined Church"
             value={profileData.dateJoined}
             onPress={() => openModal('Date joined Church', 'dateJoined', false, 'date')}
-           
           />
 
           <EditableField
