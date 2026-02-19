@@ -43,6 +43,8 @@ export interface FollowUpRecord {
   location_area: string;
   participants: TeamMemberDto[];
   records: FollowUpRecordDto[];
+  details?: string; // Optional session summary/details
+  summary?: string; // Alternative field name for session summary
   createdAt?: string;
   updatedAt?: string;
 }
@@ -52,6 +54,13 @@ export interface FollowUpStats {
   total_sessions: number;
   total_participants: number;
   total_duration_minutes: number;
+}
+
+export interface FollowUpWorkerStats {
+  total_sessions: number; // Total number of follow-up sessions.
+  total_duration: number; // Total duration of all sessions (minutes).
+  average_duration: number; // Average duration per session.
+  this_week_count: number; // Number of sessions recorded this week.
 }
 
 // Record a new follow-up session
@@ -184,6 +193,25 @@ export async function deleteFollowUpRecord(id: string): Promise<{
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to delete follow-up record',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
+// Get worker stats
+export async function getFollowUpWorkerStats(): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: FollowUpWorkerStats;
+}> {
+  try {
+    const { data } = await ApiCaller.get(QUERY_PATHS.FOLLOW_UP_WORKER_STATS);
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch follow-up worker stats',
       error: error.response?.data?.error || error.message,
     };
   }

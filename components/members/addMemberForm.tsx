@@ -9,6 +9,7 @@ import { cn } from '~/lib/cn';
 import { DropdownSelect } from '../common/DropdownSelect';
 import { DatePicker } from '../common/DatePicker';
 import { PhoneNumberInput } from '../common/PhoneNumberInput';
+import { DEPARTMENTS } from '~/utils/constants';
 
 const AddMemberForm = () => {
   const { data: me } = useMe();
@@ -26,6 +27,8 @@ const AddMemberForm = () => {
     dateOfBirth: z.string().min(1, 'Date of Birth is required'),
     church: z.string().min(1, 'Church name is required'),
   });
+
+
 
   type MemberFormData = z.infer<typeof memberSchema>;
   const {
@@ -149,62 +152,51 @@ const AddMemberForm = () => {
     disabled?: boolean;
     customRender?: boolean;
   }[] = [
-    { name: 'fullName', label: 'Full Name', placeholder: 'Full Name' },
-    {
-      name: 'gender',
-      label: 'Gender',
-      placeholder: 'Gender',
-      customRender: true,
-      fieldType: 'select',
-    },
-    {
-      name: 'email',
-      label: 'Email',
-      placeholder: 'Email Address',
-      options: { keyboardType: 'email-address', autoCapitalize: 'none' },
-    },
-    {
-      name: 'phone',
-      label: 'Phone Number',
-      placeholder: 'Phone Number',
-      fieldType: 'phone',
-    },
-    { name: 'cell', label: 'Cell', placeholder: 'Cell', disabled: true },
-    { name: 'fellowship', label: 'Fellowship', placeholder: 'Fellowship', disabled: true },
-    {
-      name: 'department',
-      label: 'Department',
-      placeholder: 'Department',
-      fieldType: 'select',
-      customRender: true,
-      options: [
-        'Music Ministry',
-        'Guest Ministry',
-        'Technical Department',
-        'Livingword Media Department',
-        'Operations Department',
-        "Children's Church",
-        'Works Department',
-        'Security',
-        'Pastors Protocol',
-        'Media Team',
-      ],
-    },
-    { name: 'address', label: 'Address', placeholder: 'Address' },
-    { name: 'church', label: 'Church', placeholder: 'Church Name', disabled: true },
-    {
-      name: 'dateOfBirth',
-      label: 'Date of Birth',
-      placeholder: 'Select date of birth',
-      fieldType: 'date',
-    },
-    {
-      name: 'dateJoined',
-      label: 'Date Joined',
-      placeholder: 'Select date joined church',
-      fieldType: 'date',
-    },
-  ];
+      { name: 'fullName', label: 'Full Name', placeholder: 'Full Name' },
+      {
+        name: 'gender',
+        label: 'Gender',
+        placeholder: 'Gender',
+        customRender: true,
+        fieldType: 'select',
+      },
+      {
+        name: 'email',
+        label: 'Email',
+        placeholder: 'Email Address',
+        options: { keyboardType: 'email-address', autoCapitalize: 'none' },
+      },
+      {
+        name: 'phone',
+        label: 'Phone Number',
+        placeholder: 'Phone Number',
+        options: { keyboardType: 'phone-pad' },
+      },
+      { name: 'cell', label: 'Cell', placeholder: 'Cell', disabled: true },
+      { name: 'fellowship', label: 'Fellowship', placeholder: 'Fellowship', disabled: true },
+      {
+        name: 'department',
+        label: 'Department',
+        placeholder: 'Department',
+        fieldType: 'select',
+        customRender: true,
+        options: DEPARTMENTS
+      },
+      { name: 'address', label: 'Address', placeholder: 'Address' },
+      { name: 'church', label: 'Church', placeholder: 'Church Name', disabled: true },
+      {
+        name: 'dateOfBirth',
+        label: 'Date of Birth',
+        placeholder: 'Select date of birth',
+        fieldType: 'date',
+      },
+      {
+        name: 'dateJoined',
+        label: 'Date Joined',
+        placeholder: 'Select date joined church',
+        fieldType: 'date',
+      },
+    ];
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} className="px-4">
@@ -219,26 +211,14 @@ const AddMemberForm = () => {
           field.name === 'gender'
             ? ['Male', 'Female']
             : field.name === 'department'
-              ? [
-                  'Music Ministry',
-                  'Guest Ministry',
-                  'Technical Department',
-                  'Livingword Media Department',
-                  'Operations Department',
-                  "Children's Church",
-                  'Works Department',
-                  'Security',
-                  'Pastors Protocol',
-                  'Media Team',
-                ]
+              ? DEPARTMENTS
               : undefined
         )
       )}
 
       <TouchableOpacity
-        className={`my-12 h-12 w-full items-center justify-center rounded-lg bg-[#FF007F] ${
-          isValid && !isLoading ? 'bg-[#FF007F]' : 'bg-[#353535]'
-        }`}
+        className={`my-12 h-12 w-full items-center justify-center rounded-lg bg-[#FF007F] ${isValid && !isLoading ? 'bg-[#FF007F]' : 'bg-[#353535]'
+          }`}
         onPress={handleSubmit(onSubmit)}
         disabled={isLoading || !isValid}>
         <Text className="text-base font-semibold text-white">

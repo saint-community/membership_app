@@ -31,7 +31,7 @@ export interface RecentAssignment {
 }
 
 export interface CreateSubmissionRequest {
-  member_worker_id?: string;
+  member_id?: string;
   study_group_id: string;
   assignment_link?: string;
   isOnline: boolean;
@@ -116,18 +116,18 @@ export async function getRecentAssignments(): Promise<{
 
 // Create submission
 export async function createSubmission(body: CreateSubmissionRequest) {
-  const method = `${body.isOnline ? 'online' : 'offline'}_by_${body.member_worker_id ? 'leader' : 'member'}`;
+  const method = `${body.isOnline ? 'online' : 'offline'}_by_${body.member_id ? 'leader' : 'member'}`;
   const newBody = {
-    member_worker_id: body.member_worker_id,
+    member_id: body.member_id,
     study_group_id: body.study_group_id,
     ...(body.assignment_link && { assignment_link: body.assignment_link }),
     submission_method: method,
   };
 
-  alert(
+  console.log(
     JSON.stringify(
       {
-        url: body.member_worker_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
+        url: body.member_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
         ...newBody,
       },
       null,
@@ -135,7 +135,7 @@ export async function createSubmission(body: CreateSubmissionRequest) {
     )
   );
   const { data } = await ApiCaller.post(
-    body.member_worker_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
+    body.member_id ? QUERY_PATHS.MEMBER_SUBMISSIONS : QUERY_PATHS.SUBMISSIONS,
     newBody
   );
   return data;

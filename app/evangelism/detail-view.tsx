@@ -19,10 +19,10 @@ export default function DetailView() {
 
   // Get the specific soul data
   const soulData = useMemo(() => {
-    if (!reportData?.data?.souls || !soulIndex) return null;
+    if (!reportData?.data?.records || !soulIndex) return null;
     const index = parseInt(soulIndex);
-    if (isNaN(index) || index < 0 || index >= reportData.data.souls.length) return null;
-    return reportData.data.souls[index];
+    if (isNaN(index) || index < 0 || index >= reportData.data.records.length) return null;
+    return reportData.data.records[index];
   }, [reportData, soulIndex]);
 
   // Initialize statuses from soul data
@@ -65,8 +65,8 @@ export default function DetailView() {
       age: soulData.age.toString(),
       address: soulData.address,
       phoneNumber: soulData.phone,
-      complaint: soulData.note || 'No complaint recorded',
-      resolution: soulData.status === 'healed' ? 'Healed' : 'No resolution recorded',
+      complaint: soulData.healed_condition_before || 'No complaint recorded',
+      resolution: soulData.healed_condition_after || 'No resolution recorded',
       additionalComments: soulData.note || 'No additional comments',
     };
   }, [soulData]);
@@ -174,7 +174,7 @@ export default function DetailView() {
 
               {/* Report Content Fields */}
               <View className="gap-4">
-                {soulData.status === 'healed' && (
+                {soulData.impact_types?.includes('healed') && (
                   <>
                     <View className="rounded-lg border border-gray-400 bg-transparent px-4 py-3 dark:border-gray-600">
                       <Text className="text-sm text-gray-400">Condition Before</Text>

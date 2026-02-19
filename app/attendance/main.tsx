@@ -4,14 +4,14 @@ import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
-import { useAllMeetings, useAttendanceHistory } from '~/hooks/data/attendance';
+import { useAllMeetings, useAttendanceWorkerStats } from '~/hooks/data/attendance';
 import { useMemo } from 'react';
 
 export default function AttendanceMain() {
   const router = useRouter();
   const colors = useColors();
   const { data: meetingsData, isLoading: isLoadingMeetings } = useAllMeetings();
-  const { data: historyData, isLoading: isLoadingHistory } = useAttendanceHistory();
+  const { data: statsData, isLoading: isLoadingStats } = useAttendanceWorkerStats();
 
   const upcomingMeetings = useMemo(() => {
     if (!meetingsData?.data) return [];
@@ -22,19 +22,29 @@ export default function AttendanceMain() {
         title: meeting.title,
         subtitle: `${meeting.type} - ${meeting.scope_type}`,
         time: meetingDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        date: meetingDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' }),
+        date: meetingDate.toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: '2-digit',
+        }),
         meeting,
       };
     });
   }, [meetingsData]);
 
   const attendanceStats = useMemo(() => {
-    const history = historyData?.data || [];
+    if (!statsData?.data) {
+      return {
+        meetingsAttended: 0,
+        firstTimersBrought: 0,
+      };
+    }
+
     return {
-      meetingsAttended: history.length,
-      disciples: new Set(history.map((h) => h.member_id)).size,
+      meetingsAttended: statsData.data.meetings_attended,
+      firstTimersBrought: statsData.data.first_timers_invited,
     };
-  }, [historyData]);
+  }, [statsData]);
 
   const quickActions = [
     {
@@ -67,7 +77,7 @@ export default function AttendanceMain() {
                   <Ionicons name="people" size={24} color="#FF6B9D" />
                 </View>
                 <Text className="text-2xl font-bold">
-                  {isLoadingHistory ? '...' : attendanceStats.meetingsAttended}
+                  {isLoadingStats ? '...' : attendanceStats.meetingsAttended}
                 </Text>
                 <Text className="text-md text-slate-600 dark:text-gray-300">Meetings Attended</Text>
               </View>
@@ -78,9 +88,11 @@ export default function AttendanceMain() {
                   <Ionicons name="people" size={24} color="#FFD93D" />
                 </View>
                 <Text className="text-2xl font-bold">
-                  {isLoadingHistory ? '...' : attendanceStats.disciples}
+                  {isLoadingStats ? '...' : attendanceStats.firstTimersBrought}
                 </Text>
-                <Text className="text-md text-slate-600 dark:text-gray-300">Disciples</Text>
+                <Text className="text-md text-slate-600 dark:text-gray-300">
+                  First Timers Brought
+                </Text>
               </View>
             </View>
           </View>
@@ -106,42 +118,44 @@ export default function AttendanceMain() {
               <View className="gap-3">
                 {upcomingMeetings.map((meeting) => (
                   <View key={meeting.id} className="rounded-lg bg-white p-4 dark:bg-gray-800">
-                  <View className="mb-4 flex-row items-start">
-                    <View className="mr-4">
-                      <FontAwesome5 name="church" size={24} color="#FFD93D" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="mb-1 text-base font-semibold">{meeting.title}</Text>
-                      <Text className="text-sm text-gray-400">{meeting.subtitle}</Text>
-                    </View>
-                    <View className="items-end">
-                      <View className="mb-1 flex-row items-center">
-                        <Ionicons name="time-outline" size={16} color="#9CA3AF" />
-                        <Text className="ml-1 text-sm text-gray-400">{meeting.time}</Text>
+                    <View className="mb-4 flex-row items-start">
+                      <View className="mr-4">
+                        <FontAwesome5 name="church" size={24} color="#FFD93D" />
                       </View>
-                      <Text className="text-sm text-gray-400">{meeting.date}</Text>
+                      <View className="flex-1">
+                        <Text className="mb-1 text-base font-semibold">{meeting.title}</Text>
+                        <Text className="text-sm text-gray-400">{meeting.subtitle}</Text>
+                      </View>
+                      <View className="items-end">
+                        <View className="mb-1 flex-row items-center">
+                          <Ionicons name="time-outline" size={16} color="#9CA3AF" />
+                          <Text className="ml-1 text-sm text-gray-400">{meeting.time}</Text>
+                        </View>
+                        <Text className="text-sm text-gray-400">{meeting.date}</Text>
+                      </View>
+                    </View>
+                    <View className="flex-row gap-3">
+                      <TouchableOpacity
+                        onPress={() =>
+                          router.push({
+                            pathname: '/attendance/mark-attendance',
+                            params: { title: meeting.title, subtitle: meeting.subtitle },
+                          })
+                        }
+                        className="flex-1 rounded-lg bg-[#FF007F] px-4 py-3">
+                        <Text className="text-center text-sm font-semibold text-white">
+                          Mark Attendance
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => router.push('/attendance/history')}
+                        className="flex-1 rounded-lg border border-gray-600 px-4 py-3">
+                        <Text className="text-center text-sm font-semibold dark:text-white">
+                          Details
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <View className="flex-row gap-3">
-                    <TouchableOpacity
-                      onPress={() =>
-                        router.push({
-                          pathname: '/attendance/mark-attendance',
-                          params: { title: meeting.title, subtitle: meeting.subtitle },
-                        })
-                      }
-                      className="flex-1 rounded-lg bg-[#FF007F] px-4 py-3">
-                      <Text className="text-center text-sm font-semibold text-white">
-                        Mark Attendance
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => router.push('/attendance/history')}
-                      className="flex-1 rounded-lg border border-gray-600 px-4 py-3">
-                      <Text className="text-center text-sm font-semibold text-white">Details</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
                 ))}
               </View>
             )}

@@ -42,7 +42,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
     defaultValues: {
-      email: 'demioyewusi@gmail.com',
+      email: 'worker1@example.com',
       password: 'password',
     },
   });

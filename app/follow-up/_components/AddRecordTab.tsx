@@ -43,10 +43,8 @@ export default function AddRecordTab() {
   const [showMemberSelector, setShowMemberSelector] = useState(false);
 
   const participants = useMemo(
-    () =>
-      (Array.isArray(membersData?.data)
-        ? [{ _id: 'self', full_name: 'Myself' }, ...membersData.data]
-        : []) as any,
+    () => [{ _id: 'self', full_name: 'Myself' }, ...(membersData?.data || [])] as any,
+
     [membersData?.data]
   );
 

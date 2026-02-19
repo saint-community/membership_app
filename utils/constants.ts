@@ -63,6 +63,7 @@ export const QUERY_PATHS = {
   EVANGELISM_ADMIN_ALL: '/api/evangelism/admin/all',
   EVANGELISM_ADMIN_STATS: '/api/evangelism/admin/stats',
   EVANGELISM_BY_ID: '/api/evangelism/:id',
+  EVANGELISM_WORKER_STATS: '/api/evangelism/stats/me',
 
   // follow-up
   FOLLOW_UP: '/api/follow-up',
@@ -70,10 +71,26 @@ export const QUERY_PATHS = {
   FOLLOW_UP_ADMIN_ALL: '/api/follow-up/admin/all',
   FOLLOW_UP_ADMIN_STATS: '/api/follow-up/admin/stats',
   FOLLOW_UP_BY_ID: '/api/follow-up/:id',
+  FOLLOW_UP_WORKER_STATS: '/api/follow-up/stats/me',
 
   // attendance
   ATTENDANCE_MARK: '/api/attendance/mark',
   ATTENDANCE_HISTORY: '/api/attendance/history',
   ATTENDANCE_ADMIN_MEETING: '/api/attendance/admin/meeting',
   ATTENDANCE_ADMIN_MEETINGS: '/api/attendance/admin/meetings',
+  ATTENDANCE_WORKER_STATS: '/api/attendance/stats/me',
 };
+
+export const DEPARTMENTS = [
+  'Music Ministry',
+  'Guest Ministry',
+  'Technical Department',
+  'Livingword Media Department',
+  'Operations Department',
+  "Children's Church",
+  'Works Department',
+  'Security',
+  'Pastors Protocol',
+  'Media Team',
+  'Display Team',
+];

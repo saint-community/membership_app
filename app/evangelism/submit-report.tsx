@@ -37,7 +37,7 @@ export default function SubmitReport() {
   const createEvangelismMutation = useCreateEvangelismReport();
 
   // Session data
-  const [sessionDate, setSessionDate] = useState('');
+  const [sessionDate, setSessionDate] = useState(new Date().toISOString());
   const [startTime, setStartTime] = useState('');
   const [locationArea, setLocationArea] = useState('');
   const [details, setDetails] = useState('');
@@ -64,7 +64,7 @@ export default function SubmitReport() {
     () =>
       (Array.isArray(membersData?.data)
         ? [{ _id: 'self', full_name: 'Myself' }, ...membersData.data]
-        : []) as any,
+        : [{ _id: 'self', full_name: 'Myself' }]) as any,
     [membersData?.data]
   );
 
@@ -205,6 +205,8 @@ export default function SubmitReport() {
         status: primaryStatus as 'saved' | 'filled' | 'healed' | 'other',
         impact_types: impactTypes.map((s) => s.toLowerCase()),
         note: record.additionalComments || '',
+        healed_condition_before: record.conditionBefore || '',
+        healed_condition_after: record.conditionAfter || '',
       };
     });
 
@@ -214,15 +216,14 @@ export default function SubmitReport() {
     const healedCount = records.filter((r) => r.status?.includes('Healed')).length;
 
     const submitData = {
-      date: new Date().toISOString(),
-      session_date: sessionDate,
+      date: sessionDate,
       start_time: startTime,
       location_area: locationArea,
-      team_members: teamMembers,
+      participants: teamMembers,
       saved_count: savedCount,
       filled_count: filledCount,
       healed_count: healedCount,
-      souls: souls,
+      records: souls,
       details: details || 'Evangelism session',
     };
     console.log('submitData', submitData);

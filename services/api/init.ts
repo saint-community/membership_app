@@ -3,14 +3,16 @@ import axios from 'axios';
 import { clearStorage, getStringData } from '~/utils';
 import { router } from 'expo-router';
 
-const ADMIN_API_URL = process.env.ADMIN_API_URL || 'https://admin-service.saintscommunityportal.com';
-const API_URL = process.env.API_URL || 'https://member-service.saintscommunityportal.com/';
+const ADMIN_API_URL =
+  process.env.EXPO_PUBLIC_ADMIN_API_URL || 'https://admin-service.saintscommunityportal.com/';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://analytics-service.saintscommunityportal.com/';
+const X_API_KEY= process.env.EXPO_PUBLIC_X_API_KEY || '113c53c9e26574039e24ce0cc63a6f7b3be020e5'
 
 export const AdminApiCaller = axios.create({
   baseURL: ADMIN_API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': 'MzbjFEf2SBPViRKyfXHBDCoWoBhM8doJuXH8DNuf',
+    'x-api-key': X_API_KEY,
   },
 });
 
@@ -28,7 +30,7 @@ export const ApiCaller = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
-    'x-api-key': 'MzbjFEf2SBPViRKyfXHBDCoWoBhM8doJuXH8DNuf',
+    'x-api-key': X_API_KEY,
   },
 });
 

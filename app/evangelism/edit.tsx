@@ -44,6 +44,7 @@ export default function EditEvangelismReport() {
   const [locationArea, setLocationArea] = useState('');
   const [details, setDetails] = useState('');
   const [selectedParticipantIds, setSelectedParticipantIds] = useState<string[]>([]);
+  const [originalTeamMembers, setOriginalTeamMembers] = useState<TeamMemberDto[]>([]);
   const [showParticipantSelector, setShowParticipantSelector] = useState(false);
 
   // Records
@@ -66,22 +67,23 @@ export default function EditEvangelismReport() {
   useEffect(() => {
     if (reportData?.data && !isLoadingReport) {
       const report = reportData.data;
-      
+
       // Format date for DatePicker (YYYY-MM-DD)
-      const date = new Date(report.session_date);
+      const date = new Date(report.date);
       const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      
+
       setSessionDate(formattedDate);
       setStartTime(report.start_time);
       setLocationArea(report.location_area);
       setDetails(report.details || '');
-      
-      // Set participants
-      const participantIds = report.team_members.map((m) => m.id);
+
+      // Set participants - preserve original team members data
+      const participantIds = report.participants.map((m) => m.id);
       setSelectedParticipantIds(participantIds);
-      
+      setOriginalTeamMembers(report.participants || []);
+
       // Transform souls to records format
-      const transformedRecords: Record[] = report.souls.map((soul, index) => {
+      const transformedRecords: Record[] = report.records.map((soul, index) => {
         // Map impact_types back to status array
         const statusArray = soul.impact_types.map((t) => {
           const capitalized = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
@@ -89,12 +91,12 @@ export default function EditEvangelismReport() {
             ? capitalized
             : 'Saved';
         });
-        
+
         // Ensure "Saved" is always included
         if (!statusArray.includes('Saved')) {
           statusArray.unshift('Saved');
         }
-        
+
         return {
           id: `${reportId}-${index}`,
           fullName: soul.name,
@@ -103,12 +105,12 @@ export default function EditEvangelismReport() {
           address: soul.address,
           phoneNumber: soul.phone,
           status: statusArray,
-          conditionBefore: soul.note || '',
-          conditionAfter: soul.status === 'healed' ? soul.note || '' : '',
+          conditionBefore: soul.healed_condition_before || '',
+          conditionAfter: soul.healed_condition_after || '',
           additionalComments: soul.note || '',
         };
       });
-      
+
       setRecords(transformedRecords);
     }
   }, [reportData, isLoadingReport, reportId]);
@@ -117,7 +119,7 @@ export default function EditEvangelismReport() {
     () =>
       (Array.isArray(membersData?.data)
         ? [{ _id: 'self', full_name: 'Myself' }, ...membersData.data]
-        : []) as any,
+        : [{ _id: 'self', full_name: 'Myself' }]) as any,
     [membersData?.data]
   );
 
@@ -246,8 +248,16 @@ export default function EditEvangelismReport() {
     }
 
     // Transform participants to TeamMemberDto format
+    // First try to find in original team members (preserves existing data)
+    // Then fall back to participants list for newly added members
     const teamMembers: TeamMemberDto[] = selectedParticipantIds.map((id) => {
-      const participant = participants.find((p: any) => p._id === id);
+      // Check original team members first (preserves existing participant data)
+      const originalMember = originalTeamMembers.find((m) => m.id === id);
+      if (originalMember) {
+        return originalMember;
+      }
+
+      // Handle 'self' case
       if (id === 'self') {
         return {
           id: 'self',
@@ -255,6 +265,9 @@ export default function EditEvangelismReport() {
           name: 'Myself',
         };
       }
+
+      // Fall back to participants list for newly added members
+      const participant = participants.find((p: any) => p._id === id);
       return {
         id: participant?._id || id,
         type: 'member',
@@ -275,6 +288,8 @@ export default function EditEvangelismReport() {
         address: record.address,
         status: primaryStatus.toLowerCase() as 'saved' | 'filled' | 'healed' | 'other',
         impact_types: impactTypes,
+        healed_condition_before: record.conditionBefore || '',
+        healed_condition_after: record.conditionAfter || '',
         note: record.additionalComments || '',
       };
     });
@@ -285,22 +300,22 @@ export default function EditEvangelismReport() {
     const healedCount = records.filter((r) => r.status?.includes('Healed')).length;
 
     const updateData = {
-      date: new Date().toISOString(),
-      session_date: sessionDate,
+      date: sessionDate,
       start_time: startTime,
       location_area: locationArea,
-      team_members: teamMembers,
+      participants: teamMembers,
       saved_count: savedCount,
       filled_count: filledCount,
       healed_count: healedCount,
-      souls: souls,
+      records: souls,
       details: details || 'Evangelism session',
     };
 
     updateEvangelismMutation.mutate(
       { id: reportId, data: updateData },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          console.log('res data', data);
           Toast.show({
             text1: 'Evangelism report updated successfully',
             type: 'success',
@@ -515,9 +530,7 @@ export default function EditEvangelismReport() {
                 <View className="mb-4">
                   <PhoneNumberInput
                     value={currentRecord.phoneNumber || ''}
-                    onChange={(phoneNumber) =>
-                      setCurrentRecord({ ...currentRecord, phoneNumber })
-                    }
+                    onChange={(phoneNumber) => setCurrentRecord({ ...currentRecord, phoneNumber })}
                     placeholder="Phone Number"
                   />
                 </View>

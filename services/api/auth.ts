@@ -7,7 +7,7 @@ import {
   storeStringData,
 } from '~/utils';
 
-import { AdminApiCaller, ApiCaller } from './init';
+import { AdminApiCaller } from './init';
 
 export interface LoginResponse {
   error: string;
@@ -17,7 +17,7 @@ export interface LoginResponse {
 export async function loginUser(body: { email: string; password: string }): Promise<LoginResponse> {
   const { data } = await AdminApiCaller.post(QUERY_PATHS.LOGIN, body);
 
-  console.log('data', data);
+  // console.log('data', data);
 
   if (data.access_token) {
     storeStringData(STORAGE_KEYS.TOKEN, data.access_token);
@@ -82,11 +82,11 @@ export async function uploadProfileImage(imageUri: string): Promise<{
 }> {
   try {
     const formData = new FormData();
-    
+
     // Create file object for upload
     const fileExtension = imageUri.split('.').pop()?.toLowerCase() || 'jpg';
     const mimeType = `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
-    
+
     formData.append('profile_image', {
       uri: imageUri,
       type: mimeType,
@@ -123,27 +123,37 @@ export interface UpdateProfileRequest {
   profile_image_url?: string;
 }
 
-// Update profile 
-export async function updateProfile(body: UpdateProfileRequest | FormData, id: string): Promise<{
+// Update profile
+export async function updateProfile(
+  body: UpdateProfileRequest | FormData,
+  id: string
+): Promise<{
   success: boolean;
   message: string;
   error?: string;
   data?: User;
 }> {
   try {
-    console.log('Updating profile with data:', body, body instanceof FormData ? 'as FormData' : 'as JSON');
-    
+    console.log(
+      'Updating profile with data:',
+      body,
+      body instanceof FormData ? 'as FormData' : 'as JSON'
+    );
+
     const { data } = await AdminApiCaller.put(QUERY_PATHS.UPDATE_PROFILE.replace(':id', id), body, {
-      headers: body instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : { 'Content-Type': 'application/json' },
+      headers:
+        body instanceof FormData
+          ? { 'Content-Type': 'multipart/form-data' }
+          : { 'Content-Type': 'application/json' },
     });
-    
+
     console.log('update profile data', data);
-    
+
     // Update local storage with new user data if successful
     if (data.worker) {
       storeObjectData(STORAGE_KEYS.USER, data.worker);
     }
-    
+
     return data;
   } catch (error: any) {
     return {
@@ -153,7 +163,6 @@ export async function updateProfile(body: UpdateProfileRequest | FormData, id: s
     };
   }
 }
-
 
 interface User {
   id: number;

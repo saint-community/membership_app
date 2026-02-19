@@ -53,7 +53,7 @@ export default function EditFollowUpRecord() {
     () =>
       (Array.isArray(membersData?.data)
         ? [{ _id: 'self', full_name: 'Myself' }, ...membersData.data]
-        : []) as any,
+        : [{ _id: 'self', full_name: 'Myself' }]) as any,
     [membersData?.data]
   );
 
@@ -61,19 +61,19 @@ export default function EditFollowUpRecord() {
   useEffect(() => {
     if (recordData?.data && !isLoadingRecord) {
       const record = recordData.data;
-      
+
       // Format date for DatePicker (YYYY-MM-DD)
       const date = new Date(record.session_date);
       const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      
+
       setSessionDate(formattedDate);
       setStartTime(record.start_time);
       setLocationArea(record.location_area);
-      
+
       // Set participants
       const participantIds = record.participants.map((p) => p.id);
       setSelectedParticipantIds(participantIds);
-      
+
       // Transform records to local format
       const transformedRecords: Record[] = record.records.map((r) => ({
         members_taught: r.members_taught.map((m) => ({ id: m.id, name: m.name })),
@@ -82,7 +82,7 @@ export default function EditFollowUpRecord() {
         duration_minutes: r.duration_minutes,
         comments: r.comments || '',
       }));
-      
+
       setRecords(transformedRecords);
     }
   }, [recordData, isLoadingRecord]);

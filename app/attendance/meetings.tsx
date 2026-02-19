@@ -37,10 +37,7 @@ export default function AttendanceMeetings() {
     });
   }, [meetingsData]);
 
-  const filterOptions: string[] = [
-    'All Meetings',
-    ...meetingTypes,
-  ];
+  const filterOptions: string[] = ['All Meetings', ...meetingTypes];
 
   // Transform API meetings to UI format and filter past meetings
   const allMeetings = useMemo<Meeting[]>(() => {
@@ -140,7 +137,7 @@ export default function AttendanceMeetings() {
         <TouchableOpacity
           onPress={() => router.push('/attendance/history')}
           className="flex-1 rounded-lg border border-gray-600 px-4 py-3">
-          <Text className="text-center text-sm font-semibold text-white">Details</Text>
+          <Text className="text-center text-sm font-semibold dark:text-white">Details</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -206,9 +203,7 @@ export default function AttendanceMeetings() {
                 <Ionicons name="calendar-outline" size={48} color="#9CA3AF" />
                 <Text className="mt-4 text-base text-gray-400">No past meetings found</Text>
                 <Text className="mt-1 text-sm text-gray-500">
-                  {searchQuery
-                    ? 'Try a different search term'
-                    : 'Try selecting a different filter'}
+                  {searchQuery ? 'Try a different search term' : 'Try selecting a different filter'}
                 </Text>
               </View>
             )}

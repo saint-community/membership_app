@@ -70,6 +70,7 @@ export const useLogin = (): UseLoginReturn => {
     },
 
     onError: (error: any) => {
+      console.log('error', error?.response?.data);
       Toast.show({
         text1: 'Invalid login credentials',
         type: 'error',

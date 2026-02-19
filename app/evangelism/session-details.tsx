@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useEvangelismReport } from '~/hooks/data/evangelism';
+import { formatTimeDisplay } from '~/utils';
 
 interface ReportEntry {
   id: string;
@@ -24,13 +25,13 @@ export default function SessionDetails() {
   const [searchQuery, setSearchQuery] = useState('');
   const { data: reportData, isLoading } = useEvangelismReport(reportId || '');
 
-  console.log(JSON.stringify(reportData, null, 2));
+  // console.log(JSON.stringify(reportData, null, 2));
 
   // Transform API souls data to ReportEntry format
   const reports = useMemo<ReportEntry[]>(() => {
-    if (!reportData?.data?.souls) return [];
+    if (!reportData?.data?.records) return [];
 
-    return reportData.data.souls.map((soul, index) => {
+    return reportData.data.records.map((soul, index) => {
       // Map impact_types to the correct type
       const statuses: ('Saved' | 'Filled' | 'Healed')[] = soul.impact_types
         .map((t) => {
@@ -108,7 +109,7 @@ export default function SessionDetails() {
               <View className="mb-3">
                 <Text className="mb-1 text-sm text-gray-400">Date</Text>
                 <Text className="text-base text-black dark:text-white">
-                  {new Date(reportData.data.session_date).toLocaleDateString('en-US', {
+                  {new Date(reportData.data.date).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -118,18 +119,12 @@ export default function SessionDetails() {
               </View>
 
               {/* Start Time */}
-              <View className="mb-3">
+              {reportData.data.start_time && <View className="mb-3">
                 <Text className="mb-1 text-sm text-gray-400">Start Time</Text>
                 <Text className="text-base text-black dark:text-white">
-                  {(() => {
-                    const time24 = reportData.data.start_time;
-                    const [hours, minutes] = time24.split(':').map(Number);
-                    const period = hours >= 12 ? 'PM' : 'AM';
-                    const hours12 = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                    return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
-                  })()}
+                  {formatTimeDisplay(reportData?.data?.start_time)}
                 </Text>
-              </View>
+              </View>}
 
               {/* Location */}
               <View className="mb-3">
@@ -140,11 +135,11 @@ export default function SessionDetails() {
               </View>
 
               {/* Team Members/Participants */}
-              {reportData.data.team_members && reportData.data.team_members.length > 0 && (
+              {reportData.data.participants && reportData.data.participants.length > 0 && (
                 <View className="mb-3">
                   <Text className="mb-2 text-sm text-gray-400">Participants</Text>
                   <View className="flex-row flex-wrap gap-2">
-                    {reportData.data.team_members.map((member, index) => (
+                    {reportData.data.participants.map((member, index) => (
                       <View key={index} className="rounded-full bg-[#FF007F]/10 px-3 py-1">
                         <Text className="text-sm text-[#FF007F]">{member.name}</Text>
                       </View>
@@ -189,7 +184,7 @@ export default function SessionDetails() {
                   <View>
                     <Text className="text-xs text-gray-400">Total Souls</Text>
                     <Text className="text-base font-semibold text-black dark:text-white">
-                      {reportData.data.souls?.length || 0}
+                      {reportData.data.records?.length || 0}
                     </Text>
                   </View>
                 </View>
@@ -215,10 +210,10 @@ export default function SessionDetails() {
           {/* Filter Buttons */}
           <View className="mb-6 flex-row gap-3">
             <TouchableOpacity className="flex-1 rounded-lg border border-gray-400 bg-transparent px-4 py-3 dark:border-gray-600">
-              <Text className="text-center text-sm font-medium text-white">All Status</Text>
+              <Text className="text-center text-sm font-medium dark:text-white">All Status</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-1 rounded-lg border border-gray-400 bg-transparent px-4 py-3 dark:border-gray-600">
-              <Text className="text-center text-sm font-medium text-white">All Dates</Text>
+              <Text className="text-center text-sm font-medium dark:text-white">All Dates</Text>
             </TouchableOpacity>
           </View>
 
@@ -259,7 +254,10 @@ export default function SessionDetails() {
                         {report.name}
                       </Text>
                       <Text className="mb-1 text-sm text-black dark:text-white">
-                        Age: {report.age} {report.phone}
+                        Age: {report.age}
+                      </Text>
+                      <Text className="mb-1 text-sm text-black dark:text-white">
+                        Phone: {report.phone}
                       </Text>
                       <Text className="text-sm text-black dark:text-white">{report.address}</Text>
                     </View>

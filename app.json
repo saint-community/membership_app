@@ -3,7 +3,7 @@
     "name": "membership_app",
     "slug": "membership_app",
     "version": "1.0.0",
-    "scheme": "membership_app",
+    "scheme": "membership-app",
     "userInterfaceStyle": "automatic",
     "web": {
       "bundler": "metro",
@@ -42,23 +42,25 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.saintcommunity.membership"
+      "bundleIdentifier": "com.saintcommunity.membership",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#000000"
       },
-      "package": "com.saintcommunity.membership"
+      "package": "com.saintcommunity.membership",
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "extra": {
       "router": {},

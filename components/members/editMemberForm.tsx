@@ -24,6 +24,7 @@ import BottomSheet, {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import { useColors } from '~/lib/useColorScheme';
+import { DEPARTMENTS } from '~/utils/constants';
 
 interface EditMemberFormProps {
   memberId: string;
@@ -451,18 +452,7 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
             label="Department"
             value={profileData.department}
             onPress={() =>
-              openModal('Department', 'department', false, 'select', [
-                'Music Ministry',
-                'Guest Ministry',
-                'Technical Department',
-                'Livingword Media Department',
-                'Operations Department',
-                "Children's Church",
-                'Works Department',
-                'Security',
-                'Pastors Protocol',
-                'Media Team',
-              ])
+              openModal('Department', 'department', false, 'select', DEPARTMENTS)
             }
           />
 

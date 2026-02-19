@@ -22,7 +22,7 @@ export default function Prayer() {
     () =>
       (Array.isArray(data?.data)
         ? [{ _id: 'self', full_name: 'Myself' }, ...data.data]
-        : []) as any,
+        : [{ _id: 'self', full_name: 'Myself' }]) as any,
     [data?.data]
   );
 

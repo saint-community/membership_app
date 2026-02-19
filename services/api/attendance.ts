@@ -47,6 +47,11 @@ export interface AttendanceRecord {
   meeting?: Meeting;
 }
 
+export interface AttendanceWorkerStats {
+  meetings_attended: number; // Total number of meetings the worker has attended.
+  first_timers_invited: number; // Total number of first timers the worker has brought.
+}
+
 // Create a new meeting (Admin)
 export async function createMeeting(body: CreateMeetingDto): Promise<{
   success: boolean;
@@ -69,6 +74,7 @@ export async function createMeeting(body: CreateMeetingDto): Promise<{
 // Mark attendance using code
 export async function markAttendance(body: MarkAttendanceDto): Promise<{
   success: boolean;
+  status?: boolean;
   message: string;
   error?: string;
   data?: AttendanceRecord;
@@ -118,6 +124,25 @@ export async function getAllMeetings(): Promise<{
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to fetch meetings',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
+// Get worker stats
+export async function getAttendanceWorkerStats(): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: AttendanceWorkerStats;
+}> {
+  try {
+    const { data } = await ApiCaller.get(QUERY_PATHS.ATTENDANCE_WORKER_STATS);
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch attendance worker stats',
       error: error.response?.data?.error || error.message,
     };
   }

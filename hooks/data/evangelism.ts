@@ -10,6 +10,7 @@ import {
   getEvangelismReportById,
   updateEvangelismReport,
   deleteEvangelismReport,
+  getEvangelismWorkerStats,
   type CreateEvangelismDto,
   type UpdateEvangelismDto,
 } from '~/services/api/evangelism';
@@ -18,6 +19,7 @@ import {
 export const evangelismKeys = {
   all: ['evangelism'] as const,
   workerHistory: () => [...evangelismKeys.all, 'worker-history'] as const,
+  workerStats: () => [...evangelismKeys.all, 'worker-stats'] as const,
   adminAll: () => [...evangelismKeys.all, 'admin-all'] as const,
   adminStats: () => [...evangelismKeys.all, 'admin-stats'] as const,
   detail: (id: string) => [...evangelismKeys.all, 'detail', id] as const,
@@ -53,6 +55,16 @@ export const useEvangelismStats = () => {
   });
 };
 
+// Hook to get evangelism worker stats
+export const useEvangelismWorkerStats = () => {
+  return useQuery({
+    queryKey: evangelismKeys.workerStats(),
+    queryFn: getEvangelismWorkerStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
 // Hook to get a specific evangelism report by ID
 export const useEvangelismReport = (id: string) => {
   return useQuery({
@@ -72,9 +84,11 @@ export const useCreateEvangelismReport = () => {
 
   return useMutation({
     mutationFn: (data: CreateEvangelismDto) => createEvangelismReport(data),
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('create res data', data);
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: evangelismKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: evangelismKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminStats() });
       invalidateByUrl('EVANGELISM');
@@ -85,8 +99,9 @@ export const useCreateEvangelismReport = () => {
       });
     },
     onError: (error: any) => {
+      console.log('create error', error);
       Toast.show({
-        text1: error?.message || 'Failed to submit evangelism report',
+        text1: error.response?.data?.message || 'Failed to submit evangelism report',
         type: 'error',
       });
     },
@@ -104,6 +119,7 @@ export const useUpdateEvangelismReport = () => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: evangelismKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: evangelismKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminStats() });
     },
@@ -120,6 +136,7 @@ export const useDeleteEvangelismReport = () => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: evangelismKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: evangelismKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: evangelismKeys.adminStats() });
     },

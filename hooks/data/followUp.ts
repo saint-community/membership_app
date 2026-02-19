@@ -7,6 +7,7 @@ import {
   getFollowUpRecordById,
   updateFollowUpRecord,
   deleteFollowUpRecord,
+  getFollowUpWorkerStats,
   type CreateFollowUpDto,
   type UpdateFollowUpDto,
 } from '~/services/api/followUp';
@@ -15,6 +16,7 @@ import {
 export const followUpKeys = {
   all: ['follow-up'] as const,
   workerHistory: () => [...followUpKeys.all, 'worker-history'] as const,
+  workerStats: () => [...followUpKeys.all, 'worker-stats'] as const,
   adminAll: () => [...followUpKeys.all, 'admin-all'] as const,
   adminStats: () => [...followUpKeys.all, 'admin-stats'] as const,
   detail: (id: string) => [...followUpKeys.all, 'detail', id] as const,
@@ -50,6 +52,16 @@ export const useFollowUpStats = () => {
   });
 };
 
+// Hook to get follow-up worker stats
+export const useFollowUpWorkerStats = () => {
+  return useQuery({
+    queryKey: followUpKeys.workerStats(),
+    queryFn: getFollowUpWorkerStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
 // Hook to get a specific follow-up record by ID
 export const useFollowUpRecord = (id: string) => {
   return useQuery({
@@ -70,6 +82,7 @@ export const useCreateFollowUpRecord = () => {
     onSuccess: () => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: followUpKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: followUpKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminStats() });
     },
@@ -88,6 +101,7 @@ export const useUpdateFollowUpRecord = () => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: followUpKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: followUpKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: followUpKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminStats() });
     },
@@ -104,6 +118,7 @@ export const useDeleteFollowUpRecord = () => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({ queryKey: followUpKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: followUpKeys.workerHistory() });
+      queryClient.invalidateQueries({ queryKey: followUpKeys.workerStats() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminStats() });
     },

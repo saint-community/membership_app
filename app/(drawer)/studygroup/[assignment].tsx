@@ -81,7 +81,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
     () =>
       (Array.isArray(data?.data)
         ? [{ _id: `${me?.id}`, full_name: 'Myself' }, ...data.data]
-        : []) as any,
+        : [{ _id: 'self', full_name: 'Myself' }]) as any,
     [data?.data, me?.id]
   );
 
@@ -90,7 +90,6 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
     [selectedParticipant, me?.id]
   );
 
-  console.log({ selectedParticipant, me, isCurrentUser });
   const selectedName = useMemo(
     () =>
       participants.filter((p: any) => p._id === selectedParticipant).map((p: any) => p.full_name),
@@ -126,7 +125,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
       study_group_id: assignment.id,
       assignment_link: link,
       isOnline,
-      member_worker_id: selectedParticipant || undefined,
+      member_id: selectedParticipant || undefined,
     });
   }, [assignment.id, link, isOnline, selectedParticipant, mutation]);
 
@@ -174,7 +173,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
           Due: {dayjs(assignment.due_date).format('DD MMM, YYYY')}
         </Text>
       </View>
-      <View className="mt-4 flex-1 flex-col items-center justify-center border">
+      <View className="mt-4 flex-1 flex-col items-center justify-center ">
         <Button
           title="Upload Assignment"
           onPress={() => {
@@ -184,7 +183,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
         />
 
         <TouchableOpacity
-          className="my-6 items-center justify-center border"
+          className="my-6 items-center justify-center"
           onPress={() => {
             setIsOnline(false);
             setIsSelectParticipant(true);
@@ -340,11 +339,11 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
           </Text>
         </View>
       </View>
-      <View className="mt-4 flex-1 flex-col items-center justify-center border">
+      <View className="mt-4 flex-1 flex-col items-center justify-center">
         <Button title="Edit Link" onPress={() => setIsLinkModalVisible(true)} />
 
         <TouchableOpacity
-          className="my-6 items-center justify-center border"
+          className="my-6 items-center justify-center"
           onPress={() => setConfirmDelete(true)}>
           {mutation.isPending && !link ? (
             <ActivityIndicator size="small" color="#fff" />

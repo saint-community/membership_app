@@ -29,15 +29,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
     if (selectedDate) {
       setDate(selectedDate);
-      const formattedDate = selectedDate.toISOString().split('T')[0]; // YYYY-MM-DD
-      onChange(formattedDate);
+      onChange(new Date(selectedDate).toString());
     }
   };
 
   const formatDisplayDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString();
+    return date.toLocaleDateString('en-GB');
   };
 
   return (

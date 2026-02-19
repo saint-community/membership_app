@@ -1,7 +1,7 @@
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { useFollowUpStats, useFollowUpWorkerHistory } from '~/hooks/data/followUp';
+import { useFollowUpWorkerStats, useFollowUpWorkerHistory } from '~/hooks/data/followUp';
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 
@@ -11,51 +11,35 @@ interface DashboardTabProps {
 
 export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps) {
   const router = useRouter();
-  const { data: statsData, isLoading: isLoadingStats } = useFollowUpStats();
+  const { data: statsData, isLoading: isLoadingStats } = useFollowUpWorkerStats();
   const { data: historyData } = useFollowUpWorkerHistory();
 
   const metrics = useMemo(() => {
     const stats = statsData?.data;
-    const history = historyData?.data || [];
-
-    const totalFollowUps = history.length;
-    const totalMinutes = history.reduce(
-      (sum, record) =>
-        sum + record.records.reduce((recordSum, r) => recordSum + r.duration_minutes, 0),
-      0
-    );
-    const totalHours = (totalMinutes / 60).toFixed(1);
-    const averageMinutes = totalFollowUps > 0 ? Math.round(totalMinutes / totalFollowUps) : 0;
-    const averageHours = Math.floor(averageMinutes / 60);
-    const averageMins = averageMinutes % 60;
 
     return [
       {
         icon: <Ionicons name="checkmark-circle" size={24} color="#4ECDC4" />,
-        value: isLoadingStats ? '...' : totalFollowUps.toString(),
+        value: isLoadingStats ? '...' : (stats?.total_sessions || 0).toString(),
         label: 'Total Follow-ups',
       },
       {
         icon: <Ionicons name="time-outline" size={24} color="#4ECDC4" />,
-        value: isLoadingStats ? '...' : `${totalHours}h`,
+        value: isLoadingStats ? '...' : `${stats?.total_duration || 0}mins`,
         label: 'Total Hours',
       },
       {
         icon: <Ionicons name="people-outline" size={24} color="#4ECDC4" />,
-        value: isLoadingStats ? '...' : (stats?.total_participants || 0).toString(),
+        value: isLoadingStats ? '...' : (stats?.this_week_count || 0).toString(),
         label: 'New People',
       },
       {
         icon: <MaterialIcons name="hourglass-empty" size={24} color="#4ECDC4" />,
-        value: isLoadingStats
-          ? '...'
-          : averageHours > 0
-            ? `${averageHours}h ${averageMins}m`
-            : `${averageMins}m`,
+        value: isLoadingStats ? '...' : `${stats?.average_duration || 0}mins`,
         label: 'Average Duration',
       },
     ];
-  }, [statsData, historyData, isLoadingStats]);
+  }, [statsData, isLoadingStats]);
 
   const recentActivities = useMemo(() => {
     const history = historyData?.data || [];

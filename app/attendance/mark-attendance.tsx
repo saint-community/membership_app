@@ -14,7 +14,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '~/lib/useColorScheme';
 import { useMarkAttendance } from '~/hooks/data/attendance';
-import Toast from 'react-native-toast-message';
 
 export default function MarkAttendance() {
   const router = useRouter();
@@ -27,7 +26,11 @@ export default function MarkAttendance() {
   const [result, setResult] = useState<null | { type: 'success' | 'error'; message: string }>(null);
   const { data } = useGetAllMembers();
   const colors = useColors();
-  const [firstTimers, setFirstTimers] = useState<Array<{ name: string; phone: string; email: string }>>([]);
+
+  console.log(JSON.stringify(result, null, 2));
+  const [firstTimers, setFirstTimers] = useState<
+    Array<{ name: string; phone: string; email: string }>
+  >([]);
   const markAttendanceMutation = useMarkAttendance();
 
   const participants = useMemo(
@@ -62,7 +65,7 @@ export default function MarkAttendance() {
 
   const confirmMark = () => {
     setShowConfirm(false);
-    
+
     // Transform first timers to the required format
     const firstTimersDetails = firstTimers.map((ft) => ({
       name: ft.name,
@@ -78,7 +81,8 @@ export default function MarkAttendance() {
       },
       {
         onSuccess: (response) => {
-          if (response.success) {
+          console.log(JSON.stringify(response, null, 2));
+          if (response.success || response?.status) {
             setCode('');
             setSelectedIds([]);
             setFirstTimers([]);
@@ -146,7 +150,9 @@ export default function MarkAttendance() {
         <Button
           title="Mark Attendance"
           onPress={handleMarkAttendance}
-          disabled={selectedIds.length === 0 || code.length !== 6 || markAttendanceMutation.isPending}
+          disabled={
+            selectedIds.length === 0 || code.length !== 6 || markAttendanceMutation.isPending
+          }
         />
       </View>
 
@@ -177,7 +183,7 @@ export default function MarkAttendance() {
 
       <ResultSheet
         visible={!!result}
-        type={result?.type === 'success' ? 'success' : result ? 'error' : 'success'}
+        type={result?.type ?? 'success'}
         message={result?.message ?? ''}
         onClose={() => {
           setResult(null);

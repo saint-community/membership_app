@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import { Text } from '../nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { Ionicons } from '@expo/vector-icons';
+import { formatTimeDisplay, parseTime } from '~/utils';
 
 interface TimePickerProps {
   value: string; // Time in format "HH:MM" (24-hour) or "HH:MM AM/PM" (12-hour)
@@ -22,31 +23,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const [tempMinute, setTempMinute] = useState(0);
   const [tempPeriod, setTempPeriod] = useState<'AM' | 'PM'>('AM');
 
-  // Parse input value (supports both 24-hour and 12-hour formats)
-  const parseTime = (timeStr: string) => {
-    if (!timeStr) return { hour: 12, minute: 0, period: 'AM' as const };
 
-    // Try 24-hour format first (HH:MM)
-    const match24 = timeStr.match(/^(\d{1,2}):(\d{2})$/);
-    if (match24) {
-      let hour24 = parseInt(match24[1]);
-      const minute = parseInt(match24[2]);
-      const period = hour24 >= 12 ? 'PM' : 'AM';
-      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-      return { hour: hour12, minute, period };
-    }
-
-    // Try 12-hour format (HH:MM AM/PM)
-    const match12 = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-    if (match12) {
-      const hour = parseInt(match12[1]);
-      const minute = parseInt(match12[2]);
-      const period = match12[3].toUpperCase() as 'AM' | 'PM';
-      return { hour, minute, period };
-    }
-
-    return { hour: 12, minute: 0, period: 'AM' as const };
-  };
 
   // Initialize temp values when modal opens
   const handleOpen = () => {
@@ -75,10 +52,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   const formatDisplay = () => {
     if (!value) return placeholder;
-
-    const parsed = parseTime(value);
-    const minuteStr = parsed.minute.toString().padStart(2, '0');
-    return `${parsed.hour}:${minuteStr} ${parsed.period}`;
+    return formatTimeDisplay(value)
   };
 
   // Generate hour options (1-12)

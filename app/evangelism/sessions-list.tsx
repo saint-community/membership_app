@@ -4,8 +4,9 @@ import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
-import { useEvangelismWorkerHistory } from '~/hooks/data/evangelism';
+import { useEvangelismWorkerHistory, useEvangelismWorkerStats } from '~/hooks/data/evangelism';
 import { useMemo } from 'react';
+import { formatTimeDisplay } from '~/utils';
 
 interface ReportSession {
   id: string;
@@ -37,10 +38,14 @@ export default function SessionsList() {
     endDate?: string;
   }>();
   const { data: historyData, isLoading } = useEvangelismWorkerHistory();
+  const { data: statsData, isLoading: isLoadingStats } = useEvangelismWorkerStats();
 
-  // Calculate summary stats from real data
+  console.log('statsData', JSON.stringify(statsData, null, 2));
+  console.log('historyData', JSON.stringify(historyData, null, 2));
+
+  // Use worker stats instead of admin stats
   const summaryStats = useMemo(() => {
-    if (!historyData?.data) {
+    if (!statsData?.data) {
       return [
         { label: 'Saved', value: '0' },
         { label: 'Filled', value: '0' },
@@ -48,29 +53,24 @@ export default function SessionsList() {
       ];
     }
 
-    const saved = historyData.data.reduce((sum, report) => sum + report.saved_count, 0);
-    const filled = historyData.data.reduce((sum, report) => sum + report.filled_count, 0);
-    const healed = historyData.data.reduce((sum, report) => sum + report.healed_count, 0);
-
     return [
-      { label: 'Saved', value: saved.toString() },
-      { label: 'Filled', value: filled.toString() },
-      { label: 'Healed', value: healed.toString() },
+      { label: 'Saved', value: statsData.data.total_saved.toString() },
+      { label: 'Filled', value: statsData.data.total_filled.toString() },
+      { label: 'Healed', value: statsData.data.total_healed.toString() },
     ];
-  }, [historyData]);
+  }, [statsData]);
 
   // Transform API data to sessions format
   const sessions = useMemo<ReportSession[]>(() => {
     if (!historyData?.data) return [];
 
     return historyData.data.map((report, index) => {
-      const reportDate = new Date(report.session_date);
-      const reportTime = new Date(report.date);
+      const reportDate = new Date(report.date);
 
       // Get first team member name or use location as identifier
       const teamMemberName =
-        report.team_members && report.team_members.length > 0
-          ? report.team_members[0].name
+        report.participants && report.participants.length > 0
+          ? report.participants[0].name
           : 'Evangelism Session';
 
       return {
@@ -81,11 +81,7 @@ export default function SessionsList() {
           day: '2-digit',
           year: 'numeric',
         }),
-        time: reportTime.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-        }),
+        time: report.start_time || '',
         iconColor: iconColors[index % iconColors.length],
         location: report.location_area,
         reportId: report._id,
@@ -122,7 +118,7 @@ export default function SessionsList() {
               <View key={index} className="flex-1 rounded-lg bg-white px-4 py-4 dark:bg-gray-800">
                 <Text className="mb-2 text-sm text-gray-400">{stat.label}</Text>
                 <Text className="text-2xl font-bold text-black dark:text-white">
-                  {isLoading ? '...' : stat.value}
+                  {isLoading || isLoadingStats ? '...' : stat.value}
                 </Text>
               </View>
             ))}
@@ -176,7 +172,7 @@ export default function SessionsList() {
                         </TouchableOpacity>
                       </View>
                       <Text className="text-xs text-gray-400">
-                        {session.location} • {session.date}, {session.time}
+                        {session.location} • {session.date}{session.time ? `, ${formatTimeDisplay(session.time)}` : ''}
                       </Text>
                     </View>
                   </View>
