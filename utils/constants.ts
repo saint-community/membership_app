@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   IS_AUTHENTICATED: 'isAuthenticated',
   USER: 'user',
   COLOR_SCHEME: 'colorScheme',
+  ONBOARDING_COMPLETED: 'onboardingCompleted',
 };
 
 export const QUERY_PATHS = {

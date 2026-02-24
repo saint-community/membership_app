@@ -6,29 +6,15 @@ import {
   Poppins_600SemiBold,
   useFonts as usePoppins,
 } from '@expo-google-fonts/poppins';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import Login from './(login)/login';
 import LoginLayout from './(login)/_layout';
 import OnboardingLayout from './(onboarding)/_layout';
-import RootLayout from './_layout';
 import { STORAGE_KEYS } from '~/utils/constants';
 import { getStringData } from '~/utils';
 
 export default function Index() {
-  // const [auth, setAuth] = useState(false);
-
-  // const loadUserData = async () => {
-  //   const isAuthenticated = await getStringData(STORAGE_KEYS.IS_AUTHENTICATED);
-
-  //   if (isAuthenticated) {
-  //     setAuth(isAuthenticated);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   loadUserData();
-  // }, []);
+  const onboardingCompleted = getStringData(STORAGE_KEYS.ONBOARDING_COMPLETED);
 
   // Set the animation options. This is optional.
   SplashScreen.setOptions({
@@ -49,14 +35,16 @@ export default function Index() {
     Poppins_600SemiBold,
   });
 
-  const isAuthenticated = async () => await getStringData(STORAGE_KEYS.IS_AUTHENTICATED);
-
   useEffect(() => {
     if (fontsLoaded) {
       // hide splashscreen after loading artifacts
       SplashScreen.hide();
     }
-  }, []);
+  }, [fontsLoaded]);
 
-  return true ? <OnboardingLayout /> : <LoginLayout />;
+  if (onboardingCompleted) {
+    return <LoginLayout />;
+  }
+
+  return <OnboardingLayout />;
 }

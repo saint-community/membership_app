@@ -5,27 +5,19 @@ import { useFollowUpWorkerHistory } from '~/hooks/data/followUp';
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 
-interface ReportCard {
-  id: string;
-  name: string;
-  reportTitle: string;
-  subtitle?: string;
-  duration: string;
-  date: string;
-  totalDuration: string;
-  badge?: 'New Person' | 'Member';
-  additionalComments?: string;
-}
+
 
 export default function HistoryTab() {
   const router = useRouter();
   const { data: historyData, isLoading } = useFollowUpWorkerHistory();
 
+  console.log('historyData', JSON.stringify(historyData, null, 2));
+
   const reports = useMemo(() => {
     if (!historyData?.data) return [];
 
     return historyData.data.flatMap((record) => {
-      const sessionDate = new Date(record.session_date);
+      const sessionDate = new Date(record.date);
       const formattedDate = sessionDate.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
@@ -41,7 +33,7 @@ export default function HistoryTab() {
           id: record._id,
           name: memberNames,
           reportTitle: r.topic,
-          subtitle: r.material,
+          session_summary: record.session_summary,
           duration: `${r.duration_minutes} minutes`,
           date: formattedDate,
           totalDuration: `${totalDuration} minutes`,
@@ -94,8 +86,8 @@ export default function HistoryTab() {
                   <Text className="mb-1 text-sm font-medium text-black dark:text-white">
                     {report.reportTitle}
                   </Text>
-                  {report.subtitle && (
-                    <Text className="mb-1 text-xs text-gray-400">{report.subtitle}</Text>
+                  {report.session_summary && (
+                    <Text className="mb-1 text-xs text-gray-400">{report.session_summary}</Text>
                   )}
                   <Text className="text-xs text-gray-500">{report.duration}</Text>
                 </View>
@@ -125,7 +117,7 @@ export default function HistoryTab() {
 
               <View className="mt-2 flex-row items-center justify-between border-t border-gray-200 pt-2 dark:border-gray-700">
                 <Text className="text-xs text-gray-500">
-                  {report.date}, {report.totalDuration}
+                  {report.date}
                 </Text>
                 <TouchableOpacity>
                   <Text className="text-xs text-[#FF007F]">View Details</Text>

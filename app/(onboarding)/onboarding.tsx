@@ -5,6 +5,8 @@ import Swiper from 'react-native-swiper';
 import { View } from 'react-native';
 import { swipeList } from '~/lib/constants';
 import { useRouter } from 'expo-router';
+import { STORAGE_KEYS } from '~/utils/constants';
+import { storeStringData } from '~/utils';
 
 const Onboarding = () => {
   const router = useRouter();
@@ -21,7 +23,8 @@ const Onboarding = () => {
 
   const handleButtonPress = () => {
     if (index === swipeList.length - 1) {
-      // Navigate to main app when "Get Started" is pressed
+      // Mark onboarding as completed and navigate to login
+      storeStringData(STORAGE_KEYS.ONBOARDING_COMPLETED, 'true');
       router.replace('/(login)/login');
     } else {
       // Move to next slide

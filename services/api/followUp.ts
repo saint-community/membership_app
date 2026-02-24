@@ -2,20 +2,20 @@ import { QUERY_PATHS } from '~/utils/constants';
 import { ApiCaller } from './init';
 
 export interface TeamMemberDto {
-  id: string;
-  type: 'worker' | 'member';
+  member_id: string;
+  type?: 'worker' | 'member';
   name: string;
 }
 
 export interface MemberTaughtDto {
-  id: string;
+  member_id: string;
   name: string;
 }
 
 export interface FollowUpRecordDto {
   members_taught: MemberTaughtDto[];
-  topic: string;
-  material: string;
+  subject: string;
+  material_used: string;
   duration_minutes: number;
   comments: string;
 }
@@ -38,13 +38,13 @@ export interface UpdateFollowUpDto {
 
 export interface FollowUpRecord {
   _id: string;
-  session_date: string;
+  date: string;
   start_time: string;
   location_area: string;
   participants: TeamMemberDto[];
   records: FollowUpRecordDto[];
   details?: string; // Optional session summary/details
-  summary?: string; // Alternative field name for session summary
+  session_summary?: string; // Alternative field name for session summary
   createdAt?: string;
   updatedAt?: string;
 }
@@ -70,16 +70,9 @@ export async function createFollowUpRecord(body: CreateFollowUpDto): Promise<{
   error?: string;
   data?: FollowUpRecord;
 }> {
-  try {
-    const { data } = await ApiCaller.post(QUERY_PATHS.FOLLOW_UP, body);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to create follow-up record',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+  console.log('body', JSON.stringify(body, null, 2));
+  const { data } = await ApiCaller.post(QUERY_PATHS.FOLLOW_UP, body);
+  return data;
 }
 
 // Get history for the logged-in worker
@@ -148,6 +141,7 @@ export async function getFollowUpRecordById(id: string): Promise<{
 }> {
   try {
     const { data } = await ApiCaller.get(QUERY_PATHS.FOLLOW_UP_BY_ID.replace(':id', id));
+    console.log('data', JSON.stringify(data, null, 2));
     return data;
   } catch (error: any) {
     return {

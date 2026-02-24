@@ -12,6 +12,7 @@ export default function FollowUpDetailView() {
   const colors = useColors();
   const { recordId } = useLocalSearchParams<{ recordId?: string }>();
   const { data: recordData, isLoading } = useFollowUpRecord(recordId || '');
+  console.log('recordData', recordId, JSON.stringify(recordData, null, 2));
 
   const formattedData = useMemo(() => {
     if (!recordData?.data) return null;
@@ -20,9 +21,9 @@ export default function FollowUpDetailView() {
 
     // Format session date with null check
     let formattedDate = 'Not specified';
-    if (record.session_date) {
+    if (record.date) {
       try {
-        const sessionDate = new Date(record.session_date);
+        const sessionDate = new Date(record.date);
         if (!isNaN(sessionDate.getTime())) {
           formattedDate = sessionDate.toLocaleDateString('en-US', {
             weekday: 'long',
@@ -72,7 +73,7 @@ export default function FollowUpDetailView() {
       records: record.records || [],
       totalDuration: formattedDuration,
       createdAt: record.createdAt,
-      details: record.details || record.summary || null, // Check for session summary/details
+      details: record.details || record.session_summary || null, // Check for session summary/details
     };
   }, [recordData]);
 
@@ -152,12 +153,12 @@ export default function FollowUpDetailView() {
               </Text>
             </View>
 
-            <View className="mb-3">
+            {/* <View className="mb-3">
               <Text className="mb-1 text-sm text-gray-400">Start Time</Text>
               <Text className="text-base text-black dark:text-white">
                 {formattedData.startTime}
               </Text>
-            </View>
+            </View> */}
 
             <View className="mb-3">
               <Text className="mb-1 text-sm text-gray-400">Location</Text>
@@ -221,17 +222,17 @@ export default function FollowUpDetailView() {
                     <View key={index} className="rounded-lg bg-white p-4 dark:bg-gray-800">
                       <View className="mb-3">
                         <Text className="mb-2 text-base font-semibold text-black dark:text-white">
-                          {record.topic || 'Untitled Record'}
+                          {record.subject || 'Untitled Record'}
                         </Text>
                         <Text className="mb-1 text-sm text-gray-400">
-                          Material: {record.material || 'Not specified'}
+                          Material: {record.material_used || 'Not specified'}
                         </Text>
                         <Text className="text-sm text-gray-400">Duration: {durationDisplay}</Text>
                       </View>
 
                       {/* Members Taught */}
                       <View className="mb-3">
-                        <Text className="mb-2 text-sm font-medium text-gray-400">
+                        <Text className="mb-1 text-sm font-medium text-gray-400">
                           Members Taught
                         </Text>
                         {(record.members_taught || []).length > 0 ? (

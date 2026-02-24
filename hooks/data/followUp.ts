@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Toast from 'react-native-toast-message';
 import {
   createFollowUpRecord,
   getFollowUpWorkerHistory,
@@ -86,7 +87,14 @@ export const useCreateFollowUpRecord = () => {
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminAll() });
       queryClient.invalidateQueries({ queryKey: followUpKeys.adminStats() });
     },
-    throwOnError: true,
+    onError: (error) => {
+      console.log('error', error);
+      Toast.show({
+        // @ts-ignore
+        text1: error.response?.data?.message || 'Failed to create follow-up record',
+        type: 'error',
+      });
+    },
   });
 };
 

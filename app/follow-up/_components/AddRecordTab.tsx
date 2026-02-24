@@ -14,7 +14,7 @@ import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
 
 interface Record {
-  members_taught: Array<{ id: string; name: string }>;
+  members_taught: Array<{ member_id: string; name: string }>;
   topic: string;
   material: string;
   duration_minutes: number;
@@ -77,17 +77,17 @@ export default function AddRecordTab() {
     if (!member) return;
 
     const currentMembers = currentRecord.members_taught || [];
-    const exists = currentMembers.find((m) => m.id === id);
+    const exists = currentMembers.find((m) => m.member_id === id);
 
     if (exists) {
       setCurrentRecord({
         ...currentRecord,
-        members_taught: currentMembers.filter((m) => m.id !== id),
+        members_taught: currentMembers.filter((m) => m.member_id !== id),
       });
     } else {
       setCurrentRecord({
         ...currentRecord,
-        members_taught: [...currentMembers, { id: member._id, name: member.full_name }],
+        members_taught: [...currentMembers, { member_id: member._id, name: member.full_name }],
       });
     }
   };
@@ -151,13 +151,13 @@ export default function AddRecordTab() {
       const participant = participants.find((p: any) => p._id === id);
       if (id === 'self') {
         return {
-          id: 'self',
+          member_id: 'self',
           type: 'worker' as const,
           name: 'Myself',
         };
       }
       return {
-        id: participant?._id || id,
+        member_id: participant?._id || id,
         type: 'member' as const,
         name: participant?.full_name || '',
       };
@@ -173,12 +173,13 @@ export default function AddRecordTab() {
     }));
     try {
       await createFollowUpMutation.mutateAsync({
-        session_date: sessionDate,
+        session_date: new Date(sessionDate).toISOString(),
         start_time: startTime,
         location_area: locationArea,
         participants: teamMembers,
         records: followUpRecords,
       });
+
       setSessionDate('');
       setStartTime('');
       setLocationArea('');
@@ -200,6 +201,7 @@ export default function AddRecordTab() {
       });
     } catch (error) {
       Toast.show({
+        // @ts-ignore
         text1: error?.message || 'Failed to submit follow-up record',
         type: 'error',
       });
@@ -429,7 +431,7 @@ export default function AddRecordTab() {
       <ParticipantSelectorSheet
         visible={showMemberSelector}
         participants={participants}
-        selectedIds={(currentRecord.members_taught || []).map((m) => m.id)}
+        selectedIds={(currentRecord.members_taught || []).map((m) => m.member_id)}
         onToggle={toggleMemberTaught}
         onDone={() => setShowMemberSelector(false)}
       />
