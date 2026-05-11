@@ -1,12 +1,14 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { useEvangelismWorkerHistory, useEvangelismWorkerStats } from '~/hooks/data/evangelism';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { formatTimeDisplay } from '~/utils';
+import dayjs from 'dayjs';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 interface ReportSession {
   id: string;
@@ -37,8 +39,12 @@ export default function SessionsList() {
     startDate?: string;
     endDate?: string;
   }>();
-  const { data: historyData, isLoading } = useEvangelismWorkerHistory();
-  const { data: statsData, isLoading: isLoadingStats } = useEvangelismWorkerStats();
+  const { data: historyData, isLoading, refetch: refetchHistory } = useEvangelismWorkerHistory();
+  const {
+    data: statsData,
+    isLoading: isLoadingStats,
+    refetch: refetchStats,
+  } = useEvangelismWorkerStats();
 
   console.log('statsData', JSON.stringify(statsData, null, 2));
   console.log('historyData', JSON.stringify(historyData, null, 2));
@@ -65,7 +71,7 @@ export default function SessionsList() {
     if (!historyData?.data) return [];
 
     return historyData.data.map((report, index) => {
-      const reportDate = new Date(report.date);
+      const reportDate = dayjs(report.date);
 
       // Get first team member name or use location as identifier
       const teamMemberName =
@@ -76,11 +82,7 @@ export default function SessionsList() {
       return {
         id: report._id,
         name: teamMemberName,
-        date: reportDate.toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric',
-        }),
+        date: reportDate.format('MM/DD/YYYY'),
         time: report.start_time || '',
         iconColor: iconColors[index % iconColors.length],
         location: report.location_area,
@@ -88,6 +90,15 @@ export default function SessionsList() {
       };
     });
   }, [historyData]);
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetchHistory(), refetchStats()]);
+  }, [refetchHistory, refetchStats]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -103,7 +114,16 @@ export default function SessionsList() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Filter Button */}
           <TouchableOpacity

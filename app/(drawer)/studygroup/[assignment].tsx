@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { router, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
@@ -30,6 +30,7 @@ import BottomSheetWrapper from '~/components/ui/BottomSheetWrapper';
 import { useMe } from '~/hooks/data/me';
 import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
 import { ParticipantSelectorSheet } from '~/components/prayer/ParticipantSelectorSheet';
+import { useStudyGroupById, useSubmissionById } from '~/hooks/data/study';
 
 const openInAppBrowser = async (url: string) => {
   if (url) {
@@ -42,10 +43,18 @@ const openInAppBrowser = async (url: string) => {
 };
 
 const AssignmentDetail = () => {
-  const RetrievedAssignment = useLocalSearchParams();
-  const assignment = JSON.parse(decodeURIComponent(RetrievedAssignment.assignment as string));
+  const { assignment: assignmentParams } = useLocalSearchParams<{ assignment: string }>();
+  const [assignmentId, tab] = assignmentParams.split('&&');
+  console.log('assignmentId', {
+    assignmentParams,
+    assignmentId,
+    tab,
+  });
+  const { data: assignment, isLoading } = useSubmissionById(assignmentId as string, tab === 'false');
+  const { data: studyGroup, isLoading: isStudyGroupLoading } = useStudyGroupById(assignmentId as string, tab === 'true');
+  const colorScheme = useColorScheme();
 
-  const isSubmission = !!assignment.study_group_id;
+  const isSubmission = tab === 'false';
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: Constants.statusBarHeight }}>
@@ -53,11 +62,30 @@ const AssignmentDetail = () => {
         className="flex-1"
         contentContainerStyle={{ flexGrow: 1 }}
         showsVerticalScrollIndicator={false}>
-        {isSubmission ? (
-          <SubmissionView assignment={assignment} />
-        ) : (
-          <AssignmentView assignment={assignment} />
-        )}
+        {(!assignment && !studyGroup) ? (isLoading || isStudyGroupLoading) ?
+          <View className="flex-1 items-center justify-center">
+
+
+            <ActivityIndicator size="small" color="#000" />
+          </View> :
+          <View className="flex-1">
+            <View className="mb-4 flex-row items-center">
+              <TouchableOpacity onPress={() => router.back()} className="absolute z-10">
+                <Ionicons name="arrow-back" size={24} color={colorScheme === 'dark' ? '#fff' : '#000'} />
+              </TouchableOpacity>
+              <Text className="mb-4 flex-1 text-center text-2xl font-bold">Study Group</Text>
+            </View>
+            <View className="flex-1 items-center justify-center">
+              <Text>{
+                tab === 'true' ? 'Study group not found' : 'Submission not found'
+              }</Text>
+            </View>
+          </View>
+          : isSubmission ? (
+            <SubmissionView assignment={assignment} />
+          ) : (
+            <AssignmentView assignment={studyGroup} />
+          )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -77,11 +105,11 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
   const { data: me } = useMe();
   const { data } = useGetAllMembers();
 
+
+
   const participants = useMemo(
     () =>
-      (Array.isArray(data?.data)
-        ? [{ _id: `${me?.id}`, full_name: 'Myself' }, ...data.data]
-        : [{ _id: 'self', full_name: 'Myself' }]) as any,
+      [{ _id: `${me?.id}`, full_name: 'Myself' }, ...(Array.isArray(data?.data) ? data.data : [])],
     [data?.data, me?.id]
   );
 
@@ -125,9 +153,9 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
       study_group_id: assignment.id,
       assignment_link: link,
       isOnline,
-      member_id: selectedParticipant || undefined,
+      member_id: selectedParticipant === `${me?.id}` ? undefined : (selectedParticipant || undefined),
     });
-  }, [assignment.id, link, isOnline, selectedParticipant, mutation]);
+  }, [assignment.id, link, isOnline, selectedParticipant, mutation, me?.id]);
 
   return (
     <View className="h-full p-6">
@@ -220,7 +248,7 @@ const AssignmentView = ({ assignment }: { assignment: any }) => {
       <ParticipantSelectorSheet
         singleSelection
         visible={isSelectParticipant}
-        participants={participants}
+        participants={participants as any}
         onToggle={(id: string) => {
           if (isOnline) {
             setSelectedPartcipant(id);
@@ -247,6 +275,7 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
   const [link, setLink] = useState(assignment.assignment_link);
   const [isLinkModalVisible, setIsLinkModalVisible] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
 
   const mutation = useMutation({
     mutationFn: (body: UpdateSubmissionRequest) => updateSubmission(assignment.id, body),
@@ -303,6 +332,9 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
   const handleDeleteSubmission = () => {
     deleteMutation.mutate();
   };
+
+  console.log('submission', JSON.stringify(assignment, null, 2));
+
 
   return (
     <View className="h-full flex-1 p-6">

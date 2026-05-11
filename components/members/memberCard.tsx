@@ -3,6 +3,7 @@ import { TouchableOpacity, View } from 'react-native';
 import { Text } from '../nativewindui/Text';
 import Avatar from '../Avatar';
 import { useRouter } from 'expo-router';
+import dayjs from 'dayjs';
 
 interface MemberCardProps {
   name: string;
@@ -30,9 +31,7 @@ const MemberCard = ({ name, date_joined_church, id, image }: MemberCardProps) =>
           </View>
 
           <Text className="text-sm text-gray-400">
-            Member since {new Date(date_joined_church).toLocaleDateString()}
-            {/* ,{' '} */}
-            {/* {new Date(date_joined_church).toLocaleTimeString()} */}
+            Member since {dayjs(date_joined_church).format('MM/DD/YYYY')}
           </Text>
         </View>
       </View>

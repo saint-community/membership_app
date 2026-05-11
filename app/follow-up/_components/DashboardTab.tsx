@@ -1,9 +1,12 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useFollowUpWorkerStats, useFollowUpWorkerHistory } from '~/hooks/data/followUp';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import dayjs from 'dayjs';
 import { useRouter } from 'expo-router';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
+import { useColors } from '~/lib/useColorScheme';
 
 interface DashboardTabProps {
   onNavigateToHistory?: () => void;
@@ -11,8 +14,11 @@ interface DashboardTabProps {
 
 export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps) {
   const router = useRouter();
-  const { data: statsData, isLoading: isLoadingStats } = useFollowUpWorkerStats();
-  const { data: historyData } = useFollowUpWorkerHistory();
+  const colors = useColors();
+  const { data: statsData, isLoading: isLoadingStats, refetch: refetchStats } = useFollowUpWorkerStats();
+  const { data: historyData, refetch: refetchHistory } = useFollowUpWorkerHistory();
+
+  console.log('historyData', JSON.stringify(historyData, null, 2));
 
   const metrics = useMemo(() => {
     const stats = statsData?.data;
@@ -48,26 +54,44 @@ export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps)
     // Get the most recent records with record ID
     const recentRecords = history
       .flatMap((record) =>
-        record.records.map((r) => ({
+        record.records?.map((r) => ({
           recordId: record._id,
-          name: r.members_taught.map((m) => m.name).join(', '),
-          subject: r.topic,
+          name: r.members_taught?.map((m) => m.name).join(', '),
+          subject: r?.subject,
           duration: `${r.duration_minutes} minutes`,
           badge: 'Today' as const,
-          date: record.session_date,
+          date: dayjs(record?.date).format('DD/MM/YYYY'),
         }))
       )
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 2);
+      .sort((a, b) => dayjs(b.date).valueOf() - dayjs(a.date).valueOf())
+      .slice(0, 3);
 
     return recentRecords;
   }, [historyData]);
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetchStats(), refetchHistory()]);
+  }, [refetchStats, refetchHistory]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   return (
     <ScrollView
       className="flex-1"
       contentContainerStyle={{ paddingBottom: 100 }}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.background}
+        />
+      }>
       <View className="px-4 pt-4">
         {/* Metric Cards Grid */}
         <View className="mb-6 gap-3">
@@ -106,7 +130,7 @@ export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps)
         </View>
 
         {/* Weekly Goal Progress */}
-        <View className="mb-6 rounded-lg bg-white p-6 dark:bg-gray-800">
+        {/* <View className="mb-6 rounded-lg bg-white p-6 dark:bg-gray-800">
           <View className="mb-4 flex-row items-center">
             <Ionicons name="flag-outline" size={24} color="#4ECDC4" />
             <View className="ml-3 flex-1">
@@ -124,7 +148,7 @@ export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps)
           <View className="flex-row justify-end">
             <Text className="text-sm font-semibold text-green-500">68%</Text>
           </View>
-        </View>
+        </View> */}
 
         {/* Recent Activities */}
         <View className="mb-6">

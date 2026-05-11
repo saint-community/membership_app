@@ -15,6 +15,7 @@ import Toast from 'react-native-toast-message';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import type { FollowUpRecordDto } from '~/services/api/followUp';
+import dayjs from 'dayjs';
 
 interface Record {
   members_taught: Array<{ id: string; name: string }>;
@@ -63,8 +64,7 @@ export default function EditFollowUpRecord() {
       const record = recordData.data;
 
       // Format date for DatePicker (YYYY-MM-DD)
-      const date = new Date(record.session_date);
-      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const formattedDate = dayjs(record.session_date).format('YYYY-MM-DD');
 
       setSessionDate(formattedDate);
       setStartTime(record.start_time);

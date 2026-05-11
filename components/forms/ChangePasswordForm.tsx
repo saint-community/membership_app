@@ -1,13 +1,13 @@
 import { Controller, useForm } from 'react-hook-form';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import { TouchableOpacity, View , Text } from 'react-native';
+import { Input, Button } from 'heroui-native';
 import { Ionicons } from '@expo/vector-icons';
 import { STORAGE_KEYS } from '~/utils/constants';
 import { getObjectData } from '~/utils';
-import { useGetOtp } from '~/hooks/mutations/auth/useGetOTP';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useColors } from '@/lib/useColorScheme';
 
 // Zod schema for form validation
 const changePasswordSchema = z
@@ -36,8 +36,7 @@ interface ChangePasswordFormProps {
 
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoading }) => {
   const [showPassword, setShowPassword] = useState(false);
-  // useGetOtp();
-
+  const colors = useColors();
   const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
@@ -62,128 +61,113 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
   };
 
   return (
-    <React.Fragment>
-      <View className="mb-6">
-        <View className="mb-12 rounded-md border-l-2 border-[#333] border-l-yellow-600 bg-yellow-100 dark:bg-[#2a2a2a4d] p-4">
-          <Text className="text-sm dark:text-white ">
-            Please enter the OTP sent to your email: {email}
-          </Text>
+    <View className="space-y-6 gap-y-6">
+      <View className="bg-primary/5 p-5 rounded-2xl border border-primary/10 mb-2">
+        <View className="flex-row items-center gap-2 mb-1">
+          <Ionicons name="mail-unread-outline" size={20} color={colors.primary} />
+          <Text className="text-primary font-poppins font-bold">Verification Needed</Text>
         </View>
-        <Text className="text-md mb-4 font-semibold dark:text-white">Enter OTP</Text>
-
-        <View className="relative">
-          <Controller
-            control={control}
-            name="otp"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] dark:dark:bg-[#2A2A2A] px-4 py-3.5 text-base dark:dark:text-white ${
-                  errors.otp ? 'border-2 border-red-500' : ''
-                }`}
-                placeholder="Enter OTP code"
-                placeholderTextColor="#666"
-                value={value}
-                onChangeText={onChange}
-                keyboardType="number-pad"
-                maxLength={6}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-              />
-            )}
-          />
-        </View>
-        {errors.otp && <Text className="mt-1 text-xs text-red-500">{errors.otp.message}</Text>}
-      </View>
-
-      <View className="mb-6">
-        <Text className="text-md mb-4 font-semibold dark:text-white">Password</Text>
-
-        <View className="relative">
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] dark:dark:bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base dark:dark:text-white ${
-                  errors.password ? 'border-2 border-red-500' : ''
-                }`}
-                placeholder="Set new password"
-                placeholderTextColor="#666"
-                value={value}
-                onChangeText={onChange}
-                // onFocus={onPasswordFocus}
-                onBlur={(e) => {
-                  onBlur();
-                  // onFieldBlur();
-                }}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-              />
-            )}
-          />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            className="absolute bottom-0 right-3 top-0 w-8 items-center justify-center">
-            <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-        {errors.password && (
-          <Text className="mt-1 text-xs text-red-500">{errors.password.message}</Text>
-        )}
-      </View>
-      <View className="mb-6">
-        <Text className="text-md mb-4 font-semibold dark:text-white">Confirm password</Text>
-
-        <View className="relative">
-          <Controller
-            control={control}
-            name="password_confirmation"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className={`h-16 w-full rounded-xl border border-[#333] dark:bg-[#2A2A2A] px-4 py-3.5 pr-12 text-base dark:text-white ${
-                  errors.password_confirmation ? 'border-2 border-red-500' : ''
-                }`}
-                placeholder="Confirm new password"
-                placeholderTextColor="#666"
-                value={value}
-                onChangeText={onChange}
-                // onFocus={onPasswordFocus}
-                onBlur={(e) => {
-                  onBlur();
-                  // onFieldBlur();
-                }}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-              />
-            )}
-          />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            className="absolute bottom-0 right-3 top-0 w-8 items-center justify-center">
-            <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#666" />
-          </TouchableOpacity>
-        </View>
-        {errors.password_confirmation && (
-          <Text className="mt-1 text-xs text-red-500">{errors.password_confirmation.message}</Text>
-        )}
-      </View>
-
-      <TouchableOpacity
-        className={`h-12 w-full items-center justify-center rounded-lg ${
-          isValid && !isLoading ? 'bg-[#FF007F]' : 'bg-[#353535]'
-        }`}
-        onPress={handleSubmit(onSubmit)}
-        disabled={isLoading || !isValid}>
-        <Text className="text-base font-semibold text-white">
-          {isLoading ? 'Loading...' : 'Set New Password'}
+        <Text className="text-primary/70 font-inter text-sm leading-relaxed">
+          Please enter the 6-digit OTP sent to your email: <Text className="font-bold">{email}</Text>
         </Text>
-      </TouchableOpacity>
-    </React.Fragment>
+      </View>
+
+      <View>
+        <Controller
+          control={control}
+          name="otp"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="OTP Code"
+              placeholder="Enter 6-digit code"
+              value={value}
+              onChangeText={onChange}
+              keyboardType="number-pad"
+              maxLength={6}
+              variant="bordered"
+              color={errors.otp ? 'danger' : 'primary'}
+              style={{ borderRadius: 14 }}
+              className="font-poppins font-bold text-lg tracking-[8px]"
+            />
+          )}
+        />
+        {errors.otp && <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.otp.message}</Text>}
+      </View>
+
+      <View>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="New Password"
+              placeholder="Set new password"
+              value={value}
+              onChangeText={onChange}
+              variant="bordered"
+              color={errors.password ? 'danger' : 'primary'}
+              secureTextEntry={!showPassword}
+              style={{ borderRadius: 14 }}
+              endContent={
+                <TouchableOpacity onPress={togglePasswordVisibility} className="px-2">
+                  <Ionicons 
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+                    size={20} 
+                    color={colors.mutedForeground} 
+                  />
+                </TouchableOpacity>
+              }
+            />
+          )}
+        />
+        {errors.password && (
+          <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.password.message}</Text>
+        )}
+      </View>
+
+      <View>
+        <Controller
+          control={control}
+          name="password_confirmation"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <Input
+              label="Confirm New Password"
+              placeholder="Confirm new password"
+              value={value}
+              onChangeText={onChange}
+              variant="bordered"
+              color={errors.password_confirmation ? 'danger' : 'primary'}
+              secureTextEntry={!showPassword}
+              style={{ borderRadius: 14 }}
+              endContent={
+                <TouchableOpacity onPress={togglePasswordVisibility} className="px-2">
+                  <Ionicons 
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+                    size={20} 
+                    color={colors.mutedForeground} 
+                  />
+                </TouchableOpacity>
+              }
+            />
+          )}
+        />
+        {errors.password_confirmation && (
+          <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.password_confirmation.message}</Text>
+        )}
+      </View>
+
+      <Button
+        className={`mt-6 shadow-xl ${isValid && !isLoading ? 'shadow-primary/30' : ''}`}
+        color="primary"
+        size="lg"
+        isLoading={isLoading}
+        onPress={handleSubmit(onSubmit)}
+        disabled={!isValid}
+        style={{ borderRadius: 16, height: 56 }}
+      >
+        Set New Password
+      </Button>
+    </View>
   );
 };
 

@@ -1,11 +1,15 @@
-import { useState, useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { DropdownSelect } from '~/components/common/DropdownSelect';
+import { useTemplateHistory } from '~/hooks/data/attendance';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
+import type { TemplateHistoryItem } from '~/services/api/attendance';
+import dayjs from 'dayjs';
 
 interface AttendanceRecord {
   id: string;
@@ -15,106 +19,69 @@ interface AttendanceRecord {
   status: 'Present' | 'Absent';
 }
 
+function formatTime(timeStr: string): string {
+  if (!timeStr) return '—';
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  if (hours === undefined) return timeStr;
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const h = hours % 12 || 12;
+  return `${h}:${minutes !== undefined ? String(minutes).padStart(2, '0') : '00'} ${period}`;
+}
+
 export default function AttendanceHistory() {
   const router = useRouter();
   const colors = useColors();
   const [selectedFilter, setSelectedFilter] = useState('All Records');
+  const { meeting } = useLocalSearchParams<{
+    meeting: string;
+  }>();
+  const parsedMeeting = meeting ? JSON.parse(meeting as string) : null;
+  const templateId = parsedMeeting?.templateId ?? parsedMeeting?.id ?? null;
+  const {
+    data: attendanceHistoryData,
+    isLoading: isLoadingAttendanceHistory,
+    refetch: refetchAttendanceHistory,
+  } = useTemplateHistory(templateId);
 
   const filterOptions = ['All Records', 'Present', 'Absent', 'This Month', 'This Year'];
 
-  // Dummy attendance records data
-  const allAttendanceRecords: AttendanceRecord[] = [
-    {
-      id: '1',
-      serviceName: 'Sunday Service',
-      date: 'Sep 15th, 2025',
-      time: '9:00 AM',
-      status: 'Present',
-    },
-    {
-      id: '2',
-      serviceName: 'Sunday Service',
-      date: 'Sep 8th, 2025',
-      time: '9:00 AM',
-      status: 'Present',
-    },
-    {
-      id: '3',
-      serviceName: 'Sunday Service',
-      date: 'Sep 1st, 2025',
-      time: '9:00 AM',
-      status: 'Present',
-    },
-    {
-      id: '4',
-      serviceName: 'Sunday Service',
-      date: 'Aug 25th, 2025',
-      time: '9:00 AM',
-      status: 'Present',
-    },
-    {
-      id: '5',
-      serviceName: 'Sunday Service',
-      date: 'Aug 18th, 2025',
-      time: '9:00 AM',
-      status: 'Absent',
-    },
-    {
-      id: '6',
-      serviceName: 'Midweek Service',
-      date: 'Sep 12th, 2025',
-      time: '6:00 PM',
-      status: 'Present',
-    },
-    {
-      id: '7',
-      serviceName: 'Midweek Service',
-      date: 'Sep 5th, 2025',
-      time: '6:00 PM',
-      status: 'Present',
-    },
-    {
-      id: '8',
-      serviceName: 'Prayer Vigil',
-      date: 'Sep 10th, 2025',
-      time: '9:00 PM',
-      status: 'Present',
-    },
-    {
-      id: '9',
-      serviceName: 'Sunday Service',
-      date: 'Aug 11th, 2025',
-      time: '9:00 AM',
-      status: 'Present',
-    },
-    {
-      id: '10',
-      serviceName: 'Fellowship Meeting',
-      date: 'Sep 3rd, 2025',
-      time: '4:00 PM',
-      status: 'Present',
-    },
-  ];
+  const overview = attendanceHistoryData?.overview;
 
-  // Summary metrics (matching the design)
-  const totalMeetings = 50;
-  const meetingsAttended = 25;
-  const attendanceRate = 67; // 67% as shown in the design
+  const allAttendanceRecords = useMemo<AttendanceRecord[]>(() => {
+    const rawData = attendanceHistoryData?.data ?? [];
+    return rawData.map((item: TemplateHistoryItem) => ({
+      id: item._id,
+      serviceName: item.title,
+      date: dayjs(item.date).format('MMM D, YYYY'),
+      time: formatTime(item.time),
+      status: item.attended ? ('Present' as const) : ('Absent' as const),
+    }));
+  }, [attendanceHistoryData?.data]);
 
-  // Filter records based on selected filter
+  const totalMeetings = overview?.total_meetings ?? 0;
+  const meetingsAttended = overview?.meetings_attended ?? 0;
+  const attendanceRate = overview?.attendance_rate ?? 0;
+
   const attendanceRecords = useMemo(() => {
-    if (selectedFilter === 'All Records') {
-      return allAttendanceRecords;
-    }
+    if (selectedFilter === 'All Records') return allAttendanceRecords;
     if (selectedFilter === 'Present') {
       return allAttendanceRecords.filter((record) => record.status === 'Present');
     }
     if (selectedFilter === 'Absent') {
       return allAttendanceRecords.filter((record) => record.status === 'Absent');
     }
-    // For "This Month" and "This Year", return all for now
     return allAttendanceRecords;
-  }, [selectedFilter]);
+  }, [selectedFilter, allAttendanceRecords]);
+
+  const handleRefresh = useCallback(async () => {
+    if (!templateId) return;
+    await refetchAttendanceHistory();
+  }, [refetchAttendanceHistory, templateId]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -130,7 +97,16 @@ export default function AttendanceHistory() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Filter Dropdown */}
           <View className="mb-6">
@@ -149,19 +125,25 @@ export default function AttendanceHistory() {
             </Text>
             <View className="flex-row justify-between">
               <View className="flex-1 items-center">
-                <Text className="text-3xl font-bold text-[#FF6B9D]">{attendanceRate}%</Text>
+                <Text className="text-3xl font-bold text-[#FF6B9D]">
+                  {isLoadingAttendanceHistory ? '...' : `${attendanceRate}%`}
+                </Text>
                 <Text className="mt-1 text-sm text-slate-600 dark:text-gray-300">
                   Attendance Rate
                 </Text>
               </View>
               <View className="flex-1 items-center">
-                <Text className="text-3xl font-bold text-[#FF6B9D]">{meetingsAttended}</Text>
+                <Text className="text-3xl font-bold text-[#FF6B9D]">
+                  {isLoadingAttendanceHistory ? '...' : meetingsAttended}
+                </Text>
                 <Text className="mt-1 text-sm text-slate-600 dark:text-gray-300">
                   Meetings Attended
                 </Text>
               </View>
               <View className="flex-1 items-center">
-                <Text className="text-3xl font-bold text-[#FF6B9D]">{totalMeetings}</Text>
+                <Text className="text-3xl font-bold text-[#FF6B9D]">
+                  {isLoadingAttendanceHistory ? '...' : totalMeetings}
+                </Text>
                 <Text className="mt-1 text-sm text-slate-600 dark:text-gray-300">
                   Total Meetings
                 </Text>
@@ -169,8 +151,20 @@ export default function AttendanceHistory() {
             </View>
           </View>
 
-          {/* Attendance Records List - Empty State */}
-          {attendanceRecords.length === 0 ? (
+          {/* Attendance Records List */}
+          {!templateId ? (
+            <View className="items-center justify-center rounded-lg bg-white py-16 dark:bg-gray-800">
+              <Ionicons name="calendar-outline" size={80} color="#9CA3AF" />
+              <Text className="mt-6 text-xl font-semibold text-gray-400">Select a template</Text>
+              <Text className="mt-2 text-center text-sm text-gray-500">
+                Open this screen from a meeting template to view attendance history.
+              </Text>
+            </View>
+          ) : isLoadingAttendanceHistory ? (
+            <View className="items-center justify-center rounded-lg bg-white py-16 dark:bg-gray-800">
+              <Text className="text-base text-gray-400">Loading attendance history...</Text>
+            </View>
+          ) : attendanceRecords.length === 0 ? (
             <View className="items-center justify-center rounded-lg bg-white py-16 dark:bg-gray-800">
               <Ionicons name="calendar-outline" size={80} color="#9CA3AF" />
               <Text className="mt-6 text-xl font-semibold text-gray-400">No Attendance Records</Text>
@@ -221,9 +215,8 @@ export default function AttendanceHistory() {
                     </View>
                   </View>
                   <View
-                    className={`rounded-lg px-3 py-1.5 ${
-                      record.status === 'Present' ? 'bg-green-600' : 'bg-red-600'
-                    }`}>
+                    className={`rounded-lg px-3 py-1.5 ${record.status === 'Present' ? 'bg-green-600' : 'bg-red-600'
+                      }`}>
                     <Text className="text-xs font-semibold text-white">{record.status}</Text>
                   </View>
                 </TouchableOpacity>

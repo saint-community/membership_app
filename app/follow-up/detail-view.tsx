@@ -1,17 +1,19 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { useFollowUpRecord } from '~/hooks/data/followUp';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import dayjs from 'dayjs';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 export default function FollowUpDetailView() {
   const router = useRouter();
   const colors = useColors();
   const { recordId } = useLocalSearchParams<{ recordId?: string }>();
-  const { data: recordData, isLoading } = useFollowUpRecord(recordId || '');
+  const { data: recordData, isLoading, refetch } = useFollowUpRecord(recordId || '');
   console.log('recordData', recordId, JSON.stringify(recordData, null, 2));
 
   const formattedData = useMemo(() => {
@@ -23,14 +25,9 @@ export default function FollowUpDetailView() {
     let formattedDate = 'Not specified';
     if (record.date) {
       try {
-        const sessionDate = new Date(record.date);
-        if (!isNaN(sessionDate.getTime())) {
-          formattedDate = sessionDate.toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          });
+        const sessionDate = dayjs(record.date);
+        if (sessionDate.isValid()) {
+          formattedDate = sessionDate.format('dddd, MMMM D, YYYY');
         }
       } catch (error) {
         console.error('Error formatting date:', error);
@@ -76,6 +73,16 @@ export default function FollowUpDetailView() {
       details: record.details || record.session_summary || null, // Check for session summary/details
     };
   }, [recordData]);
+
+  const handleRefresh = useCallback(async () => {
+    if (!recordId) return;
+    await refetch();
+  }, [refetch, recordId]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   if (isLoading) {
     return (
@@ -138,7 +145,16 @@ export default function FollowUpDetailView() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Session Information */}
           <View className="mb-6 rounded-lg bg-white p-4 dark:bg-gray-800">

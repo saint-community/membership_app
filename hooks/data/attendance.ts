@@ -5,6 +5,8 @@ import {
   getAttendanceHistory,
   getAllMeetings,
   getAttendanceWorkerStats,
+  getAttendanceTemplates,
+  getTemplateHistory,
   type MarkAttendanceDto,
   type CreateMeetingDto,
 } from '~/services/api/attendance';
@@ -15,6 +17,8 @@ export const attendanceKeys = {
   history: () => [...attendanceKeys.all, 'history'] as const,
   workerStats: () => [...attendanceKeys.all, 'worker-stats'] as const,
   adminMeetings: () => [...attendanceKeys.all, 'admin-meetings'] as const,
+  templates: () => [...attendanceKeys.all, 'templates'] as const,
+  templateHistory: (templateId: string) => [...attendanceKeys.all, 'template-history', templateId] as const,
 };
 
 // Hook to get attendance history
@@ -42,6 +46,27 @@ export const useAttendanceWorkerStats = () => {
   return useQuery({
     queryKey: attendanceKeys.workerStats(),
     queryFn: getAttendanceWorkerStats,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Hook to get meeting templates (worker; church-scoped via JWT)
+export const useAttendanceTemplates = () => {
+  return useQuery({
+    queryKey: attendanceKeys.templates(),
+    queryFn: getAttendanceTemplates,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Hook to get meeting history for a template (worker; church-scoped via JWT)
+export const useTemplateHistory = (templateId: string | null) => {
+  return useQuery({
+    queryKey: attendanceKeys.templateHistory(templateId ?? ''),
+    queryFn: () => getTemplateHistory(templateId!),
+    enabled: !!templateId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });

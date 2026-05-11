@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity, FlatList, TextInput } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { RefreshControl, View, ScrollView, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
@@ -8,6 +8,8 @@ import { useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useAllMeetings } from '~/hooks/data/attendance';
+import dayjs from 'dayjs';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 interface Meeting {
   id: string;
@@ -18,14 +20,17 @@ interface Meeting {
   date: string;
   dateObj: Date;
   location?: string;
+  templateId?: string;
 }
 
 export default function AttendanceMeetings() {
   const router = useRouter();
   const colors = useColors();
-  const { data: meetingsData, isLoading: isLoadingMeetings } = useAllMeetings();
+  const { data: meetingsData, isLoading: isLoadingMeetings, refetch: refetchMeetings } = useAllMeetings();
   const [selectedFilter, setSelectedFilter] = useState<string>('All Meetings');
   const [searchQuery, setSearchQuery] = useState('');
+
+  console.log('meetingsData', meetingsData?.data?.length, JSON.stringify(meetingsData, null, 2));
 
   // Get unique meeting types from API data and format them nicely
   const meetingTypes = useMemo(() => {
@@ -43,36 +48,25 @@ export default function AttendanceMeetings() {
   const allMeetings = useMemo<Meeting[]>(() => {
     if (!meetingsData?.data) return [];
 
-    const now = new Date();
-    now.setHours(0, 0, 0, 0); // Reset time to start of day for comparison
-
     return meetingsData.data
       .map((meeting) => {
-        const meetingDate = new Date(meeting.date);
-        meetingDate.setHours(0, 0, 0, 0);
+        const meetingDate = dayjs(meeting.date).startOf('day');
 
         // Only include past meetings (meetings that have already occurred)
-        if (meetingDate >= now) return null;
+        // if (meetingDate.isAfter(now) || meetingDate.isSame(now)) return null;
 
         return {
           id: meeting.id,
           title: meeting.title,
           subtitle: `${meeting.type} - ${meeting.scope_type}`,
           type: meeting.type,
-          time: new Date(meeting.date).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          date: meetingDate.toLocaleDateString('en-US', {
-            month: '2-digit',
-            day: '2-digit',
-            year: '2-digit',
-          }),
-          dateObj: meetingDate,
+          time: dayjs(meeting.date).format('hh:mm A'),
+          date: meetingDate.format('MM/DD/YY'),
+          dateObj: meetingDate.toDate(),
           location: meeting.scope_type,
+          templateId: meeting.template_id,
         };
       })
-      .filter((meeting): meeting is Meeting => meeting !== null)
       .sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime()); // Sort by date, most recent first
   }, [meetingsData]);
 
@@ -98,6 +92,15 @@ export default function AttendanceMeetings() {
 
     return filtered;
   }, [selectedFilter, allMeetings, searchQuery]);
+
+  const handleRefresh = useCallback(async () => {
+    await refetchMeetings();
+  }, [refetchMeetings]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   const renderMeetingCard = ({ item }: { item: Meeting }) => (
     <View className="mb-3 rounded-lg bg-white p-4 dark:bg-gray-800">
@@ -135,7 +138,10 @@ export default function AttendanceMeetings() {
           <Text className="text-center text-sm font-semibold text-white">Mark Attendance</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => router.push('/attendance/history')}
+          onPress={() => router.push({
+            pathname: '/attendance/history',
+            params: { meeting: JSON.stringify(item) },
+          })}
           className="flex-1 rounded-lg border border-gray-600 px-4 py-3">
           <Text className="text-center text-sm font-semibold dark:text-white">Details</Text>
         </TouchableOpacity>
@@ -155,7 +161,16 @@ export default function AttendanceMeetings() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Filter Section */}
           <View className="mb-6">

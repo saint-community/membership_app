@@ -78,8 +78,10 @@ export const QUERY_PATHS = {
   ATTENDANCE_MARK: '/api/attendance/mark',
   ATTENDANCE_HISTORY: '/api/attendance/history',
   ATTENDANCE_ADMIN_MEETING: '/api/attendance/admin/meeting',
-  ATTENDANCE_ADMIN_MEETINGS: '/api/attendance/admin/meetings',
+  ATTENDANCE_UPCOMING_MEETINGS: '/api/attendance/meetings/upcoming',
   ATTENDANCE_WORKER_STATS: '/api/attendance/stats/me',
+  ATTENDANCE_TEMPLATES: '/api/attendance/templates',
+  ATTENDANCE_TEMPLATE_HISTORY: '/api/attendance/template/:id/history',
 };
 
 export const DEPARTMENTS = [

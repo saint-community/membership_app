@@ -1,10 +1,11 @@
 import { Controller, useForm } from 'react-hook-form';
 import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-
+import { TouchableOpacity, View, Text } from 'react-native';
+import { Input, Button } from 'heroui-native';
 import { Ionicons } from '@expo/vector-icons';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useColors } from '@/lib/useColorScheme';
 
 // Zod schema for form validation
 const loginSchema = z.object({
@@ -33,6 +34,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onFieldBlur,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const colors = useColors();
 
   const {
     control,
@@ -53,88 +55,91 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   return (
     <React.Fragment>
-      <Text className="mb-4 text-lg font-bold text-black dark:text-white">
-        Enter your Email Address
-      </Text>
-
-      <View className="mb-4">
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              className={`h-14 w-full rounded-xl border border-[#333] px-4 py-3 text-base text-black dark:bg-[#2A2A2A]  dark:text-white ${
-                errors.email ? 'border-2 border-red-500' : ''
-              }`}
-              placeholder="e.g. temitopesanusi@example.com"
-              placeholderTextColor="#666"
-              value={value}
-              onChangeText={onChange}
-              onFocus={onEmailFocus}
-              onBlur={(e) => {
-                onBlur();
-                onFieldBlur();
-              }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType="next"
-            />
-          )}
-        />
-        {errors.email && <Text className="mt-1 text-xs text-red-500">{errors.email.message}</Text>}
+      <View className="mb-8">
+        <Text className="text-2xl font-poppins font-bold text-foreground">
+          Welcome Back
+        </Text>
+        <Text className="text-sm font-inter text-muted-foreground mt-1 opacity-70">
+          Sign in to your account to continue
+        </Text>
       </View>
 
-      <Text className="mb-4 text-lg font-bold text-black dark:text-white">Enter your Password</Text>
+      <View className="space-y-6 gap-y-6">
+        <View>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Email Address"
+                placeholder="temitopesanusi@example.com"
+                value={value}
+                onChangeText={onChange}
+                onFocus={onEmailFocus}
+                onBlur={() => {
+                  onBlur();
+                  onFieldBlur();
+                }}
+                variant="bordered"
+                color={errors.email ? 'danger' : 'primary'}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={{ borderRadius: 14 }}
+              />
+            )}
+          />
+          {errors.email && <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.email.message}</Text>}
+        </View>
 
-      <View className="mb-6">
-        <View className="relative">
+        <View>
           <Controller
             control={control}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                className={`h-14 w-full rounded-xl border border-[#333] px-4 py-3.5 pr-12 text-base text-black dark:bg-[#2A2A2A] dark:text-white ${
-                  errors.password ? 'border-2 border-red-500' : ''
-                }`}
+              <Input
+                label="Password"
                 placeholder="******"
-                placeholderTextColor="#666"
                 value={value}
                 onChangeText={onChange}
                 onFocus={onPasswordFocus}
-                onBlur={(e) => {
+                onBlur={() => {
                   onBlur();
                   onFieldBlur();
                 }}
+                variant="bordered"
+                color={errors.password ? 'danger' : 'primary'}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="done"
-                onSubmitEditing={handleSubmit(onSubmit)}
+                style={{ borderRadius: 14 }}
+                endContent={
+                  <TouchableOpacity onPress={togglePasswordVisibility} className="px-2">
+                    <Ionicons 
+                      name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
+                      size={20} 
+                      color={colors.mutedForeground} 
+                    />
+                  </TouchableOpacity>
+                }
               />
             )}
           />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            className="absolute bottom-0 right-3 top-0 w-8 items-center justify-center">
-            <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={20} color="#666" />
-          </TouchableOpacity>
+          {errors.password && (
+            <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.password.message}</Text>
+          )}
         </View>
-        {errors.password && (
-          <Text className="mt-1 text-xs text-red-500">{errors.password.message}</Text>
-        )}
-      </View>
 
-      <TouchableOpacity
-        className={`h-12 w-full items-center justify-center rounded-lg ${
-          isValid && !isLoading ? 'bg-[#FF007F]' : 'bg-[#353535]'
-        }`}
-        onPress={handleSubmit(onSubmit)}
-        disabled={isLoading || !isValid}>
-        <Text className="text-base font-semibold text-white">
-          {isLoading ? 'Signing In...' : 'Next'}
-        </Text>
-      </TouchableOpacity>
+        <Button
+          className={`mt-4 shadow-xl ${isValid && !isLoading ? 'shadow-primary/30' : ''}`}
+          color="primary"
+          size="lg"
+          isLoading={isLoading}
+          onPress={handleSubmit(onSubmit)}
+          disabled={!isValid}
+          style={{ borderRadius: 16, height: 56 }}
+        >
+          Sign In
+        </Button>
+      </View>
     </React.Fragment>
   );
 };

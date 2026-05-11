@@ -24,3 +24,6 @@ android
 .metro-health-check*
 .cursor/
 package-lock.json
+
+
+.env

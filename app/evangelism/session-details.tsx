@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { RefreshControl, View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import dayjs from 'dayjs';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +9,7 @@ import { useColors } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useEvangelismReport } from '~/hooks/data/evangelism';
 import { formatTimeDisplay } from '~/utils';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 interface ReportEntry {
   id: string;
@@ -23,7 +25,7 @@ export default function SessionDetails() {
   const colors = useColors();
   const { reportId } = useLocalSearchParams<{ reportId?: string }>();
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: reportData, isLoading } = useEvangelismReport(reportId || '');
+  const { data: reportData, isLoading, refetch } = useEvangelismReport(reportId || '');
 
   // console.log(JSON.stringify(reportData, null, 2));
 
@@ -61,6 +63,16 @@ export default function SessionDetails() {
     return reports.filter((report) => report.name.toLowerCase().includes(query));
   }, [reports, searchQuery]);
 
+  const handleRefresh = useCallback(async () => {
+    if (!reportId) return;
+    await refetch();
+  }, [refetch, reportId]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'saved':
@@ -96,7 +108,16 @@ export default function SessionDetails() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Session Information */}
           {reportData?.data && (
@@ -109,12 +130,7 @@ export default function SessionDetails() {
               <View className="mb-3">
                 <Text className="mb-1 text-sm text-gray-400">Date</Text>
                 <Text className="text-base text-black dark:text-white">
-                  {new Date(reportData.data.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {dayjs(reportData.data.date).format('dddd, MMMM D, YYYY')}
                 </Text>
               </View>
 

@@ -52,22 +52,9 @@ export async function getSubmissions(memberId?: string) {
 }
 
 // Get submission by ID
-export async function getSubmissionById(submissionId: string): Promise<{
-  success: boolean;
-  message: string;
-  error?: string;
-  data?: Submission;
-}> {
-  try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSION.replace(':id', submissionId));
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch submission',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+export async function getSubmissionById(submissionId: string) {
+  const { data } = await ApiCaller.get(QUERY_PATHS.SUBMISSION.replace(':id', submissionId));
+  return data;
 }
 
 // Get current week submissions

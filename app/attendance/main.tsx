@@ -1,32 +1,44 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { useAllMeetings, useAttendanceWorkerStats } from '~/hooks/data/attendance';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import dayjs from 'dayjs';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 export default function AttendanceMain() {
   const router = useRouter();
   const colors = useColors();
-  const { data: meetingsData, isLoading: isLoadingMeetings } = useAllMeetings();
-  const { data: statsData, isLoading: isLoadingStats } = useAttendanceWorkerStats();
+  const { data: meetingsData, isLoading: isLoadingMeetings, refetch: refetchMeetings } = useAllMeetings();
+  const {
+    data: statsData,
+    isLoading: isLoadingStats,
+    refetch: refetchWorkerStats,
+  } = useAttendanceWorkerStats();
+  console.log('meetingsData main', JSON.stringify(meetingsData, null, 2));
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetchMeetings(), refetchWorkerStats()]);
+  }, [refetchMeetings, refetchWorkerStats]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   const upcomingMeetings = useMemo(() => {
     if (!meetingsData?.data) return [];
     return meetingsData.data.map((meeting) => {
-      const meetingDate = new Date(meeting.date);
+      const meetingDate = dayjs(meeting.date);
       return {
         id: meeting.id,
         title: meeting.title,
         subtitle: `${meeting.type} - ${meeting.scope_type}`,
-        time: meetingDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        date: meetingDate.toLocaleDateString('en-US', {
-          month: '2-digit',
-          day: '2-digit',
-          year: '2-digit',
-        }),
+        time: meetingDate.format('hh:mm A'),
+        date: meetingDate.format('MM/DD/YY'),
         meeting,
       };
     });
@@ -67,7 +79,16 @@ export default function AttendanceMain() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-4">
           {/* Summary Cards */}
           <View className="mb-6 flex-row gap-3">
@@ -148,7 +169,22 @@ export default function AttendanceMain() {
                         </Text>
                       </TouchableOpacity>
                       <TouchableOpacity
-                        onPress={() => router.push('/attendance/history')}
+                        onPress={() => router.push({
+                          pathname: '/attendance/history',
+                          params: {
+                            meeting: JSON.stringify({
+                              id: meeting.meeting.id,
+                              title: meeting.meeting.title,
+                              subtitle: `${meeting.meeting.type} - ${meeting.meeting.scope_type}`,
+                              type: meeting.meeting.type,
+                              time: dayjs(meeting.date).format('hh:mm A'),
+                              date: dayjs(meeting.meeting.date).format('MM/DD/YY'),
+                              dateObj: dayjs(meeting.meeting.date).toDate(),
+                              location: meeting.meeting.scope_type,
+                              templateId: meeting.meeting.template_id,
+                            })
+                          },
+                        })}
                         className="flex-1 rounded-lg border border-gray-600 px-4 py-3">
                         <Text className="text-center text-sm font-semibold dark:text-white">
                           Details

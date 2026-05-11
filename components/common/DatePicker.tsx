@@ -3,6 +3,7 @@ import { View, TouchableOpacity, Modal, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '../nativewindui/Text';
 import { cn } from '~/lib/cn';
+import dayjs from 'dayjs';
 
 interface DatePickerProps {
   value: string;
@@ -17,10 +18,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   onChange,
   placeholder,
   disabled = false,
-  maximumDate = new Date(),
+  maximumDate = dayjs().toDate(),
 }) => {
   const [showPicker, setShowPicker] = useState(false);
-  const [date, setDate] = useState(value ? new Date(value) : new Date());
+  const [date, setDate] = useState(value ? dayjs(value).toDate() : dayjs().toDate());
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
@@ -29,14 +30,13 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
     if (selectedDate) {
       setDate(selectedDate);
-      onChange(new Date(selectedDate).toString());
+      onChange(dayjs(selectedDate).toISOString());
     }
   };
 
   const formatDisplayDate = (dateString: string) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+    return dayjs(dateString).format('DD/MM/YYYY');
   };
 
   return (

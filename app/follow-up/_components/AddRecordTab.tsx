@@ -12,6 +12,7 @@ import { TimePicker } from '~/components/common/TimePicker';
 import { DurationPicker } from '~/components/common/DurationPicker';
 import Toast from 'react-native-toast-message';
 import { useRouter } from 'expo-router';
+import dayjs from 'dayjs';
 
 interface Record {
   members_taught: Array<{ member_id: string; name: string }>;
@@ -173,7 +174,7 @@ export default function AddRecordTab() {
     }));
     try {
       await createFollowUpMutation.mutateAsync({
-        session_date: new Date(sessionDate).toISOString(),
+        session_date: dayjs(sessionDate).toISOString(),
         start_time: startTime,
         location_area: locationArea,
         participants: teamMembers,

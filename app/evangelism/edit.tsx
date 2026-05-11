@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import dayjs from 'dayjs';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -69,8 +70,7 @@ export default function EditEvangelismReport() {
       const report = reportData.data;
 
       // Format date for DatePicker (YYYY-MM-DD)
-      const date = new Date(report.date);
-      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const formattedDate = dayjs(report.date).format('YYYY-MM-DD');
 
       setSessionDate(formattedDate);
       setStartTime(report.start_time);
@@ -176,7 +176,7 @@ export default function EditEvangelismReport() {
     }
 
     const newRecord: Record = {
-      id: editingRecordIndex !== null ? records[editingRecordIndex].id : `${Date.now()}`,
+      id: editingRecordIndex !== null ? records[editingRecordIndex].id : `${dayjs().valueOf()}`,
       fullName: currentRecord.fullName || '',
       gender: currentRecord.gender || '',
       age: currentRecord.age || '',

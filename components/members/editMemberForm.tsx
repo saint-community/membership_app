@@ -25,6 +25,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet';
 import { useColors } from '~/lib/useColorScheme';
 import { DEPARTMENTS } from '~/utils/constants';
+import dayjs from 'dayjs';
 
 interface EditMemberFormProps {
   memberId: string;
@@ -259,9 +260,9 @@ const EditMemberForm = ({ memberId }: EditMemberFormProps) => {
         cell: member.cell_id?.toString() || '',
         fellowship: member.fellowship_id?.toString() || '',
         department: '', // Not available in API response
-        dateJoined: new Date(member.date_joined_church).toLocaleDateString() || '',
+        dateJoined: member.date_joined_church ? dayjs(member.date_joined_church).format('MM/DD/YYYY') : '',
         address: member.address || '',
-        dateOfBirth: new Date(member.date_of_birth).toLocaleDateString() || '',
+        dateOfBirth: member.date_of_birth ? dayjs(member.date_of_birth).format('MM/DD/YYYY') : '',
         church: member.church_id?.toString() || '',
       };
 

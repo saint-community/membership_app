@@ -16,6 +16,7 @@ import { DropdownSelect } from '~/components/common/DropdownSelect';
 import { useCreateEvangelismReport } from '~/hooks/data/evangelism';
 import Toast from 'react-native-toast-message';
 import type { TeamMemberDto, SoulDto } from '~/services/api/evangelism';
+import dayjs from 'dayjs';
 
 interface Record {
   id: string;
@@ -37,7 +38,7 @@ export default function SubmitReport() {
   const createEvangelismMutation = useCreateEvangelismReport();
 
   // Session data
-  const [sessionDate, setSessionDate] = useState(new Date().toISOString());
+  const [sessionDate, setSessionDate] = useState(dayjs().toISOString());
   const [startTime, setStartTime] = useState('');
   const [locationArea, setLocationArea] = useState('');
   const [details, setDetails] = useState('');
@@ -121,7 +122,7 @@ export default function SubmitReport() {
     }
 
     const newRecord: Record = {
-      id: Date.now().toString(),
+      id: dayjs().valueOf().toString(),
       fullName: currentRecord.fullName || '',
       gender: currentRecord.gender || '',
       age: currentRecord.age || '',

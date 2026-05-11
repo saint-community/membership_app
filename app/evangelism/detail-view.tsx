@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useColors } from '~/lib/useColorScheme';
 import { cn } from '~/lib/cn';
 import { useEvangelismReport } from '~/hooks/data/evangelism';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
 
 type StatusType = 'Saved' | 'Filled' | 'Healed';
 
@@ -14,8 +15,18 @@ export default function DetailView() {
   const router = useRouter();
   const colors = useColors();
   const { reportId, soulIndex } = useLocalSearchParams<{ reportId?: string; soulIndex?: string }>();
-  const { data: reportData, isLoading } = useEvangelismReport(reportId || '');
+  const { data: reportData, isLoading, refetch } = useEvangelismReport(reportId || '');
   const [statuses, setStatuses] = useState<StatusType[]>([]);
+
+  const handleRefresh = useCallback(async () => {
+    if (!reportId) return;
+    await refetch();
+  }, [refetch, reportId]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   // Get the specific soul data
   const soulData = useMemo(() => {
@@ -102,7 +113,16 @@ export default function DetailView() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <View className="px-4 pt-6">
           {isLoading ? (
             <View className="items-center justify-center py-12">

@@ -1,12 +1,12 @@
-import { Alert, Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { Text, Alert, Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-
-import { Text } from '~/components/nativewindui/Text';
 import { useRouter } from 'expo-router';
-import { useColors } from '~/lib/useColorScheme';
-import { useMe } from '~/hooks/data/me';
-import { logoutUser } from '~/services/api/auth';
-import { clearStorage } from '~/utils';
+import { useColors } from '@/lib/useColorScheme';
+import { useMe } from '@/hooks/data/me';
+import { logoutUser } from '@/services/api/auth';
+import { clearStorage } from '@/utils';
+import { Header } from '@/components/Header';
 
 interface ProfileOptionItemProps {
   icon: React.ReactNode;
@@ -20,10 +20,13 @@ function ProfileOptionItem({ icon, title, onPress, showChevron = true }: Profile
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="mb-3 flex-row items-center rounded-lg bg-white px-6 py-4 dark:bg-gray-800">
-      <View className="mr-4">{icon}</View>
-      <Text className="flex-1 text-base font-medium">{title}</Text>
-      {showChevron && <Ionicons name="chevron-forward" size={20} color={colors.foreground} />}
+      activeOpacity={0.6}
+      className="flex-row items-center px-6 py-5 border-b border-border/30">
+      <View className="mr-4 w-10 h-10 items-center justify-center rounded-xl bg-input/20 border border-border/40">
+        {React.cloneElement(icon as React.ReactElement, { size: 18, color: colors.foreground })}
+      </View>
+      <Text className="flex-1 text-base font-inter font-semibold text-foreground">{title}</Text>
+      {showChevron && <Ionicons name="chevron-forward" size={16} color={colors.mutedForeground} />}
     </TouchableOpacity>
   );
 }
@@ -36,74 +39,84 @@ export default function ProfileOption() {
   const logOutAction = () => {
     logoutUser();
     router.replace('/(login)/login');
-    // Optionally, you can clear any user-related state here
     clearStorage();
   };
 
   const logOut = () => {
     Alert.alert('Logout', 'Are you sure you want to logout?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', onPress: logOutAction, style: 'destructive', isPreferred: true },
+      { text: 'Logout', onPress: logOutAction, style: 'destructive' },
     ]);
   };
 
   return (
-    <View className="pt-safe flex-1 bg-background">
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ flexGrow: 1 }}>
-        {/* Header with back button */}
-        <View className="flex-row items-center py-4">
-          <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="chevron-back" size={24} color={colors.foreground} />
-          </TouchableOpacity>
-        </View>
-
+    <View className="flex-1 bg-background">
+      <Header title="Account" />
+      <ScrollView 
+        className="flex-1" 
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 60 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Profile Section */}
         <TouchableOpacity
           onPress={() => router.push('/edit-profile')}
-          className="mb-6 flex-row items-center rounded-lg px-6 py-6">
-          <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-            }}
-            className="mr-4 h-20 w-20 rounded-full bg-gray-300"
-          />
+          activeOpacity={0.7}
+          className="mx-6 my-8 flex-row items-center p-6 rounded-[32px] bg-primary/5 border border-primary/10">
+          <View className="relative">
+            <Image
+              source={{
+                uri: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+              }}
+              className="mr-5 h-20 w-20 rounded-full border-4 border-white shadow-xl"
+            />
+            <View className="absolute bottom-0 right-5 w-6 h-6 bg-primary rounded-full items-center justify-center border-2 border-white">
+              <Ionicons name="camera" size={12} color="white" />
+            </View>
+          </View>
           <View className="flex-1">
-            <Text className="text-lg font-semibold">
+            <Text className="text-xl font-poppins font-bold text-foreground">
               {me?.first_name} {me?.last_name}
             </Text>
-            <Text className="text-sm text-gray-400">{me?.email}</Text>
+            <Text className="text-sm font-inter text-muted-foreground mt-1 opacity-70">{me?.email}</Text>
+            <View className="bg-primary/10 self-start px-3 py-1 rounded-full mt-3">
+              <Text className="text-[10px] font-poppins font-bold text-primary uppercase">Community Member</Text>
+            </View>
           </View>
-          <TouchableOpacity onPress={() => console.log('Profile edit pressed')}>
-            <Ionicons name="chevron-forward" size={20} color={colors.foreground} />
-          </TouchableOpacity>
+          <Ionicons name="chevron-forward" size={20} color={colors.primary} />
         </TouchableOpacity>
 
+        <View className="px-6 mb-2">
+          <Text className="text-xs font-inter font-bold text-muted-foreground uppercase tracking-[2px] opacity-60">Preferences</Text>
+        </View>
+
         {/* Profile Options */}
-        <View className="flex-1 gap-0">
+        <View className="flex-1">
           <ProfileOptionItem
-            icon={<Ionicons name="lock-closed" size={20} color={colors.foreground} />}
+            icon={<Ionicons name="lock-closed-outline" />}
             title="Change Password"
             onPress={() => router.push('/change-password')}
           />
-          {/* Out of Scope for version 1.0 */}
-          {/* <ProfileOptionItem
-            icon={<Ionicons name="notifications" size={20} color={colors.foreground} />}
-            title="Notifications"
-            onPress={() => router.push('/notifications')}
-          /> */}
-
           <ProfileOptionItem
-            icon={<Ionicons name="settings" size={20} color={colors.foreground} />}
+            icon={<Ionicons name="settings-outline" />}
             title="Settings"
             onPress={() => router.push('/settings')}
+          />
+          <ProfileOptionItem
+            icon={<Ionicons name="notifications-outline" />}
+            title="Notifications"
+            onPress={() => router.push('/notifications')}
           />
         </View>
 
         {/* Logout Button */}
-        <View className="mb-8 mt-auto ">
-          <TouchableOpacity onPress={logOut} className="flex-row items-center justify-center py-4">
-            <MaterialIcons name="logout" size={20} color="#EF4444" />
-            <Text className="ml-2 text-base font-medium text-red-500">Logout</Text>
+        <View className="px-6 mt-12 mb-8">
+          <TouchableOpacity 
+            onPress={logOut} 
+            activeOpacity={0.6}
+            className="flex-row items-center justify-center p-4 rounded-2xl bg-destructive/10 border border-destructive/20"
+          >
+            <Ionicons name="log-out-outline" size={20} color={colors.destructive} />
+            <Text className="ml-3 text-base font-poppins font-bold text-destructive">Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

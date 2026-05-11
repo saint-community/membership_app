@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import dayjs from 'dayjs';
 
 interface UsePullToRefreshOptions {
   onRefresh: () => Promise<any>;
@@ -15,14 +16,14 @@ export const usePullToRefresh = ({
     if (isRefreshing) return;
 
     setIsRefreshing(true);
-    const startTime = Date.now();
+    const startTime = dayjs().valueOf();
 
     try {
       await onRefresh();
     } catch (error) {
       console.error('Refresh failed:', error);
     } finally {
-      const elapsedTime = Date.now() - startTime;
+      const elapsedTime = dayjs().valueOf() - startTime;
       const remainingTime = Math.max(0, minimumRefreshDuration - elapsedTime);
 
       // Ensure minimum refresh duration for better UX

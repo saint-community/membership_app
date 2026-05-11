@@ -1,13 +1,15 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from '~/components/nativewindui/Text';
 import TabBar from '~/components/studyGroup/TabBar';
 import AssignmentCardList from '~/components/studyGroup/AssignmentCardList';
 import { AssignmentSubmission, AssignmentUpload } from '~/models/studygroupmodels';
 import { useCurrentWeekStudyGroup, useSubmissions } from '~/hooks/data/study';
-import { TouchableOpacity, useColorScheme, View } from 'react-native';
+import { RefreshControl, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
+import { useColors } from '~/lib/useColorScheme';
 
 export default function Study() {
   const colorScheme = useColorScheme();
@@ -15,14 +17,13 @@ export default function Study() {
   const {
     data: assignments,
     refetch: refetchAssignments,
-    isRefetching: isRefetchingAssignments,
   } = useCurrentWeekStudyGroup();
   const {
     data: submissions,
     refetch: refetchSubmissions,
-    isRefetching: isRefetchingSubmissions,
   } = useSubmissions();
   const router = useRouter();
+  const colors = useColors();
 
   const studyGroup = useMemo(() => (assignments ? [assignments] : []), [assignments]);
 
@@ -34,19 +35,25 @@ export default function Study() {
     console.log('Selected assignment:', selectAssignment);
     router.push({
       pathname: '/(drawer)/studygroup/[assignment]',
-      params: { assignment: encodeURIComponent(JSON.stringify(selectAssignment)) },
+      params: { assignment: selectAssignment.id + "&&" + (tab === 'assignments' ? "true" : "false") },
     });
   };
 
-  const handleRefresh = () => {
-    if (tab === 'assignments') {
-      refetchAssignments();
-    } else {
-      refetchSubmissions();
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      // Keep data fresh when user returns to this screen.
+      if (tab === 'assignments') refetchAssignments();
+      else refetchSubmissions();
+    }, [refetchAssignments, refetchSubmissions, tab])
+  );
 
-  useFocusEffect(handleRefresh);
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: async () => {
+      if (tab === 'assignments') await refetchAssignments();
+      else await refetchSubmissions();
+    },
+    minimumRefreshDuration: 800,
+  });
 
   return (
     <SafeAreaView className="flex-1 items-center px-6">
@@ -64,8 +71,15 @@ export default function Study() {
         data={tab === 'assignments' ? studyGroup : submissions}
         tab={tab}
         onPress={handleOpenAssignment}
-        onRefresh={handleRefresh}
-        refreshing={false} //isRefetchingAssignments || isRefetchingSubmissions}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }
       />
     </SafeAreaView>
   );

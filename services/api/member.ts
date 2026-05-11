@@ -71,16 +71,17 @@ export async function getAllMembers(): Promise<{
   error?: string;
   data?: Member[];
 }> {
-  try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.THIS_MEMBER);
-    return data;
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.response?.data?.message || 'Failed to fetch members',
-      error: error.response?.data?.error || error.message,
-    };
-  }
+  // try {
+  const { data } = await ApiCaller.get(QUERY_PATHS.THIS_MEMBER);
+  return data;
+  // } catch (error: any) {
+  //   console.log(JSON.stringify(error, null, 2));
+  //   return {
+  //     success: false,
+  //     message: error.response?.data?.message || 'Failed to fetch members',
+  //     error: error.response?.data?.error || error.message,
+  //   };
+  // }
 }
 
 // Get current member (logged in user)

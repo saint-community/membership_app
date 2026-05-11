@@ -1,19 +1,32 @@
 import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { View, ScrollView } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 import { Header } from '~/components/Header';
 import { MetricsGrid } from '~/components/MetricsGrid';
 import { QuickActions } from '~/components/QuickActions';
+import { useCallback } from 'react';
 import { useMe } from '~/hooks/data/me';
 import { useGetAllMembers } from '~/hooks/queries/members/useGetAllMembers';
 import { useSubmissionStats } from '~/hooks/queries/submissions/useSubmissionStats';
 import type { MetricData, ActionData } from '~/types/dashboard';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
+import { useColors } from '~/lib/useColorScheme';
 
 export default function Home() {
   const router = useRouter();
-  const { data: me } = useMe();
-  const { data: submissionStats, error } = useSubmissionStats();
-  const { data: membersData } = useGetAllMembers();
+  const colors = useColors();
+  const { data: me, refetch: refetchMe } = useMe();
+  const { data: submissionStats, error, refetch: refetchSubmissionStats } = useSubmissionStats();
+  const { data: membersData, refresh: refreshMembers } = useGetAllMembers();
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refetchMe(), refetchSubmissionStats(), refreshMembers()]);
+  }, [refetchMe, refetchSubmissionStats, refreshMembers]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   // Sample data for metrics
   const metrics: MetricData[] = [
@@ -70,7 +83,16 @@ export default function Home() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.background}
+          />
+        }>
         <Header
           userName={me?.first_name}
           notificationCount={1}

@@ -34,6 +34,7 @@ export interface Meeting {
   code_expires_at: string;
   createdAt?: string;
   updatedAt?: string;
+  template_id?: string;
 }
 
 export interface AttendanceRecord {
@@ -50,6 +51,38 @@ export interface AttendanceRecord {
 export interface AttendanceWorkerStats {
   meetings_attended: number; // Total number of meetings the worker has attended.
   first_timers_invited: number; // Total number of first timers the worker has brought.
+}
+
+export interface MeetingTemplate {
+  id: string;
+  title?: string;
+  type?: string;
+  scope_type?: 'church' | 'fellowship' | 'cell' | 'global';
+  scope_id?: number;
+  [key: string]: unknown;
+}
+
+/** Single meeting item from GET /attendance/template/:id/history */
+export interface TemplateHistoryItem {
+  _id: string;
+  title: string;
+  type: string;
+  scope_type: string;
+  scope_id: number;
+  church_id?: number;
+  fellowship_id?: number;
+  template_id: string;
+  date: string;
+  time: string;
+  is_active?: boolean;
+  attended: boolean;
+}
+
+/** Overview from template history response */
+export interface TemplateHistoryOverview {
+  total_meetings: number;
+  meetings_attended: number;
+  attendance_rate: number;
 }
 
 // Create a new meeting (Admin)
@@ -118,7 +151,7 @@ export async function getAllMeetings(): Promise<{
   data?: Meeting[];
 }> {
   try {
-    const { data } = await ApiCaller.get(QUERY_PATHS.ATTENDANCE_ADMIN_MEETINGS);
+    const { data } = await ApiCaller.get(QUERY_PATHS.ATTENDANCE_UPCOMING_MEETINGS);
     return data;
   } catch (error: any) {
     return {
@@ -143,6 +176,46 @@ export async function getAttendanceWorkerStats(): Promise<{
     return {
       success: false,
       message: error.response?.data?.message || 'Failed to fetch attendance worker stats',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
+// Get meeting templates (worker; uses worker's church_id from JWT)
+export async function getAttendanceTemplates(): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: MeetingTemplate[];
+}> {
+  try {
+    const { data } = await ApiCaller.get(QUERY_PATHS.ATTENDANCE_TEMPLATES);
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch meeting templates',
+      error: error.response?.data?.error || error.message,
+    };
+  }
+}
+
+// Get meeting history for a template (worker; uses worker's church_id from JWT)
+export async function getTemplateHistory(templateId: string): Promise<{
+  success: boolean;
+  message: string;
+  error?: string;
+  data?: TemplateHistoryItem[];
+  overview?: TemplateHistoryOverview;
+}> {
+  try {
+    const path = QUERY_PATHS.ATTENDANCE_TEMPLATE_HISTORY.replace(':id', templateId);
+    const { data } = await ApiCaller.get(path);
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Failed to fetch template meeting history',
       error: error.response?.data?.error || error.message,
     };
   }

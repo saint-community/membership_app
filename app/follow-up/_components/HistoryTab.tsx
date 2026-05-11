@@ -1,38 +1,38 @@
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { RefreshControl, View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '~/components/nativewindui/Text';
 import { cn } from '~/lib/cn';
 import { useFollowUpWorkerHistory } from '~/hooks/data/followUp';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import dayjs from 'dayjs';
+import { usePullToRefresh } from '~/hooks/common/usePullToRefresh';
+import { useColors } from '~/lib/useColorScheme';
 
 
 
 export default function HistoryTab() {
   const router = useRouter();
-  const { data: historyData, isLoading } = useFollowUpWorkerHistory();
+  const colors = useColors();
+  const { data: historyData, isLoading, refetch } = useFollowUpWorkerHistory();
 
   console.log('historyData', JSON.stringify(historyData, null, 2));
 
   const reports = useMemo(() => {
     if (!historyData?.data) return [];
 
+    console.log('historyData.data', JSON.stringify(historyData.data, null, 2));
+
     return historyData.data.flatMap((record) => {
-      const sessionDate = new Date(record.date);
-      const formattedDate = sessionDate.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      const formattedDate = dayjs(record.date).format('dddd, MMMM D, YYYY');
 
       const totalDuration = record.records.reduce((sum, r) => sum + r.duration_minutes, 0);
 
-      return record.records.map((r, index) => {
-        const memberNames = r.members_taught.map((m) => m.name).join(', ');
+      return record?.records?.map((r, index) => {
+        const memberNames = r.members_taught?.map((m) => m.name).join(', ');
         return {
           id: record._id,
           name: memberNames,
-          reportTitle: r.topic,
+          reportTitle: r.subject,
           session_summary: record.session_summary,
           duration: `${r.duration_minutes} minutes`,
           date: formattedDate,
@@ -43,6 +43,15 @@ export default function HistoryTab() {
       });
     });
   }, [historyData]);
+
+  const handleRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
+  const { isRefreshing, onRefresh } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    minimumRefreshDuration: 800,
+  });
 
   if (isLoading) {
     return (
@@ -64,11 +73,20 @@ export default function HistoryTab() {
     <ScrollView
       className="flex-1"
       contentContainerStyle={{ paddingBottom: 100 }}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.primary}
+          colors={[colors.primary]}
+          progressBackgroundColor={colors.background}
+        />
+      }>
       <View className="px-4 pt-4">
         {/* Report Cards */}
         <View className="gap-4">
-          {reports.map((report) => (
+          {reports?.map((report) => (
             <TouchableOpacity
               key={report.id}
               onPress={() =>

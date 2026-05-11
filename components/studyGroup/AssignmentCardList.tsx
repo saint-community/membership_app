@@ -1,4 +1,5 @@
-import { FlatList, View } from 'react-native';
+import type { ReactElement } from 'react';
+import { FlatList, RefreshControl, View } from 'react-native';
 import AssignmentCard from './AssignmentCard';
 import { AssignmentUpload, AssignmentSubmission } from '~/models/studygroupmodels';
 
@@ -6,18 +7,15 @@ type AssignmentCardProps = {
   data: AssignmentUpload[] | AssignmentSubmission[];
   tab: 'assignments' | 'submissions';
   onPress: (item: AssignmentUpload | AssignmentSubmission) => void;
-  onRefresh?: () => void;
-  refreshing?: boolean;
+  refreshControl?: ReactElement<typeof RefreshControl>;
 };
 
 export default function AssignmentCardList({
   data,
   tab,
   onPress,
-  onRefresh,
-  refreshing,
+  refreshControl,
 }: AssignmentCardProps) {
-  console.log('data', data);
   return (
     <View className="w-full flex-1">
       <FlatList<AssignmentUpload | AssignmentSubmission>
@@ -26,8 +24,7 @@ export default function AssignmentCardList({
         renderItem={({ item }) => (
           <AssignmentCard item={item} tab={tab} onPress={() => onPress(item)} />
         )}
-        onRefresh={onRefresh}
-        refreshing={refreshing}
+        refreshControl={refreshControl}
       />
     </View>
   );
