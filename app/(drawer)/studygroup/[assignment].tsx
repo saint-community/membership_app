@@ -333,7 +333,6 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
     deleteMutation.mutate();
   };
 
-  console.log('submission', JSON.stringify(assignment, null, 2));
 
 
   return (
@@ -358,14 +357,21 @@ const SubmissionView = ({ assignment }: { assignment: any }) => {
           </Text>
         </TouchableOpacity>
 
-        <View className="my-3">
+        {assignment.note && <View className="my-3">
           <Text className="mb-2 text-lg font-medium">Note:</Text>
           <Text className="text-base">{assignment.note}</Text>
         </View>
+        }
 
         <View>
-          <Text className="text-md mb-2">Status: {assignment.status} </Text>
-          <Text className="text-md mb-2 text-[#959595]">
+          <Text className="text-md mb-2 capitalize">Status: {assignment.status}{assignment?.score ? `, ${assignment?.score}%` : ''} </Text>
+          {assignment.feedback && <View className="my-3">
+            <Text className="mb-2 text-md font-medium">Feedback:</Text>
+            <Text className="text-base">{assignment.feedback}</Text>
+          </View>
+          }
+
+          <Text className="text-md mb-2 my-3 text-[#959595]">
             Submitted {assignment?.is_late ? 'Late' : ''}:{' '}
             {dayjs(assignment.submitted_at).format('DD MMM, YYYY hh:mmA')}
           </Text>

@@ -1,13 +1,14 @@
 import { Controller, useForm } from 'react-hook-form';
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View , Text } from 'react-native';
-import { Input, Button } from 'heroui-native';
+import { TextInput, TouchableOpacity, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { STORAGE_KEYS } from '~/utils/constants';
 import { getObjectData } from '~/utils';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useColors } from '@/lib/useColorScheme';
+import { useColors } from '~/lib/useColorScheme';
+import { cn } from '~/lib/cn';
+import { Button } from '~/components/Button';
 
 // Zod schema for form validation
 const changePasswordSchema = z
@@ -60,6 +61,12 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
     setShowPassword(!showPassword);
   };
 
+  const inputBorder = (hasError: boolean) =>
+    cn(
+      'flex-row items-center rounded-xl border bg-transparent px-4',
+      hasError ? 'border-red-500' : 'border-[#8A8A8A] dark:border-gray-600'
+    );
+
   return (
     <View className="space-y-6 gap-y-6">
       <View className="bg-primary/5 p-5 rounded-2xl border border-primary/10 mb-2">
@@ -73,51 +80,57 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
       </View>
 
       <View>
+        <Text className="mb-2 text-sm font-medium text-foreground">OTP Code</Text>
         <Controller
           control={control}
           name="otp"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              label="OTP Code"
+            <TextInput
+              className={cn(
+                'h-14 w-full rounded-xl border bg-transparent px-4 py-3 text-base font-poppins font-bold tracking-[8px] text-foreground dark:text-white',
+                errors.otp ? 'border-red-500' : 'border-[#8A8A8A] dark:border-gray-600'
+              )}
               placeholder="Enter 6-digit code"
+              placeholderTextColor="#666"
               value={value}
               onChangeText={onChange}
+              onBlur={onBlur}
               keyboardType="number-pad"
               maxLength={6}
-              variant="bordered"
-              color={errors.otp ? 'danger' : 'primary'}
-              style={{ borderRadius: 14 }}
-              className="font-poppins font-bold text-lg tracking-[8px]"
             />
           )}
         />
-        {errors.otp && <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.otp.message}</Text>}
+        {errors.otp && (
+          <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.otp.message}</Text>
+        )}
       </View>
 
       <View>
+        <Text className="mb-2 text-sm font-medium text-foreground">New Password</Text>
         <Controller
           control={control}
           name="password"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              label="New Password"
-              placeholder="Set new password"
-              value={value}
-              onChangeText={onChange}
-              variant="bordered"
-              color={errors.password ? 'danger' : 'primary'}
-              secureTextEntry={!showPassword}
-              style={{ borderRadius: 14 }}
-              endContent={
-                <TouchableOpacity onPress={togglePasswordVisibility} className="px-2">
-                  <Ionicons 
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
-                    size={20} 
-                    color={colors.mutedForeground} 
-                  />
-                </TouchableOpacity>
-              }
-            />
+            <View className={inputBorder(!!errors.password)}>
+              <TextInput
+                className="flex-1 py-3 text-base text-foreground dark:text-white"
+                placeholder="Set new password"
+                placeholderTextColor="#666"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={colors.grey ?? '#9CA3AF'}
+                />
+              </TouchableOpacity>
+            </View>
           )}
         />
         {errors.password && (
@@ -126,47 +139,47 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ onSubmit, isLoa
       </View>
 
       <View>
+        <Text className="mb-2 text-sm font-medium text-foreground">Confirm New Password</Text>
         <Controller
           control={control}
           name="password_confirmation"
           render={({ field: { onChange, onBlur, value } }) => (
-            <Input
-              label="Confirm New Password"
-              placeholder="Confirm new password"
-              value={value}
-              onChangeText={onChange}
-              variant="bordered"
-              color={errors.password_confirmation ? 'danger' : 'primary'}
-              secureTextEntry={!showPassword}
-              style={{ borderRadius: 14 }}
-              endContent={
-                <TouchableOpacity onPress={togglePasswordVisibility} className="px-2">
-                  <Ionicons 
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'} 
-                    size={20} 
-                    color={colors.mutedForeground} 
-                  />
-                </TouchableOpacity>
-              }
-            />
+            <View className={inputBorder(!!errors.password_confirmation)}>
+              <TextInput
+                className="flex-1 py-3 text-base text-foreground dark:text-white"
+                placeholder="Confirm new password"
+                placeholderTextColor="#666"
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                secureTextEntry={!showPassword}
+              />
+              <TouchableOpacity
+                onPress={togglePasswordVisibility}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Ionicons
+                  name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={colors.grey ?? '#9CA3AF'}
+                />
+              </TouchableOpacity>
+            </View>
           )}
         />
         {errors.password_confirmation && (
-          <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">{errors.password_confirmation.message}</Text>
+          <Text className="mt-1.5 ml-1 text-xs font-inter text-destructive font-medium">
+            {errors.password_confirmation.message}
+          </Text>
         )}
       </View>
 
       <Button
-        className={`mt-6 shadow-xl ${isValid && !isLoading ? 'shadow-primary/30' : ''}`}
-        color="primary"
-        size="lg"
-        isLoading={isLoading}
+        className="mt-6 rounded-2xl"
+        title="Set New Password"
         onPress={handleSubmit(onSubmit)}
-        disabled={!isValid}
-        style={{ borderRadius: 16, height: 56 }}
-      >
-        Set New Password
-      </Button>
+        disabled={!isValid || isLoading}
+        isLoading={isLoading}
+      />
     </View>
   );
 };

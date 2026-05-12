@@ -18,7 +18,7 @@ export default function DashboardTab({ onNavigateToHistory }: DashboardTabProps)
   const { data: statsData, isLoading: isLoadingStats, refetch: refetchStats } = useFollowUpWorkerStats();
   const { data: historyData, refetch: refetchHistory } = useFollowUpWorkerHistory();
 
-  console.log('historyData', JSON.stringify(historyData, null, 2));
+  // console.log('historyData', JSON.stringify(statsData, null, 2));
 
   const metrics = useMemo(() => {
     const stats = statsData?.data;
