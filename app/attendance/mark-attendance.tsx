@@ -27,7 +27,6 @@ export default function MarkAttendance() {
   const { data } = useGetAllMembers();
   const colors = useColors();
 
-  console.log(JSON.stringify(result, null, 2));
   const [firstTimers, setFirstTimers] = useState<
     Array<{ name: string; phone: string; email: string }>
   >([]);
@@ -73,11 +72,14 @@ export default function MarkAttendance() {
       email: ft.email || '',
     }));
 
+
+
     markAttendanceMutation.mutate(
       {
         attendance_code: code,
         first_timers_count: firstTimers.length,
         first_timers_details: firstTimersDetails,
+        participants: selectedIds,
       },
       {
         onSuccess: (response) => {

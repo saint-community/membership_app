@@ -11,6 +11,7 @@ export interface MarkAttendanceDto {
   attendance_code: string;
   first_timers_count: number;
   first_timers_details: FirstTimerDto[];
+  participants: string[];
 }
 
 export interface CreateMeetingDto {
